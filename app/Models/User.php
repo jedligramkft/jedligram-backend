@@ -8,11 +8,13 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
+// use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * Class User
- * 
+ *
  * @property int $id
  * @property string $name
  * @property string $email
@@ -21,19 +23,21 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * 
+ *
  * @property Collection|Post[] $posts
  * @property Collection|Thread[] $threads
  * @property Collection|Vote[] $votes
  *
  * @package App\Models
  */
-class User extends Model
+class User extends Authenticatable
 {
+    use HasApiTokens;
 	protected $table = 'users';
 
 	protected $casts = [
-		'email_verified_at' => 'datetime'
+		'email_verified_at' => 'datetime',
+        'password' => 'hashed'
 	];
 
 	protected $hidden = [

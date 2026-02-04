@@ -12,9 +12,17 @@ use App\Http\Controllers\VoteController;
 //     return $request->user();
 // })->middleware('auth:sanctum'));
 
-Route::apiResource('users', UserController::class);
+
+// Route::apiResource('users', UserController::class);
+Route::post('register', [UserController::class, 'register']);
+Route::post('login', [UserController::class, 'login']);
+Route::post('logout', [UserController::class, 'logout']);
 Route::apiResource('posts', PostController::class);
 Route::apiResource('threads', ThreadController::class);
 Route::apiResource('roles', RoleController::class);
 Route::apiResource('votes', VoteController::class);
 
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::post('/logout', [UserController::class, 'logout']);
+    // Add other protected routes here
+});
