@@ -10,16 +10,17 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Scout\Searchable;
 
 /**
  * Class Thread
- * 
+ *
  * @property int $id
  * @property string $name
  * @property string|null $description
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * 
+ *
  * @property Collection|Post[] $posts
  * @property Collection|User[] $users
  *
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Thread extends Model
 {
 	use HasFactory;
+  use Searchable;
 	protected $table = 'threads';
 
 	protected $fillable = [
@@ -39,6 +41,15 @@ class Thread extends Model
 	{
 		return $this->hasMany(Post::class);
 	}
+
+    public function toSearchableArray()
+    {
+        return [
+            // 'id' => $this->id,
+            'name' => $this->name,
+            'description' => $this->description,
+        ];
+    }
 
 	public function users()
 	{

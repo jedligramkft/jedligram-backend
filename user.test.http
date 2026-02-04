@@ -32,3 +32,33 @@ POST {{baseUrl}}/logout
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+
+###
+GET {{baseUrl}}/threads
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+###
+
+POST {{baseUrl}}/threads
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+{
+    "name": "Old Thread Title",
+    "description": "This is the content of the new thread."
+}
+
+###
+
+GET {{baseUrl}}/threads/search?search=jj
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+###
+GET {{baseUrl}}/threads/1
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
