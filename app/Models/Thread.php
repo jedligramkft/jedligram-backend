@@ -9,6 +9,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Scout\Searchable;
 
 /**
@@ -27,8 +28,8 @@ use Laravel\Scout\Searchable;
  */
 class Thread extends Model
 {
-    use Searchable;
-
+	use HasFactory;
+  use Searchable;
 	protected $table = 'threads';
 
 	protected $fillable = [

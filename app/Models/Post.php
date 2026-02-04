@@ -9,6 +9,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Post
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Post extends Model
 {
+	use HasFactory;
 	protected $table = 'posts';
 
 	protected $casts = [
