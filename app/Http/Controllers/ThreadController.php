@@ -68,11 +68,6 @@ class ThreadController extends Controller
         return response()->json($thread->posts, 200);
     }
 
-    // idk if it should be here or in the post controller, will implement it later
-    // public function createPost(CreatePostRequest $request, Thread $thread){
-
-    // }
-
     /**
      * Update the specified resource in storage.
      */
