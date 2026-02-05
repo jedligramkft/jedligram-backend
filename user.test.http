@@ -62,3 +62,8 @@ GET {{baseUrl}}/threads/1
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
+###
+
+POST {{baseUrl}}/threads/1/join
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}

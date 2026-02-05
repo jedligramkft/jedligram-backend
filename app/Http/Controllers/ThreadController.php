@@ -22,6 +22,7 @@ class ThreadController extends Controller
     public function store(StoreThreadRequest $request)
     {
         $thread = Thread::create($request->validated());
+        $thread->users()->attach([$request->user()->id, ['role_id' => 1]]);
         return response()->json($thread, 201);
     }
 
@@ -46,7 +47,13 @@ class ThreadController extends Controller
      * Display the specified resource.
      */
     public function show(Thread $thread){
-        return response()->json($thread);
+        return response()->json($thread, 200);
+    }
+
+    public function join(Request $request, Thread $thread, $roleId){
+
+        $thread->users()->syncWithoutDetaching([$request->user()->id, ['role_id' => 3]]);
+        return response()->json(['message' => 'You joined the thread'], 200);
     }
 
     /**

@@ -23,6 +23,8 @@ Route::apiResource('votes', VoteController::class);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/logout', [UserController::class, 'logout']);
+
+    Route::post('threads/{id}/join', [ThreadController::class, 'join']);
     Route::get('threads/search', [ThreadController::class, 'search']);
     Route::apiResource('threads', ThreadController::class);
 
