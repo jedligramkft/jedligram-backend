@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Thread;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreThreadRequest;
+use App\Http\Requests\CreatePostRequest;
 
 class ThreadController extends Controller
 {
@@ -22,6 +23,7 @@ class ThreadController extends Controller
     public function store(StoreThreadRequest $request)
     {
         $thread = Thread::create($request->validated());
+        $thread->users()->attach($request->user()->id, ['role_id' => 1]);
         return response()->json($thread, 201);
     }
 
@@ -46,8 +48,30 @@ class ThreadController extends Controller
      * Display the specified resource.
      */
     public function show(Thread $thread){
-        return response()->json($thread);
+        return response()->json($thread, 200);
     }
+
+    public function join(Request $request, Thread $thread){
+
+        $thread->users()->syncWithoutDetaching([$request->user()->id, ['role_id' => 3]]);
+        return response()->json(['message' => 'You joined the thread'], 200);
+    }
+
+    public function leave(Request $request, Thread $thread)
+    {
+        $thread->users()->detach($request->user()->id);
+        return response()->json(['message' => 'You left the thread'], 200);
+    }
+
+    public function postsOfThread(Thread $thread)
+    {
+        return response()->json($thread->posts, 200);
+    }
+
+    // idk if it should be here or in the post controller, will implement it later
+    // public function createPost(CreatePostRequest $request, Thread $thread){
+
+    // }
 
     /**
      * Update the specified resource in storage.
