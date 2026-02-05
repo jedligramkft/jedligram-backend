@@ -23,8 +23,8 @@ class CreatePostRequest extends FormRequest
     {
         return [
             'content' => 'required|string',
-            'thread_id' => 'required|exists:threads,id',
-            'user_id' => 'required|exists:users,id'
+            // 'thread_id' => 'required|exists:threads,id',
+            // 'user_id' => 'required|exists:users,id'
         ];
     }
 }

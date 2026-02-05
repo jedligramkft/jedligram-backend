@@ -53,7 +53,7 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 ###
 
-GET {{baseUrl}}/threads/search?search=jj
+GET {{baseUrl}}/threads/search?search=old
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
@@ -77,5 +77,30 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
 ###
 
 GET {{baseUrl}}/threads/1/posts
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+###
+
+POST {{baseUrl}}/threads/1/post
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+{
+    "content": "pisztiposzti"
+}
+
+###
+
+GET  {{baseUrl}}/posts
+Content-Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+###
+
+GET  {{baseUrl}}/posts/11
+Content-Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}

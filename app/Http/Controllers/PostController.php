@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\Thread;
 use Illuminate\Http\Request;
+use App\Http\Requests\CreatePostRequest;
 
 class PostController extends Controller
 {
@@ -12,15 +14,22 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
+        return Post::all();
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CreatePostRequest $request, $t_id)
     {
-        //
+        $thread = Thread::findOrFail($t_id);
+        $data = $request->validated();
+
+        $data['user_id'] = $request->user()->id;
+        $data['thread_id'] = $thread->id;
+        $post = Post::create($data);
+
+        return response()->json($post, 201);
     }
 
     /**
@@ -28,7 +37,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        //
+        return response()->json($post, 200);
     }
 
     /**
