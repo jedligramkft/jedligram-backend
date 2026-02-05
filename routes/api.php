@@ -24,7 +24,9 @@ Route::apiResource('votes', VoteController::class);
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/logout', [UserController::class, 'logout']);
 
-    Route::post('threads/{id}/join', [ThreadController::class, 'join']);
+    Route::post('threads/{thread}/join', [ThreadController::class, 'join']);
+    Route::delete('threads/{thread}/leave', [ThreadController::class, 'leave']);
+    Route::get('threads/{thread}/posts', [ThreadController::class, 'postsofThread']);   
     Route::get('threads/search', [ThreadController::class, 'search']);
     Route::apiResource('threads', ThreadController::class);
 

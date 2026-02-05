@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('thread_id')->constrained("threads");
             $table->foreignId('user_id')->constrained("users");
-            $table->foreignId('role_id')->constrained("roles")->default(3);
+            $table->foreignId('role_id')->default(3);
+            $table->foreign('role_id')->references('id')->on('roles');
             $table->timestamps();
         });
     }

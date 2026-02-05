@@ -47,7 +47,7 @@ Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 {
-    "name": "Old Thread Title",
+    "name": "Old Thread Title 3",
     "description": "This is the content of the new thread."
 }
 
@@ -65,5 +65,17 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
 ###
 
 POST {{baseUrl}}/threads/1/join
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+###
+
+DELETE {{baseUrl}}/threads/1/leave
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+###
+
+GET {{baseUrl}}/threads/1/posts
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
