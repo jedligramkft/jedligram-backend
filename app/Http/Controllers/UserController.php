@@ -6,7 +6,7 @@ use App\Http\Requests\RegisterUserRequest;
 use App\Http\Requests\LoginUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -33,7 +33,7 @@ class UserController extends Controller
 
         $user = User::where('email', $credentials['email'])->first();
 
-        if(!$user || !\Hash::check($credentials['password'], $user->password)) {
+        if(!$user || !Hash::check($credentials['password'], $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
