@@ -55,12 +55,23 @@ class UserController extends Controller
         return response()->json(['message' => 'Logged out successfully']);
     }
 
+    public function search(Request $request){
+        if($request->filled('search')) {
+            $users = User::search($request->input('search'))->get();
+            if($users->isEmpty()) {
+                return response()->json(User::all());
+            }
+            return response()->json($users);
+        }
+        return response()->json(User::all());
+    }
+
     /**
      * Display the specified resource.
      */
     public function show(User $user)
     {
-        //
+        return response()->json($user, 200);
     }
 
     /**

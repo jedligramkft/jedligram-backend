@@ -104,3 +104,15 @@ GET  {{baseUrl}}/posts/11
 Content-Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+###
+
+GET {{baseUrl}}/users/search?search=Ho
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+###
+
+GET {{baseUrl}}/users/3
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
