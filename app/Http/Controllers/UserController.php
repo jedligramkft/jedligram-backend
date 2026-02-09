@@ -24,6 +24,9 @@ class UserController extends Controller
     public function register(RegisterUserRequest $request)
     {
         $user = User::create($request->validated());
+
+        EmailController::sendWelcomeEmail($user);
+        
         return response()->json($user, 201);
     }
 

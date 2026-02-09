@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Mail;
 
 class EmailController extends Controller
 {
-    public function sendWelcomeEmail(User $targetUser)
+    public static function sendWelcomeEmail(User $targetUser)
     {
         Mail::to($targetUser)->send(new WelcomeMail($targetUser));
         return response()->json(['message' => 'Welcome email sent to '. $targetUser->email . "!"]);
