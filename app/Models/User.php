@@ -71,7 +71,7 @@ class User extends Authenticatable
 
 	public function threads()
 	{
-		return $this->belongsToMany(Thread::class)
+		return $this->belongsToMany(Thread::class, 'thread_user')
 					->withPivot('id', 'role_id')
 					->withTimestamps();
 	}
