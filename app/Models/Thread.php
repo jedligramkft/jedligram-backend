@@ -53,7 +53,7 @@ class Thread extends Model
 
 	public function users()
 	{
-		return $this->belongsToMany(User::class)
+		return $this->belongsToMany(User::class, 'thread_user')
 					->withPivot('id', 'role_id')
 					->withTimestamps();
 	}

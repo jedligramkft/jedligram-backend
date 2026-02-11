@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterUserRequest;
 use App\Http\Requests\LoginUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 
 class UserController extends Controller
@@ -55,20 +57,38 @@ class UserController extends Controller
         return response()->json(['message' => 'Logged out successfully']);
     }
 
+    public function search(Request $request){
+        if($request->filled('search')) {
+            $users = User::search($request->input('search'))->get();
+            if($users->isEmpty()) {
+                return response()->json(User::all());
+            }
+            return response()->json($users);
+        }
+        return response()->json(User::all());
+    }
+
     /**
      * Display the specified resource.
      */
     public function show(User $user)
     {
-        //
+        return response()->json($user, 200);
+    }
+
+    public function postOfUser(User $user)
+    {
+        return response()->json($user->threads, 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        //
+        // auth is now handled in the request's auth method
+        $user->update($request->validated());
+        return response()->json($user, 200);
     }
 
     /**
