@@ -86,6 +86,7 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
+        User::findOrFail($user->id);
         // auth is now handled in the request's auth method
         $user->update($request->validated());
         return response()->json($user, 200);

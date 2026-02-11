@@ -20,9 +20,9 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(CreatePostRequest $request, $t_id)
+    public function store(CreatePostRequest $request, Thread $thread)
     {
-        $thread = Thread::findOrFail($t_id);
+        $thread = Thread::findOrFail($thread->id);
         $data = $request->validated();
 
         $data['user_id'] = $request->user()->id;
