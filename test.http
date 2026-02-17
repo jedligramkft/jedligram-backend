@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://127.0.0.1:8000/api
-@email = test@example.com
+@email = test2@example.com
 @password = password123
 
 ### 1. Register a new user
@@ -104,3 +104,14 @@ GET  {{baseUrl}}/posts/11
 Content-Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+###
+
+POST {{baseUrl}}/verify-email
+Content-Type: application/json
+Accept: application/json
+
+{
+    "email": "{{email}}",
+    "verification_code": "e0dc463562c6b127dde3ff4377cc18cd" 
+}
