@@ -135,3 +135,16 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
 }
 
 # TODO: prettier error message when trying to update a nonexistent user
+
+###
+
+POST {{baseUrl}}/posts/1/vote
+Content-Type: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+Accept: application/json
+
+{
+    "is_upvote": true
+}
+
+
