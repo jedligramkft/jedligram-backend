@@ -6,6 +6,7 @@ use App\Models\Thread;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreThreadRequest;
 use App\Http\Requests\CreatePostRequest;
+use Illuminate\Support\Facades\Gate;
 
 class ThreadController extends Controller
 {
@@ -52,13 +53,18 @@ class ThreadController extends Controller
     }
 
     public function join(Request $request, Thread $thread){
-
+        if($thread->users->contains($request->user())){
+            return response()->json(['message' => 'You are already a member of this thread'], 409);
+        }
         $thread->users()->syncWithoutDetaching([$request->user()->id, ['role_id' => 3]]);
         return response()->json(['message' => 'You joined the thread'], 200);
     }
 
     public function leave(Request $request, Thread $thread)
     {
+        if(!$thread->users->contains($request->user())){
+            return response()->json(['message' => 'You are not a member of this thread'], 422);
+        }
         $thread->users()->detach($request->user()->id);
         return response()->json(['message' => 'You left the thread'], 200);
     }

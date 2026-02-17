@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use App\Policies\UserPolicy;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -15,7 +16,7 @@ class UpdateUserRequest extends FormRequest
         //policy now checks here
         $user = $this->route('user');
 
-        return $this->user()->id === $user->id;
+        return $this->user()->can('update', $user);
     }
 
     /**

@@ -23,7 +23,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('threads/{thread}/posts', [ThreadController::class, 'postsofThread']);
     Route::get('threads/search', [ThreadController::class, 'search']);
     Route::apiResource('threads', ThreadController::class);
-    Route::post('threads/{id}/post', [PostController::class, 'store']);
+    Route::post('threads/{thread}/post', [PostController::class, 'store']);
     Route::apiResource('posts', PostController::class);
     Route::get('users/search', [UserController::class, 'search']);
     Route::put('users/{user}', [UserController::class, 'update']);
