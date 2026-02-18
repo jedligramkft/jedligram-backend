@@ -7,6 +7,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\VoteController;
+use App\Http\Controllers\LdapTestController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -32,11 +33,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 });
 
 
-    Route::post('register', [UserController::class, 'register']);
-    Route::post('login', [UserController::class, 'login']);
-    Route::post('logout', [UserController::class, 'logout']);
-    Route::get('users/{user}/threads', [UserController::class, 'postOfUser']);
-    Route::get('users/{user}', [UserController::class, 'show']);
-    // Route::apiResource('users', UserController::class);
-    Route::apiResource('roles', RoleController::class);
-    Route::apiResource('votes', VoteController::class);
+Route::post('register', [UserController::class, 'register']);
+Route::post('login', [UserController::class, 'login']);
+
+    Route::get('ldap/test', [LdapTestController::class, 'test']);
+
+Route::post('logout', [UserController::class, 'logout']);
+Route::get('users/{user}/threads', [UserController::class, 'postOfUser']);
+Route::get('users/{user}', [UserController::class, 'show']);
+// Route::apiResource('users', UserController::class);
+Route::apiResource('roles', RoleController::class);
+Route::apiResource('votes', VoteController::class);
