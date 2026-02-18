@@ -9,19 +9,20 @@ use App\Models\Post;
 
 class VoteController extends Controller
 {
-    public function vote(VoteRequest $request, Post $post){
+    public function vote(VoteRequest $request, Post $post)
+    {
         $validated = $request->validated();
         $userId = $request->user()->id;
 
         $existingVote = Vote::where('post_id', $post->id)->where('user_id', $userId)->first();
-        if($existingVote && $existingVote->is_upvote == $request->is_upvote){
+        if ($existingVote && $existingVote->is_upvote === $validated['is_upvote']) {
             $existingVote->delete();
             return response()->noContent();
         }
 
         $vote = Vote::updateOrCreate(
             ['post_id' => $post->id, 'user_id' => $userId],
-            ['is_upvote' => $request->is_upvote]
+            ['is_upvote' => $validated['is_upvote']]
         );
 
         return response()->json($vote, 201);

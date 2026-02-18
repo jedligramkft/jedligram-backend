@@ -67,16 +67,25 @@ class Post extends Model
         return $this->hasOne(Vote::class)->where('user_id', Auth::id());
     }
 
+    public function upvotes()
+    {
+        return $this->votes()->where('is_upvote', true);
+    }
+
+    public function downvotes()
+    {
+        return $this->votes()->where('is_upvote', false);
+    }
+
     protected function score(): Attribute
     {
         return Attribute::make(
             get: function () {
-                $up = $this->votes()->where('is_upvote', true)->count();
-                $down = $this->votes()->where('is_upvote', false)->count();
-                if ($up !== null && $down !== null) {
-                    return $up - $down;
+                
+                if (array_key_exists('upvotes_count', $this->attributes) && array_key_exists('downvotes_count', $this->attributes)) {
+                    return $this->attributes['upvotes_count'] - $this->attributes['downvotes_count'];
                 }
-                return 0;
+                return $this->upvotes()->count() - $this->downvotes()->count();
             }
         );
     }

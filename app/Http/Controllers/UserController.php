@@ -8,6 +8,8 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
+
 
 
 class UserController extends Controller
@@ -35,7 +37,7 @@ class UserController extends Controller
 
         $user = User::where('email', $credentials['email'])->first();
 
-        if(!$user || !\Hash::check($credentials['password'], $user->password)) {
+        if(!$user || !Hash::check($credentials['password'], $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
@@ -52,7 +54,11 @@ class UserController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
+        if(!$user) {
+            return response()->json(['message' => 'User not authenticated'], 401);
+        }
+        $user->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Logged out successfully']);
     }

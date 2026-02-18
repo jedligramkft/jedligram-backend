@@ -28,20 +28,20 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('users/search', [UserController::class, 'search']);
     Route::put('users/{user}', [UserController::class, 'update']);
     Route::post('posts/{post}/vote', [VoteController::class, 'vote']);
+    Route::post('logout', [UserController::class, 'logout']);
 
     // Add other protected routes here
-    });
+});
 
 
-   
-    Route::post('register', [UserController::class, 'register']);
-    Route::post('login', [UserController::class, 'login']);
-    Route::post('logout', [UserController::class, 'logout']);
-    Route::get('users/{user}/threads', [UserController::class, 'postOfUser']);
-    Route::get('users/{user}', [UserController::class, 'show']);
-    // Route::apiResource('users', UserController::class);
-    Route::apiResource('roles', RoleController::class);
-    Route::apiResource('votes', VoteController::class);
+
+Route::post('register', [UserController::class, 'register']);
+Route::post('login', [UserController::class, 'login']);
+Route::get('users/{user}/threads', [UserController::class, 'postOfUser']);
+Route::get('users/{user}', [UserController::class, 'show']);
+// Route::apiResource('users', UserController::class);
+Route::apiResource('roles', RoleController::class);
+Route::apiResource('votes', VoteController::class);
 
 
     // do not forget to create the route for getting the vote sum of posts

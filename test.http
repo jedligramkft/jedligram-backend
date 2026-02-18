@@ -144,7 +144,7 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
 Accept: application/json
 
 {
-    "is_upvote": true
+    "is_upvote": false
 }
 
 
