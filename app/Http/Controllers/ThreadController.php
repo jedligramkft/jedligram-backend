@@ -71,7 +71,8 @@ class ThreadController extends Controller
 
     public function postsOfThread(Thread $thread)
     {
-        return response()->json($thread->posts, 200);
+        $posts = $thread->posts()->withCount(['upvotes', 'downvotes'])->get();
+        return response()->json($posts, 200);
     }
 
     /**
