@@ -15,7 +15,6 @@ class ThreadController extends Controller
      */
     public function index(Request $request)
     {
-        // return Thread::all();
         if ($request->filled('search')) {
             $threads = Thread::search($request->input('search'))->get();
             if ($threads->isEmpty()) {
