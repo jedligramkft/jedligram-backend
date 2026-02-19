@@ -8,16 +8,7 @@ use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\VoteController;
 
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum'));
-
-
-// Route::apiResource('users', UserController::class);
-
 Route::group(['middleware' => ['auth:sanctum']], function () {
-    Route::post('/logout', [UserController::class, 'logout']);
-
     Route::post('threads/{thread}/join', [ThreadController::class, 'join']);
     Route::delete('threads/{thread}/leave', [ThreadController::class, 'leave']);
     Route::get('threads/{thread}/posts', [ThreadController::class, 'postsofThread']);
@@ -25,23 +16,15 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('threads', ThreadController::class);
     Route::post('threads/{thread}/post', [PostController::class, 'store']);
     Route::apiResource('posts', PostController::class);
-    Route::get('users/search', [UserController::class, 'search']);
     Route::put('users/{user}', [UserController::class, 'update']);
     Route::post('posts/{post}/vote', [VoteController::class, 'vote']);
     Route::post('logout', [UserController::class, 'logout']);
-
-    // Add other protected routes here
 });
-
-
 
 Route::post('register', [UserController::class, 'register']);
 Route::post('login', [UserController::class, 'login']);
 Route::get('users/{user}/threads', [UserController::class, 'postOfUser']);
 Route::get('users/{user}', [UserController::class, 'show']);
-// Route::apiResource('users', UserController::class);
+Route::get('users', [UserController::class, 'index']);
 Route::apiResource('roles', RoleController::class);
 Route::apiResource('votes', VoteController::class);
-
-
-    // do not forget to create the route for getting the vote sum of posts

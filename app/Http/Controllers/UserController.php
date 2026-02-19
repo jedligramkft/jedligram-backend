@@ -17,9 +17,16 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if ($request->filled('search')) {
+            $users = User::search($request->input('search'))->get();
+            if ($users->isEmpty()) {
+                return response()->json(User::all());
+            }
+            return response()->json($users);
+        }
+        return response()->json(User::all());
     }
 
     /**
@@ -37,7 +44,7 @@ class UserController extends Controller
 
         $user = User::where('email', $credentials['email'])->first();
 
-        if(!$user || !Hash::check($credentials['password'], $user->password)) {
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
@@ -49,29 +56,17 @@ class UserController extends Controller
             'token_type' => 'Bearer',
             'user' => $user
         ]);
-
     }
 
     public function logout(Request $request)
     {
         $user = $request->user();
-        if(!$user) {
+        if (!$user) {
             return response()->json(['message' => 'User not authenticated'], 401);
         }
         $user->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Logged out successfully']);
-    }
-
-    public function search(Request $request){
-        if($request->filled('search')) {
-            $users = User::search($request->input('search'))->get();
-            if($users->isEmpty()) {
-                return response()->json(User::all());
-            }
-            return response()->json($users);
-        }
-        return response()->json(User::all());
     }
 
     /**
