@@ -67,7 +67,7 @@ class ThreadController extends Controller
     {
         $posts = $thread->posts()->withCount(['upvotes', 'downvotes'])->when($request->query('sort') === 'trending', function ($query) {
             return $query->orderByRaw('(upvotes_count - downvotes_count) / (TIMESTAMPDIFF(HOUR, created_at, NOW()) + 2) DESC');
-        }, function ($query){
+        }, function ($query) {
             return $query->latest();
         })->get();
         return response()->json($posts, 200);
