@@ -13,7 +13,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('threads/{thread}/leave', [ThreadController::class, 'leave']);
     Route::get('threads/{thread}/posts', [ThreadController::class, 'postsofThread']);
     Route::get('threads/search', [ThreadController::class, 'search']);
-    Route::apiResource('threads', ThreadController::class);
     Route::post('threads/{thread}/post', [PostController::class, 'store']);
     Route::apiResource('posts', PostController::class);
     Route::put('users/{user}', [UserController::class, 'update']);
@@ -21,6 +20,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('logout', [UserController::class, 'logout']);
 });
 
+Route::apiResource('threads', ThreadController::class)->only(['index']);
 Route::post('register', [UserController::class, 'register']);
 Route::post('login', [UserController::class, 'login']);
 Route::get('users/{user}/threads', [UserController::class, 'postOfUser']);
