@@ -35,6 +35,7 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 
 ###
+# now it also handles the search function
 GET {{baseUrl}}/threads
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
@@ -50,12 +51,6 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
     "name": "Old Thread Title 3",
     "description": "This is the content of the new thread."
 }
-
-###
-
-GET {{baseUrl}}/threads/search?search=old
-Accept: application/json
-Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 ###
 GET {{baseUrl}}/threads/1
@@ -106,8 +101,8 @@ Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 ###
-
-GET {{baseUrl}}/users/search?search=Ho
+#now it handles the search
+GET {{baseUrl}}/users
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 

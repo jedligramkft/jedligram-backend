@@ -13,9 +13,18 @@ class ThreadController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Thread::all();
+        // return Thread::all();
+        if ($request->filled('search')) {
+            $threads = Thread::search($request->input('search'))->get();
+            if ($threads->isEmpty()) {
+                return response()->json(Thread::all());
+            }
+            return response()->json($threads);
+        }
+        // it works funny
+        return response()->json(Thread::all());
     }
 
     /**
@@ -29,31 +38,16 @@ class ThreadController extends Controller
     }
 
     /**
-     * Search for the specified resource.
-     * for doc: LARAVEL SCOUT
-     */
-    public function search(Request $request)
-    {
-        if ($request->filled('search')) {
-            $threads = Thread::search($request->input('search'))->get();
-            if($threads->isEmpty()) {
-                return response()->json(Thread::all());
-            }
-            return response()->json($threads);
-        }
-        // it works funny
-        return response()->json(Thread::all());
-    }
-
-    /**
      * Display the specified resource.
      */
-    public function show(Thread $thread){
+    public function show(Thread $thread)
+    {
         return response()->json($thread, 200);
     }
 
-    public function join(Request $request, Thread $thread){
-        if($thread->users->contains($request->user())){
+    public function join(Request $request, Thread $thread)
+    {
+        if ($thread->users->contains($request->user())) {
             return response()->json(['message' => 'You are already a member of this thread'], 409);
         }
         $thread->users()->syncWithoutDetaching([$request->user()->id, ['role_id' => 3]]);
@@ -62,17 +56,11 @@ class ThreadController extends Controller
 
     public function leave(Request $request, Thread $thread)
     {
-        if(!$thread->users->contains($request->user())){
+        if (!$thread->users->contains($request->user())) {
             return response()->json(['message' => 'You are not a member of this thread'], 422);
         }
         $thread->users()->detach($request->user()->id);
         return response()->json(['message' => 'You left the thread'], 200);
-    }
-
-    public function postsOfThread(Thread $thread)
-    {
-        $posts = $thread->posts()->withCount(['upvotes', 'downvotes'])->get();
-        return response()->json($posts, 200);
     }
 
     /**

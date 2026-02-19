@@ -25,7 +25,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('threads', ThreadController::class);
     Route::post('threads/{thread}/post', [PostController::class, 'store']);
     Route::apiResource('posts', PostController::class);
-    Route::get('users/search', [UserController::class, 'search']);
+    // Route::get('users/search', [UserController::class, 'search']);
     Route::put('users/{user}', [UserController::class, 'update']);
     Route::post('posts/{post}/vote', [VoteController::class, 'vote']);
     Route::post('logout', [UserController::class, 'logout']);
@@ -39,6 +39,7 @@ Route::post('register', [UserController::class, 'register']);
 Route::post('login', [UserController::class, 'login']);
 Route::get('users/{user}/threads', [UserController::class, 'postOfUser']);
 Route::get('users/{user}', [UserController::class, 'show']);
+Route::get('users', [UserController::class, 'index']);
 // Route::apiResource('users', UserController::class);
 Route::apiResource('roles', RoleController::class);
 Route::apiResource('votes', VoteController::class);
