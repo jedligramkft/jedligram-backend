@@ -115,7 +115,7 @@ Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 ### 13. Vote on a Post
-# is_upvote: true (up), false (down).
+# is_upvote (JSON boolean field): true for upvote, false for downvote.
 # Note: Sending the same value twice toggles (deletes) the vote.
 POST {{baseUrl}}/posts/1/vote
 Content-Type: application/json
