@@ -151,7 +151,7 @@ echo   .htaccess modositasa...
 powershell -NoProfile -Command ^
   "$f='deploy\public_html\.htaccess';" ^
   "$c=[IO.File]::ReadAllText($f);" ^
-  "$c=$c.Replace('RewriteRule ^ index.php [L]','RewriteRule ^ geher.marcell/index.php [L]');" ^
+  "$c=$c.Replace('RewriteRule ^ index.php [L]','RewriteRule ^ index.php [L]');" ^
   "[IO.File]::WriteAllText($f,$c)"
 
 REM 6c. Production .env letrehozasa
