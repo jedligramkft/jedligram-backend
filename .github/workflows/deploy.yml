@@ -20,15 +20,19 @@ jobs:
           tools: composer
 
       - name: Create .env file from Secrets
-        # Your .bat script requires an .env file to exist before it runs.
-        # We generate it here dynamically using GitHub Secrets so you don't commit passwords.
         shell: pwsh
+        # Pass the secrets as environment variables to the step
+        env:
+          ENV_FILE_CONTENT: ${{ secrets.LARAVEL_ENV_FILE }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
         run: |
-          $envContent = "${{ secrets.LARAVEL_ENV_FILE }}"
-          Set-Content -Path ".env" -Value $envContent
+          # Read from the environment variable instead of injecting directly into the code
+          $env:ENV_FILE_CONTENT | Out-File -FilePath ".env" -Encoding utf8
           
-          Add-Content -Path ".env" -Value "FTP_USER=${{ secrets.FTP_USER }}"
-          Add-Content -Path ".env" -Value "FTP_PASS=${{ secrets.FTP_PASS }}"
+          # Append FTP credentials to the bottom
+          Add-Content -Path ".env" -Value "FTP_USER=$env:FTP_USER"
+          Add-Content -Path ".env" -Value "FTP_PASS=$env:FTP_PASS"
 
       - name: Run Deployment Batch Script
         shell: cmd
