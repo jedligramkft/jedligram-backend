@@ -57,4 +57,6 @@ class Thread extends Model
 					->withPivot('id', 'role_id')
 					->withTimestamps();
 	}
+
+    
 }
