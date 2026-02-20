@@ -16,7 +16,8 @@ jobs:
       - name: Setup PHP and Composer
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2' # Change this to the PHP version your project uses
+          php-version: '8.2' # Keep your specific PHP version
+          extensions: fileinfo
           tools: composer
 
       - name: Create .env file from Secrets
