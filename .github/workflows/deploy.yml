@@ -66,12 +66,16 @@ jobs:
           # 7. Cleanup root files in core except .env, composer.json, .htaccess
           find build/core -maxdepth 1 -type f ! -name '.env' ! -name 'composer.json' ! -name '.htaccess' -delete
 
-      - name: 🚀 Upload to FTPS
+      - name: 🚀 Upload to FTPS (Explicit TLS)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        env:
+          # This mimics the '-k' flag from your curl command
+          # It prevents the action from failing if the server has a self-signed cert
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
         with:
           server: jcloud02.jedlik.eu
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASS }}
-          protocol: ftps
+          protocol: ftps # This automatically enforces Explicit SSL/TLS
           local-dir: ./build/
           server-dir: ./public_html/
