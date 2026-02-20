@@ -1,0 +1,41 @@
+name: Deploy to JedlikCloud
+
+on:
+  push:
+    branches:
+      - main # Change this if your main branch is called 'master'
+
+jobs:
+  build-and-deploy:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP and Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2' # Change this to the PHP version your project uses
+          tools: composer
+
+      - name: Create .env file from Secrets
+        # Your .bat script requires an .env file to exist before it runs.
+        # We generate it here dynamically using GitHub Secrets so you don't commit passwords.
+        shell: pwsh
+        run: |
+          $envContent = "${{ secrets.LARAVEL_ENV_FILE }}"
+          Set-Content -Path ".env" -Value $envContent
+          
+          Add-Content -Path ".env" -Value "FTP_USER=${{ secrets.FTP_USER }}"
+          Add-Content -Path ".env" -Value "FTP_PASS=${{ secrets.FTP_PASS }}"
+
+      - name: Run Deployment Batch Script
+        shell: cmd
+        # Pass the FTP credentials as environment variables for the .ps1 script
+        env:
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+        run: |
+          echo "Starting deployment script..."
+          call deploy.bat 
