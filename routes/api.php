@@ -11,7 +11,7 @@ use App\Http\Controllers\VoteController;
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('threads/{thread}/join', [ThreadController::class, 'join']);
     Route::delete('threads/{thread}/leave', [ThreadController::class, 'leave']);
-    Route::get('threads/{thread}/posts', [ThreadController::class, 'postsofThread']);
+    Route::get('threads/{thread}/posts', [ThreadController::class, 'postsOfThread']);
     Route::get('threads/search', [ThreadController::class, 'search']);
     Route::post('threads/{thread}/post', [PostController::class, 'store']);
     Route::post('threads', [ThreadController::class, 'store']);
