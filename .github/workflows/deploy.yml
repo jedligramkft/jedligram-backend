@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - github-deploy-action # Change this if your main branch is called 'master'
+  workflow_dispatch: 
 
 jobs:
   build-and-deploy:
