@@ -66,16 +66,26 @@ jobs:
           # 7. Cleanup root files in core except .env, composer.json, .htaccess
           find build/core -maxdepth 1 -type f ! -name '.env' ! -name 'composer.json' ! -name '.htaccess' -delete
 
-      - name: 🚀 Upload to FTPS (Explicit TLS)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: 🚀 Upload to FTPS via lftp
         env:
-          # This mimics the '-k' flag from your curl command
-          # It prevents the action from failing if the server has a self-signed cert
-          NODE_TLS_REJECT_UNAUTHORIZED: 0
-        with:
-          server: jcloud02.jedlik.eu
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASS }}
-          protocol: ftps # This automatically enforces Explicit SSL/TLS
-          local-dir: ./build/
-          server-dir: ./public_html/
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+        run: |
+          # 1. Install lftp on the Ubuntu runner
+          sudo apt-get update -qq && sudo apt-get install -y lftp
+          
+          # 2. Run lftp with settings that perfectly match your old curl command
+          lftp <<EOF
+          set ftp:ssl-allow yes
+          set ftp:ssl-force yes
+          set ftp:ssl-protect-data yes
+          set ftp:passive-mode yes
+          set ssl:verify-certificate no
+          
+          open ftp://jcloud02.jedlik.eu
+          user "$FTP_USER" "$FTP_PASS"
+          
+          # -R means reverse (upload), --parallel allows concurrent uploads
+          mirror -R --parallel=20 --continue --only-newer --verbose ./build/ ./public_html/
+          bye
+          EOF
