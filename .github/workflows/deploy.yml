@@ -1,0 +1,77 @@
+name: Deploy to JedlikCloud
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch: # Allows you to manually trigger the deployment from GitHub
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚚 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐘 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2' # Update this to match your project's PHP version
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, json, libxml, pdo, ldap
+          coverage: none
+
+      - name: 📦 Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: ⚙️ Prepare Environment & Cache
+        run: |
+          # Create a temporary .env so artisan commands work
+          cp .env.example .env
+          php artisan key:generate --force
+          php artisan config:clear
+          php artisan route:clear
+
+      - name: 🏗️ Build Deployment Folder Structure
+        run: |
+          # 1. Create the final staging directory
+          mkdir -p build/core
+          
+          # 2. Copy core files (ignoring public, node_modules, .git, and build itself)
+          rsync -av --exclude='public' --exclude='node_modules' --exclude='.git' --exclude='build' ./ build/core/
+          
+          # 3. Copy public directory contents to the root of 'build'
+          rsync -av public/ build/
+          
+          # 4. Modify index.php paths for production (Core mapping)
+          sed -i 's|/../storage/framework/maintenance.php|/core/storage/framework/maintenance.php|g' build/index.php
+          sed -i 's|/../vendor/autoload.php|/core/vendor/autoload.php|g' build/index.php
+          sed -i 's|/../bootstrap/app.php|/core/bootstrap/app.php|g' build/index.php
+          
+          # 5. Create Production .env
+          cp .env build/core/.env
+          sed -i 's|^APP_ENV=.*$|APP_ENV=production|g' build/core/.env
+          sed -i 's|^APP_DEBUG=.*$|APP_DEBUG=false|g' build/core/.env
+          sed -i 's|^APP_URL=.*$|APP_URL=https://jcloud02.jedlik.eu/geher.marcell|g' build/core/.env
+          
+          # 6. Security: Create .htaccess in core folder to deny access
+          cat << 'EOF' > build/core/.htaccess
+          options -Indexes
+          <Files .env>
+          order allow,deny
+          Deny from all
+          </Files>
+          EOF
+          
+          # 7. Cleanup root files in core except .env, composer.json, .htaccess
+          find build/core -maxdepth 1 -type f ! -name '.env' ! -name 'composer.json' ! -name '.htaccess' -delete
+
+      - name: 🚀 Upload to FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: jcloud02.jedlik.eu
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          protocol: ftps
+          local-dir: ./build/
+          server-dir: ./public_html/
