@@ -58,7 +58,7 @@ Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 {
-    "name": "Old Thread Title 3",
+    "name": "Old Thread Title é",
     "description": "This is the content of the new thread."
 }
 
