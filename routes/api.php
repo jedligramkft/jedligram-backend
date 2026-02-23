@@ -15,6 +15,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('threads/search', [ThreadController::class, 'search']);
     Route::post('threads/{thread}/post', [PostController::class, 'store']);
     Route::post('threads', [ThreadController::class, 'store']);
+    Route::get('threads/{thread}', [ThreadController::class, 'show']);
     Route::apiResource('posts', PostController::class);
     Route::put('users/{user}', [UserController::class, 'update']);
     Route::post('posts/{post}/vote', [VoteController::class, 'vote']);

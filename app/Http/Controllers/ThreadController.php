@@ -17,13 +17,13 @@ class ThreadController extends Controller
     {
         if ($request->filled('search')) {
             $threads = Thread::search($request->input('search'))->get();
-            if ($threads->isEmpty()) {
-                return response()->json(Thread::all());
+            if ($threads->isNotEmpty()) {
+                return response()->json($threads->loadCount('users')->values()->toArray(), 200);
             }
-            return response()->json($threads);
         }
         // it works funny
-        return response()->json(Thread::all());
+        $allthreads = Thread::withCount('users')->get();
+        return response()->json($allthreads->toArray(), 200);
     }
 
     /**
@@ -41,7 +41,7 @@ class ThreadController extends Controller
      */
     public function show(Thread $thread)
     {
-        return response()->json($thread, 200);
+        return response()->json($thread->loadCount('users'), 200);
     }
 
     public function join(Request $request, Thread $thread)
