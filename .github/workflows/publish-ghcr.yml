@@ -47,4 +47,5 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > $HOME/.kube/config
       - name: Deploy with env substitution
         run: |
-          sed -e "s|\${DB_PASSWORD}|${DB_PASSWORD}|g" -e "s|\${APP_KEY}|${APP_KEY}|g" deployment.yaml | kubectl apply -f -
+          envsubst < deployment.yaml | kubectl apply -f -
+          kubectl rollout restart deployment --all
