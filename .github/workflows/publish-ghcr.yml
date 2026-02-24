@@ -48,4 +48,3 @@ jobs:
       - name: Deploy with env substitution
         run: |
           envsubst < deployment.yaml | kubectl apply -f -
-          kubectl rollout restart deployment --all
