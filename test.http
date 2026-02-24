@@ -81,7 +81,7 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 ### 9. Get Posts within a Thread
 # Lists all posts for a thread. Use ?sort=trending to sort by score.
-GET {{baseUrl}}/threads/1/posts?sort=trending
+GET {{baseUrl}}/threads/1/posts
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 

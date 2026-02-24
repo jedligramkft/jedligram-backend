@@ -6,6 +6,7 @@ use App\Models\Thread;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreThreadRequest;
 use App\Http\Requests\CreatePostRequest;
+use App\Http\Resources\PostResource;
 use App\Http\Resources\ThreadResource;
 use Illuminate\Support\Facades\Gate;
 
@@ -70,7 +71,7 @@ class ThreadController extends Controller
         }, function ($query) {
             return $query->latest();
         })->get();
-        return response()->json($posts, 200);
+        return response()->json(PostResource::collection($posts), 200);
     }
 
     /**
