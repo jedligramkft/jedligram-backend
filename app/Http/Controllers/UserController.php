@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RegisterUserRequest;
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\ThreadResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -81,7 +82,7 @@ class UserController extends Controller
     public function postOfUser(User $user)
     {
         // TODO: create a resource for threads and use it here
-        return response()->json($user->threads, 200);
+        return response()->json(ThreadResource::collection($user->threads), 200);
     }
 
     /**

@@ -34,7 +34,6 @@ class CreatePostRequest extends FormRequest
 
     public function failedAuthorization(){
         throw new HttpResponseException(response()->json([
-            'success' => false,
             'message' => 'You are not allowed to create a post in this thread.',
             'error' => 'UNAUTHORIZED_ACCESS'
         ], 403));

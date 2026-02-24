@@ -6,6 +6,7 @@ use App\Models\Thread;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreThreadRequest;
 use App\Http\Requests\CreatePostRequest;
+use App\Http\Resources\ThreadResource;
 use Illuminate\Support\Facades\Gate;
 
 class ThreadController extends Controller
@@ -18,12 +19,12 @@ class ThreadController extends Controller
         if ($request->filled('search')) {
             $threads = Thread::search($request->input('search'))->get();
             if ($threads->isNotEmpty()) {
-                return response()->json($threads->loadCount('users')->values()->toArray(), 200);
+                return response()->json(ThreadResource::collection($threads->loadCount('users')), 200);
             }
         }
         // it works funny
         $allthreads = Thread::withCount('users')->get();
-        return response()->json($allthreads->toArray(), 200);
+        return response()->json(ThreadResource::collection($allthreads), 200);
     }
 
     /**
@@ -33,7 +34,7 @@ class ThreadController extends Controller
     {
         $thread = Thread::create($request->validated());
         $thread->users()->attach($request->user()->id, ['role_id' => 1]);
-        return response()->json($thread, 201);
+        return response()->json(ThreadResource::make($thread), 201);
     }
 
     /**
@@ -41,7 +42,7 @@ class ThreadController extends Controller
      */
     public function show(Thread $thread)
     {
-        return response()->json($thread->loadCount('users'), 200);
+        return response()->json(ThreadResource::make($thread->loadCount('users')), 200);
     }
 
     public function join(Request $request, Thread $thread)
