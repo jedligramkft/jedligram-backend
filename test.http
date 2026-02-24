@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://127.0.0.1:8000/api
-@email = test@example.com
+@email = test6@example.com
 @password = password123
 
 # =============================================================================
@@ -38,7 +38,6 @@ POST {{baseUrl}}/logout
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
-
 
 # =============================================================================
 # THREADS

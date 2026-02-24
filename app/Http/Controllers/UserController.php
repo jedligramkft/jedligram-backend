@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RegisterUserRequest;
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -22,11 +23,11 @@ class UserController extends Controller
         if ($request->filled('search')) {
             $users = User::search($request->input('search'))->get();
             if ($users->isEmpty()) {
-                return response()->json(User::all());
+                return response()->json(User::all()->toResourceCollection(), 200);
             }
-            return response()->json($users);
+            return response()->json(UserResource::collection($users), 200);
         }
-        return response()->json(User::all());
+        return response()->json(User::all()->toResourceCollection(), 200);
     }
 
     /**
@@ -35,7 +36,7 @@ class UserController extends Controller
     public function register(RegisterUserRequest $request)
     {
         $user = User::create($request->validated());
-        return response()->json($user, 201);
+        return response()->json(UserResource::make($user), 201);
     }
 
     public function login(LoginUserRequest $request)
@@ -54,7 +55,7 @@ class UserController extends Controller
             'message' => 'Login successful',
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => $user
+            'user' => UserResource::make($user)
         ]);
     }
 
@@ -74,11 +75,12 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return response()->json($user, 200);
+        return response()->json(UserResource::make($user), 200);
     }
 
     public function postOfUser(User $user)
     {
+        // TODO: create a resource for threads and use it here
         return response()->json($user->threads, 200);
     }
 
@@ -90,7 +92,7 @@ class UserController extends Controller
         User::findOrFail($user->id);
         // auth is now handled in the request's auth method
         $user->update($request->validated());
-        return response()->json($user, 200);
+        return response()->json(UserResource::make($user), 200);
     }
 
     /**
