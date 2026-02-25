@@ -40,6 +40,8 @@ spec:
               value: "3306"
             - name: APP_KEY
               value: "${APP_KEY}"
+            - name: SESSION_DRIVER
+              value: file
             # - name: LDAP_CACHE
             #   value: "false"
             # - name: LDAP_LOGGING
