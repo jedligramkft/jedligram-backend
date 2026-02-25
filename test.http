@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://127.0.0.1:8000/api
-@email = test@example.com
+@email = test6@example.com
 @password = password123
 
 # =============================================================================
@@ -39,7 +39,6 @@ Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
-
 # =============================================================================
 # THREADS
 # =============================================================================
@@ -58,7 +57,7 @@ Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 {
-    "name": "Old Thread Title é",
+    "name": "Old Thread Title test",
     "description": "This is the content of the new thread."
 }
 
@@ -82,7 +81,7 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 ### 9. Get Posts within a Thread
 # Lists all posts for a thread. Use ?sort=trending to sort by score.
-GET {{baseUrl}}/threads/1/posts?sort=trending
+GET {{baseUrl}}/threads/1/posts
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
