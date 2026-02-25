@@ -96,6 +96,10 @@ class UserController extends Controller
         return response()->json(UserResource::make($user), 200);
     }
 
+    public function uploadPfP(){
+        
+    }
+
     /**
      * Remove the specified resource from storage.
      */
