@@ -23,9 +23,9 @@ spec:
             - name: APP_NAME
               value: "Jedligram Backend"
             - name: APP_ENV
-              value: "production"
+              value: "local"
             - name: APP_DEBUG
-              value: "false"
+              value: "true"
             - name: DB_CONNECTION
               value: "mysql"
             - name: DB_PASSWORD
