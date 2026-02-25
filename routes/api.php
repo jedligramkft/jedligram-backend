@@ -18,6 +18,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('threads/{thread}', [ThreadController::class, 'show']);
     Route::apiResource('posts', PostController::class);
     Route::put('users/{user}', [UserController::class, 'update']);
+    Route::post('users/profile-picture', [UserController::class, 'uploadPfP']);
     Route::post('posts/{post}/vote', [VoteController::class, 'vote']);
     Route::post('logout', [UserController::class, 'logout']);
 });

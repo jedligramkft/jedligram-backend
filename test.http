@@ -160,3 +160,17 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
     "name": "Updated Name",
     "email": "updated_email@example.com"
 }
+
+### 18. Upload Profile Picture
+
+POST {{baseUrl}}/users/profile-picture
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+Content-Type: multipart/form-data; boundary=MyBoundary
+Accept: application/json
+
+--MyBoundary
+Content-Disposition: form-data; name="image"; filename="upload.png"
+Content-Type: image/png
+
+< C:\Users\Koppany\Pictures\1686129147.jpg
+--MyBoundary--

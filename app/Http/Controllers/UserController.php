@@ -5,14 +5,16 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RegisterUserRequest;
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\UploadProfilePictureRequest;
 use App\Http\Resources\ThreadResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-
-
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -96,8 +98,29 @@ class UserController extends Controller
         return response()->json(UserResource::make($user), 200);
     }
 
-    public function uploadPfP(){
-        
+    public function uploadPfP(UploadProfilePictureRequest $request)
+    {
+        $validated = $request->validated();
+
+        // Get the authenticated user
+        $user = $request->user();
+
+        // Delete the old profile picture if it exists
+        if ($user->image) {
+            Storage::disk('public')->delete($user->image);
+        }
+
+        // Store the new profile picture
+        $path = $request->file('image')->store('pfps', 'public');
+
+        // Update the user's profile with the new image path
+        $user->update(['image' => $path]);
+
+        // Return a success response with the updated user resource
+        return response()->json([
+            'message' => 'Profile picture updated successfully',
+            'user' => UserResource::make($user),
+        ], 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**
