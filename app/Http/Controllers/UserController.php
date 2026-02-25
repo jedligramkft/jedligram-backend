@@ -26,11 +26,11 @@ class UserController extends Controller
         if ($request->filled('search')) {
             $users = User::search($request->input('search'))->get();
             if ($users->isEmpty()) {
-                return response()->json(User::all()->toResourceCollection(), 200);
+                return response()->json(User::all()->toResourceCollection(), 200,  [], JSON_UNESCAPED_SLASHES);
             }
-            return response()->json(UserResource::collection($users), 200);
+            return response()->json(UserResource::collection($users), 200, [], JSON_UNESCAPED_SLASHES);
         }
-        return response()->json(User::all()->toResourceCollection(), 200);
+        return response()->json(User::all()->toResourceCollection(), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**
@@ -39,7 +39,7 @@ class UserController extends Controller
     public function register(RegisterUserRequest $request)
     {
         $user = User::create($request->validated());
-        return response()->json(UserResource::make($user), 201);
+        return response()->json(UserResource::make($user), 201, [], JSON_UNESCAPED_SLASHES);
     }
 
     public function login(LoginUserRequest $request)
@@ -59,7 +59,7 @@ class UserController extends Controller
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => UserResource::make($user)
-        ]);
+        ], 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     public function logout(Request $request)
@@ -78,7 +78,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return response()->json(UserResource::make($user), 200);
+        return response()->json(UserResource::make($user), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     public function postOfUser(User $user)
@@ -95,28 +95,23 @@ class UserController extends Controller
         User::findOrFail($user->id);
         // auth is now handled in the request's auth method
         $user->update($request->validated());
-        return response()->json(UserResource::make($user), 200);
+        return response()->json(UserResource::make($user), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     public function uploadPfP(UploadProfilePictureRequest $request)
     {
         $validated = $request->validated();
 
-        // Get the authenticated user
         $user = $request->user();
 
-        // Delete the old profile picture if it exists
         if ($user->image) {
             Storage::disk('public')->delete($user->image);
         }
 
-        // Store the new profile picture
         $path = $request->file('image')->store('pfps', 'public');
 
-        // Update the user's profile with the new image path
         $user->update(['image' => $path]);
 
-        // Return a success response with the updated user resource
         return response()->json([
             'message' => 'Profile picture updated successfully',
             'user' => UserResource::make($user),
