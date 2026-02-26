@@ -81,7 +81,7 @@ class Post extends Model
     {
         return Attribute::make(
             get: function () {
-                
+
                 if (array_key_exists('upvotes_count', $this->attributes) && array_key_exists('downvotes_count', $this->attributes)) {
                     return $this->attributes['upvotes_count'] - $this->attributes['downvotes_count'];
                 }

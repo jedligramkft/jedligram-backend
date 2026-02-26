@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Models\Thread;
 use Illuminate\Http\Request;
 use App\Http\Requests\CreatePostRequest;
+use App\Http\Resources\PostResource;
 
 class PostController extends Controller
 {
@@ -14,7 +15,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        return Post::all();
+        return response()->json(PostResource::collection(Post::all()), 200);
     }
 
     /**
@@ -29,7 +30,7 @@ class PostController extends Controller
         $data['thread_id'] = $thread->id;
         $post = Post::create($data);
 
-        return response()->json($post, 201);
+        return response()->json(PostResource::make($post), 201);
     }
 
     /**
@@ -37,7 +38,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        return response()->json($post, 200);
+        return response()->json(PostResource::make($post), 200);
     }
 
     /**
