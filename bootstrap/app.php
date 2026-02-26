@@ -21,7 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             // Check if the request expects JSON (like an API request)
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
-                    'message' => 'User not found'
+                    'message' => 'Resource not found'
                 ], 404);
             }
         });
