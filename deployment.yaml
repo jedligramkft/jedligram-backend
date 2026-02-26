@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: jedligram-backend
-          image: ghcr.io/${{ REPO_OWNER }}/jedligram-backend-vizsgaremek:${IMAGE_TAG}
+          image: ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${IMAGE_TAG}
 
           ports:
             - containerPort: 8000
