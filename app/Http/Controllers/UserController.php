@@ -9,14 +9,11 @@ use App\Http\Requests\UploadProfilePictureRequest;
 use App\Http\Resources\ThreadResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use Exception;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class UserController extends Controller
 {
