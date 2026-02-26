@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: jedligram-backend
-          image: ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:latest
+          image: ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${IMAGE_TAG}
 
           ports:
             - containerPort: 8000
@@ -41,7 +41,13 @@ spec:
             - name: APP_KEY
               value: "${APP_KEY}"
             - name: SESSION_DRIVER
-              value: file
+              value: "file"
+            - name: CACHE_STORE
+              value: "file"
+            - name: LOG_CHANNEL
+              value: "stderr"
+            - name: SCOUT_DRIVER
+              value: "database"
             # - name: LDAP_CACHE
             #   value: "false"
             # - name: LDAP_LOGGING

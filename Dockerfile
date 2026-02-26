@@ -19,18 +19,26 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy project files
-COPY . .
-
-# COPY .env.example .env
+# Copy composer files first for better layer caching
+COPY composer.json composer.lock* ./
 
 # Install Laravel dependencies
-RUN composer install --no-dev --optimize-autoloader
-# RUN php artisan key:generate
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
+# Copy the rest of the project files
+COPY . .
+
+# Re-run composer to generate autoload with all classes present
+RUN composer dump-autoload --no-dev --optimize
+
 RUN php artisan storage:link
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-RUN php artisan config:cache && php artisan route:cache && php artisan event:cache
+
+# Cache routes and events at build time (these don't depend on env vars)
+RUN php artisan route:cache && php artisan event:cache
+
+# Do NOT cache config at build time — env vars are provided at runtime by Kubernetes
 
 EXPOSE 8000
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]

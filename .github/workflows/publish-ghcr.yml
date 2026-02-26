@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - deploy-to-ghcr
   workflow_dispatch:
 
 jobs:
@@ -13,6 +14,7 @@ jobs:
     env:
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       APP_KEY: ${{ secrets.APP_KEY }}
+      IMAGE_TAG: ${{ github.sha }}
       # LDAP_PASSWORD: ${{ secrets.LDAP_PASSWORD }}
 
     steps:
@@ -34,7 +36,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:latest
+          tags: ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${{ github.sha }}
           file: ./Dockerfile
 
       - uses: azure/setup-kubectl@v4
@@ -48,3 +50,4 @@ jobs:
       - name: Deploy with env substitution
         run: |
           envsubst < deployment.yaml | kubectl apply -f -
+          kubectl rollout restart deployment jedligram-backend-deployment
