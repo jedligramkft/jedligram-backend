@@ -42,12 +42,6 @@ spec:
               value: "${APP_KEY}"
             - name: SESSION_DRIVER
               value: "file"
-            - name: CACHE_STORE
-              value: "file"
-            - name: LOG_CHANNEL
-              value: "stderr"
-            - name: SCOUT_DRIVER
-              value: "database"
             # - name: LDAP_CACHE
             #   value: "false"
             # - name: LDAP_LOGGING
