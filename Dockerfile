@@ -19,13 +19,16 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
+COPY composer.* ./
+
+# Install Laravel dependencies
+RUN composer install --no-dev --optimize-autoloader
+
 # Copy project files
 COPY . .
 
 # COPY .env.example .env
 
-# Install Laravel dependencies
-RUN composer install --no-dev --optimize-autoloader
 # RUN php artisan key:generate
 RUN php artisan storage:link
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
