@@ -9,12 +9,14 @@ use App\Http\Requests\UploadProfilePictureRequest;
 use App\Http\Resources\ThreadResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-
+use Exception;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class UserController extends Controller
 {
@@ -92,10 +94,10 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        User::findOrFail($user->id);
-        // auth is now handled in the request's auth method
         $user->update($request->validated());
+
         return response()->json(UserResource::make($user), 200, [], JSON_UNESCAPED_SLASHES);
+
     }
 
     public function uploadPfP(UploadProfilePictureRequest $request)
