@@ -15,6 +15,7 @@ jobs:
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       APP_KEY: ${{ secrets.APP_KEY }}
       IMAGE_TAG: ${{ github.sha }}
+      REPO_OWNER: ${{ github.repository_owner }}
       # LDAP_PASSWORD: ${{ secrets.LDAP_PASSWORD }}
 
     steps:
@@ -28,7 +29,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: Geher-Marcell
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.PACKAGE_RW_TOKEN }}
 
       - name: Build and push Docker image
@@ -36,7 +37,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${{ github.sha }}
+          tags: ghcr.io/${{ github.repository_owner }}/jedligram-backend-vizsgaremek:${{ github.sha }}
           file: ./Dockerfile
 
       - uses: azure/setup-kubectl@v4
