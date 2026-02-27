@@ -19,7 +19,7 @@ spec:
             - containerPort: 8000
           env:
             - name: APP_URL
-              value: "http://jedligrambackend-gehermarcell.jcloud.jedlik.cloud"
+              value: "https://jedligrambackend-gehermarcell.jcloud.jedlik.cloud"
             - name: APP_NAME
               value: "Jedligram Backend"
             - name: APP_ENV
@@ -86,14 +86,32 @@ spec:
     - protocol: TCP
       targetPort: 8000
       port: 80
-
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: jedligram-certificate
+spec:
+  secretName: jedligram-certificate
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - jedligrambackend-gehermarcell.jcloud.jedlik.cloud
+    
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: jedligram-backend-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+      - jedligrambackend-gehermarcell.jcloud.jedlik.cloud
+      secretName: jedligram-certificate
 
   rules:
     - host: jedligrambackend-gehermarcell.jcloud.jedlik.cloud
