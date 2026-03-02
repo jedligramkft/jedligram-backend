@@ -1,3 +1,19 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: laravel-storage-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Gi
+  selector:
+    matchLabels:
+      student: geher-marcell
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,15 +33,20 @@ spec:
 
           ports:
             - containerPort: 8000
+
+          volumeMounts:
+            - name: laravel-storage
+              mountPath: /var/www/html/storage
+
           env:
             - name: APP_URL
               value: "https://jedligrambackend-gehermarcell.jcloud.jedlik.cloud"
             - name: APP_NAME
               value: "Jedligram Backend"
             - name: APP_ENV
-              value: "local"
+              value: "production"
             - name: APP_DEBUG
-              value: "true"
+              value: "false"
             - name: DB_CONNECTION
               value: "mysql"
             - name: DB_PASSWORD
@@ -72,6 +93,17 @@ spec:
             #   value: "false"
             # - name: LDAP_SASL
             #   value: "false"
+      volumes:
+        - name: laravel-storage
+          persistentVolumeClaim:
+            claimName: laravel-storage-pvc
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 33:33 /var/www/html/storage"]
+          volumeMounts:
+            - name: laravel-storage
+              mountPath: /var/www/html/storage
 
 ---
 apiVersion: v1
@@ -98,19 +130,19 @@ spec:
     kind: ClusterIssuer
   dnsNames:
     - jedligrambackend-gehermarcell.jcloud.jedlik.cloud
-    
+
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: jedligram-backend-ingress
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
-      - jedligrambackend-gehermarcell.jcloud.jedlik.cloud
+        - jedligrambackend-gehermarcell.jcloud.jedlik.cloud
       secretName: jedligram-certificate
 
   rules:
