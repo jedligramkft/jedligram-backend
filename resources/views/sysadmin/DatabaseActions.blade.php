@@ -1,36 +1,4 @@
-<style>
-    #database_actions {
-        min-width: 40%;
-        max-width: 40%;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        justify-content: center;
-        align-items: center;
-    }
-
-    #database_actions form {
-        /* background-color: green; */
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        width: 300px;
-        flex-grow: 1;
-        border: 1px solid #555;
-    }
-    
-    #database_actions form button {
-        /* background-color: red; */
-        background-color: #35316d;
-        padding: 6px;
-        color: white;
-        font-size: 16px;
-        cursor: pointer;
-    }
-
-</style>
-<div id="database_actions">
+<div>
     <form method="POST" action="/sysadmin/migrate">
         <p>Új migrációk futtatása</p>
         @csrf

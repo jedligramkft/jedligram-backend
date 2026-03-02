@@ -45,31 +45,25 @@
 
             <form method="POST" action="/logout">
                 @csrf
-                <button type="submit" style="background-color:darkred;color:white;padding: 10px 40px;cursor:pointer;">Log out</button>
+                <button type="submit">Log out</button>
             </form>
             
             <a href="https://jcloud02.jedlik.eu/phpmyadmin/index.php" 
-                style="background-color:darkgreen;color:white;padding: 10px 20px; margin-top: 20px; display: inline-block; outline: none; text-decoration: none;"
+                style="color: #99e"
                 target="_blank">
                 Open phpMyAdmin
             </a>
+            <hr/>
 
             <h3>Adatbázis műveletek</h3>
             @include('sysadmin.DatabaseActions')
 
+            <hr/>
+
             <h3>Feltöltők</h3>
+            @include('sysadmin.SeedActions')
 
-            <form method="POST" action="/sysadmin/production_seeder">
-                <p>Azok az adatok, amik <b><u>éles</u></b> környezetben is jelen kell hogy legyenek</p>
-                @csrf
-                <button type="submit" style="background-color: #35316d;padding: 6px;color: white;font-size: 16px;cursor: pointer;">Production seeder</button>
-            </form>
-
-            <form method="POST" action="/sysadmin/dummy_seeder">
-                <p>Azok az adatok, amik <b><u>teszt</u></b> környezetben kellenek</p>
-                @csrf
-                <button type="submit" style="background-color: #35316d;padding: 6px;color: white;font-size: 16px;cursor: pointer;">Dummy seeder</button>
-            </form>
+            
 
             <div id="console_output">{{ session('console_output') }}</div>
         @else
