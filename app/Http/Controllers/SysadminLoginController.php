@@ -74,4 +74,27 @@ class SysadminLoginController extends Controller
         $output = $this->RunConsoleCommand('migrate:fresh --seed');
         return redirect('/sysadmin')->with('console_output', $output);
     }
+
+    public function db_seed(Request $request)
+    {
+        $this->checkAuth($request);
+        $output = $this->RunConsoleCommand('db:seed');
+        return redirect('/sysadmin')->with('console_output', $output);
+    }
+
+    public function db_production_seed(Request $request)
+    {
+        $this->checkAuth($request);
+        $output = $this->RunConsoleCommand('db:seed --class=ProductionDataSeeder');
+        return redirect('/sysadmin')->with('console_output', $output);
+    }
+
+    public function db_dummy_seed(Request $request)
+    {
+        $this->checkAuth($request);
+        $output = $this->RunConsoleCommand('db:seed --class=DummyDataSeeder');
+        return redirect('/sysadmin')->with('console_output', $output);
+    }
+
+
 }

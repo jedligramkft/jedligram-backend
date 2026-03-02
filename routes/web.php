@@ -17,3 +17,6 @@ Route::post('/sysadmin/migrate', [SysadminLoginController::class, 'migrate']);
 Route::post('/sysadmin/migrate_rollback', [SysadminLoginController::class, 'migrate_rollback']);
 Route::post('/sysadmin/migrate_fresh', [SysadminLoginController::class, 'migrate_fresh']);
 Route::post('/sysadmin/migrate_fresh_seed', [SysadminLoginController::class, 'migrate_fresh_seed']);
+Route::post('/sysadmin/seed', [SysadminLoginController::class, 'seed']);
+Route::post('/sysadmin/production_seeder', [SysadminLoginController::class, 'db_production_seed']);
+Route::post('/sysadmin/dummy_seeder', [SysadminLoginController::class, 'db_dummy_seed']);
