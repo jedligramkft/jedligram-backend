@@ -36,7 +36,7 @@ spec:
 
           volumeMounts:
             - name: laravel-storage
-              mountPath: /var/www/html/storage
+              mountPath: /var/www/html/storage/app/public
 
           env:
             - name: APP_URL
@@ -103,7 +103,7 @@ spec:
           command: ["sh", "-c", "chown -R 33:33 /var/www/html/storage"]
           volumeMounts:
             - name: laravel-storage
-              mountPath: /var/www/html/storage
+              mountPath: /var/www/html/storage/app/public
 
 ---
 apiVersion: v1
