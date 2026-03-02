@@ -17,25 +17,15 @@
                 color: #eee;
             }
 
-            #console_output {
-                position: fixed;
-                right: 0;
-                top: 0;
-
-                background-color: black;
-                width: 50%;
-                max-width: 50%;
-                min-height: 100dvh; 
-
-                color: #eee;
-                padding: 10px;
-            }
-
-            button{
+            button {
                 outline: none;
                 border: none;
             }
 
+            button:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
         </style>
     </head>
     <body>
@@ -65,7 +55,7 @@
 
             
 
-            <div id="console_output">{{ session('console_output') }}</div>
+            @include('sysadmin.Console', ['consoleHistory' => $consoleHistory])
         @else
             @include('auth.login')
         @endif
