@@ -18,6 +18,7 @@ class ThreadResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
+            'rules' => $this->rules,
             'users_count' => $this->whenCounted('users')
         ];
     }
