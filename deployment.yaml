@@ -69,6 +69,10 @@ spec:
               value: "stderr"
             - name: SCOUT_DRIVER
               value: "database"
+            - name: SYSADMIN_USERNAME
+              value: "admin"
+            - name: SYSADMIN_PASSWORD
+              value: "${SYSADMIN_PASSWORD}"
             # - name: LDAP_CACHE
             #   value: "false"
             # - name: LDAP_LOGGING

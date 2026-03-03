@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - deploy-pvc
   workflow_dispatch:
 
 jobs:
@@ -15,6 +14,7 @@ jobs:
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       APP_KEY: ${{ secrets.APP_KEY }}
       IMAGE_TAG: ${{ github.sha }}
+      SYSADMIN_PASSWORD: ${{ secrets.SYSADMIN_PASSWORD }}
       # LDAP_PASSWORD: ${{ secrets.LDAP_PASSWORD }}
 
     steps:
