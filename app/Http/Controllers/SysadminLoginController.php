@@ -31,6 +31,7 @@ class SysadminLoginController extends Controller
         $validPassword = env('SYSADMIN_PASSWORD');
 
         if ($request->username === $validUsername && Hash::check($request->password, $validPassword)) {
+            $request->session()->regenerate(); // prevent session fixation
             $request->session()->put('sysadmin_authed', true);
             return redirect('/sysadmin');
         }
