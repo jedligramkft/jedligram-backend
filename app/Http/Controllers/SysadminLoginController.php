@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use App\Services\ConsoleHistoryService;
+use Illuminate\Support\Facades\Log;
 
 class SysadminLoginController extends Controller
 {
@@ -80,7 +81,13 @@ class SysadminLoginController extends Controller
         $this->checkAuth($request);
 
         $command = $request->query('cmd');
+        $force = $request->input('force', '0');
         $command = str_replace('+', ' ', $command);
+
+        // If the UI asked to force the command, append --force when it's not present.
+        if ($force && $force !== '0' && !str_contains($command, '--force')) {
+            $command .= ' --force';
+        }
 
         try {
             $result = $this->RunConsoleCommand($command);
@@ -124,55 +131,4 @@ class SysadminLoginController extends Controller
         $this->history->clear();
         return response()->json(['ok' => true]);
     }
-
-    // public function migrate(Request $request)
-    // {
-    //     $this->checkAuth($request);
-    //     $output = $this->RunConsoleCommand('migrate');
-    //     return redirect('/sysadmin')->with('console_output', $output);
-    // }
-
-    // public function migrate_rollback(Request $request)
-    // {
-    //     $this->checkAuth($request);
-    //     $output = $this->RunConsoleCommand('migrate:rollback');
-    //     return redirect('/sysadmin')->with('console_output', $output);
-    // }
-
-    // public function migrate_fresh(Request $request)
-    // {
-    //     $this->checkAuth($request);
-    //     $output = $this->RunConsoleCommand('migrate:fresh');
-    //     return redirect('/sysadmin')->with('console_output', $output);
-    // }
-
-    // public function migrate_fresh_seed(Request $request)
-    // {
-    //     $this->checkAuth($request);
-    //     $output = $this->RunConsoleCommand('migrate:fresh --seed');
-    //     return redirect('/sysadmin')->with('console_output', $output);
-    // }
-
-    // public function db_seed(Request $request)
-    // {
-    //     $this->checkAuth($request);
-    //     $output = $this->RunConsoleCommand('db:seed');
-    //     return redirect('/sysadmin')->with('console_output', $output);
-    // }
-
-    // public function db_production_seed(Request $request)
-    // {
-    //     $this->checkAuth($request);
-    //     $output = $this->RunConsoleCommand('db:seed --class=ProductionDataSeeder');
-    //     return redirect('/sysadmin')->with('console_output', $output);
-    // }
-
-    // public function db_dummy_seed(Request $request)
-    // {
-    //     $this->checkAuth($request);
-    //     $output = $this->RunConsoleCommand('db:seed --class=DummyDataSeeder');
-    //     return redirect('/sysadmin')->with('console_output', $output);
-    // }
-
-
 }

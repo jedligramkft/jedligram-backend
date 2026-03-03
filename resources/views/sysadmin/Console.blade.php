@@ -200,6 +200,7 @@
                         'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json',
                     },
+                    body: new FormData(form),
                 });
 
                 const data = await response.json();
