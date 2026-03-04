@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -17,6 +18,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('threads', [ThreadController::class, 'store']);
     Route::get('threads/{thread}', [ThreadController::class, 'show']);
     Route::apiResource('posts', PostController::class);
+    Route::get('posts/{post}/comments', [CommentController::class, 'index']);
+    Route::get('comments/{comment}/replies', [CommentController::class, 'replies']);
     Route::put('users/{user}', [UserController::class, 'update']);
     Route::post('users/profile-picture', [UserController::class, 'uploadPfP']);
     Route::post('posts/{post}/vote', [VoteController::class, 'vote']);

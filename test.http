@@ -174,3 +174,19 @@ Content-Type: image/png
 
 < C:\Users\Koppany\Pictures\1686129147.jpg
 --MyBoundary--
+
+# =============================================================================
+# Comments
+# =============================================================================
+
+### 19. Get Comments for a Post
+# Retrieves all comments for a specific post, including nested replies up to 2 levels deep.
+GET {{baseUrl}}/posts/4/comments
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+### 20. Get Replies for a Comment
+# Fetches all replies to a specific comment, including nested replies.
+GET {{baseUrl}}/comments/2/replies
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
