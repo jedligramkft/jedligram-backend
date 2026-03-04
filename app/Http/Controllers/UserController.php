@@ -18,8 +18,8 @@ use Illuminate\Support\Facades\Log;
 class UserController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
+    * List users. Supports `search` query parameter for text search.
+    */
     public function index(Request $request)
     {
         if ($request->filled('search')) {
@@ -33,14 +33,17 @@ class UserController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
+    * Register a new user and return created user resource.
+    */
     public function register(RegisterUserRequest $request)
     {
         $user = User::create($request->validated());
         return response()->json(UserResource::make($user), 201, [], JSON_UNESCAPED_SLASHES);
     }
 
+    /**
+     * Authenticate user and return a bearer token.
+     */
     public function login(LoginUserRequest $request)
     {
         $credentials = $request->validated();
@@ -61,6 +64,9 @@ class UserController extends Controller
         ], 200, [], JSON_UNESCAPED_SLASHES);
     }
 
+    /**
+     * Revoke the current user's access token (logout).
+     */
     public function logout(Request $request)
     {
         $user = $request->user();
@@ -73,8 +79,8 @@ class UserController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
+    * Retrieve user details by ID.
+    */
     public function show(User $user)
     {
         return response()->json(UserResource::make($user), 200, [], JSON_UNESCAPED_SLASHES);
@@ -87,8 +93,8 @@ class UserController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     */
+    * Update user profile information.
+    */
     public function update(UpdateUserRequest $request, User $user)
     {
         $user->update($request->validated());
@@ -97,6 +103,9 @@ class UserController extends Controller
 
     }
 
+    /**
+     * Upload or replace profile picture for authenticated user.
+     */
     public function uploadPfP(UploadProfilePictureRequest $request)
     {
         $validated = $request->validated();

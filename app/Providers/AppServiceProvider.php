@@ -10,7 +10,9 @@ use App\Models\User;
 use App\Policies\UserPolicy;
 use App\Policies\ThreadPolicy;
 use App\Models\Thread;
-
+use Dedoc\Scramble\Scramble;
+use Dedoc\Scramble\Support\Generator\OpenApi;
+use Dedoc\Scramble\Support\Generator\SecurityScheme;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -39,6 +41,16 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('sysadmin', function ($request) {
             return Limit::perMinute(30)->by($request->ip());
+        });
+
+        /*
+            Dedoc scramble to include bearer token in the requests
+        */
+        Scramble::configure()
+        ->withDocumentTransformers(function (OpenApi $openApi) {
+            $openApi->secure(
+                SecurityScheme::http('bearer')
+            );
         });
     }
 }
