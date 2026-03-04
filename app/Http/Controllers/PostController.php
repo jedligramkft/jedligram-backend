@@ -11,7 +11,7 @@ use App\Http\Resources\PostResource;
 class PostController extends Controller
 {
     /**
-     * Display a listing of the resource.
+    * List all posts (returns PostResource collection).
      */
     public function index()
     {
@@ -19,7 +19,7 @@ class PostController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+    * Create a new post in the specified thread. Requires authenticated user.
      */
     public function store(CreatePostRequest $request, Thread $thread)
     {
@@ -34,7 +34,7 @@ class PostController extends Controller
     }
 
     /**
-     * Display the specified resource.
+    * Retrieve a single post by ID.
      */
     public function show(Post $post)
     {
@@ -42,7 +42,7 @@ class PostController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update a post (not implemented).
      */
     public function update(Request $request, Post $post)
     {
@@ -50,7 +50,7 @@ class PostController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete a post (not implemented).
      */
     public function destroy(Post $post)
     {

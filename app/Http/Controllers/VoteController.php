@@ -9,6 +9,9 @@ use App\Models\Post;
 
 class VoteController extends Controller
 {
+    /**
+     * Cast or update a vote on a post. If the same vote already exists, it will be removed (toggle behavior).
+     */
     public function vote(VoteRequest $request, Post $post)
     {
         $validated = $request->validated();

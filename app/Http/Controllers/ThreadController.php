@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Gate;
 class ThreadController extends Controller
 {
     /**
-     * Display a listing of the resource.
+    * List threads. Supports `search` query parameter for text search.
      */
     public function index(Request $request)
     {
@@ -29,7 +29,7 @@ class ThreadController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+    * Create a new thread and attach the creator as a member.
      */
     public function store(StoreThreadRequest $request)
     {
@@ -39,13 +39,16 @@ class ThreadController extends Controller
     }
 
     /**
-     * Display the specified resource.
+    * Get thread details, including member count.
      */
     public function show(Thread $thread)
     {
         return response()->json(ThreadResource::make($thread->loadCount('users')), 200);
     }
 
+    /**
+     * Join the authenticated user to the given thread.
+     */
     public function join(Request $request, Thread $thread)
     {
         if ($thread->users->contains($request->user())) {
@@ -55,6 +58,9 @@ class ThreadController extends Controller
         return response()->json(['message' => 'You joined the thread'], 200);
     }
 
+    /**
+     * Remove the authenticated user from the given thread.
+     */
     public function leave(Request $request, Thread $thread)
     {
         if (!$thread->users->contains($request->user())) {
@@ -64,6 +70,9 @@ class ThreadController extends Controller
         return response()->json(['message' => 'You left the thread'], 200);
     }
 
+    /**
+     * List posts for a thread. Accepts `sort=trending` to sort by trending metric.
+     */
     public function postsOfThread(Thread $thread, Request $request)
     {
         $posts = $thread->posts()->withCount(['upvotes', 'downvotes'])->when($request->query('sort') === 'trending', function ($query) {
