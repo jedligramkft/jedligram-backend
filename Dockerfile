@@ -38,8 +38,7 @@ RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Copy entrypoint and make executable
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 EXPOSE 8000
-ENTRYPOINT ["./entrypoint.sh"]
-# CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+ENTRYPOINT ["/entrypoint.sh"]
