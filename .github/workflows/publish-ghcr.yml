@@ -37,7 +37,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${{ env.IMAGE_TAG }}
+          tags: |
+            ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${{ env.IMAGE_TAG }}
+            ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:latest
           file: ./Dockerfile
 
       - uses: azure/setup-kubectl@v4

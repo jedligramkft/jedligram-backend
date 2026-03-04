@@ -16,9 +16,9 @@ data:
   CACHE_STORE: "file"
   LOG_CHANNEL: "stderr"
   SCOUT_DRIVER: "database"
-  # API_VERSION is set by CI/CD via IMAGE_TAG; set manually if needed
   SYSADMIN_USERNAME: "admin"
-  API_VERSION: "${API_VERSION}"
+  # API_VERSION is injected by CI/CD via sed; defaults to "latest" for manual apply
+  API_VERSION: "latest"
   # LDAP_CACHE: "false"
   # LDAP_LOGGING: "false"
   # LDAP_CONNECTION: "default"
@@ -64,7 +64,7 @@ spec:
     spec:
       containers:
         - name: jedligram-backend
-          image: ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${IMAGE_TAG}
+          image: ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:latest
           imagePullPolicy: Always
 
           ports:
