@@ -64,7 +64,7 @@ spec:
     spec:
       containers:
         - name: jedligram-backend
-          image: ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:latest
+          image: ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${IMAGE_TAG}
           imagePullPolicy: Always
 
           ports:

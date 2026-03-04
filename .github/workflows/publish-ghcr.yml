@@ -50,8 +50,5 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > $HOME/.kube/config
       - name: Deploy with env substitution
         run: |
-          kubectl delete -f deployment.yaml || true
-          kubectl apply -f deployment.yaml
-
-# envsubst < deployment.yaml | kubectl apply -f -
-# kubectl rollout restart deployment jedligram-backend-deployment
+          kubectl apply -f -
+          kubectl rollout restart deployment jedligram-backend-deployment
