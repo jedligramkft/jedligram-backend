@@ -43,6 +43,9 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(30)->by($request->ip());
         });
 
+        /*
+            Dedoc scramble to include bearer token in the requests
+        */
         Scramble::configure()
         ->withDocumentTransformers(function (OpenApi $openApi) {
             $openApi->secure(

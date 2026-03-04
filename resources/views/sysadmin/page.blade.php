@@ -37,11 +37,15 @@
                 @csrf
                 <button type="submit">Log out</button>
             </form>
-            
+            <br/>
             <a href="https://jcloud02.jedlik.eu/phpmyadmin/index.php" 
                 style="color: #99e"
                 target="_blank">
                 Open phpMyAdmin
+            </a>
+            <a href="../docs/api" 
+                style="color: #99e; margin-left: 20px;">
+                Open Documentation
             </a>
             <hr/>
 
