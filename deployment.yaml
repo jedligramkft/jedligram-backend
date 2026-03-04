@@ -73,6 +73,8 @@ spec:
               value: "admin"
             - name: SYSADMIN_PASSWORD
               value: "${SYSADMIN_PASSWORD}"
+            - name: API_VERSION
+              value: "${IMAGE_TAG}"
             # - name: LDAP_CACHE
             #   value: "false"
             # - name: LDAP_LOGGING
