@@ -10,9 +10,6 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
-    env:
-      VERSION: ${{ github.sha }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -33,7 +30,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${{ env.VERSION }}
+            ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${{ github.sha }}
             ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:latest
           file: ./Dockerfile
 
@@ -49,12 +46,5 @@ jobs:
         run: |
           kubectl apply -f deployment.yaml
           kubectl set image deployment/jedligram-backend-deployment \
-            jedligram-backend=ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${{ env.VERSION }}
+            jedligram-backend=ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${{ github.sha }}
           kubectl rollout status deployment/jedligram-backend-deployment --timeout=120s
-
-          # Print recent startup logs from all backend pods so migration/entrypoint output is visible in Actions
-          PODS=$(kubectl get pods -l app=jedligram-backend -o name)
-          for p in $PODS; do
-            echo "==== Logs from $p ===="
-            kubectl logs "$p" -c jedligram-backend --tail=200 || true
-          done

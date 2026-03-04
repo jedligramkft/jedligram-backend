@@ -31,14 +31,14 @@ COPY . .
 # Re-run composer to generate autoload with all classes present
 RUN composer dump-autoload --no-dev --optimize
 
-# Set permissions for Laravel storage and cache directories
 RUN php artisan storage:link
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Copy entrypoint and make executable
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Cache routes and events at build time (these don't depend on env vars)
+RUN php artisan route:cache && php artisan event:cache
+
+# Do NOT cache config at build time — env vars are provided at runtime by Kubernetes
 
 EXPOSE 8000
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
