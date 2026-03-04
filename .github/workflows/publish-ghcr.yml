@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - improve-cicd
   workflow_dispatch:
 
 jobs:
@@ -11,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      APP_KEY: ${{ secrets.APP_KEY }}
+      #      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      #      APP_KEY: ${{ secrets.APP_KEY }}
       IMAGE_TAG: ${{ github.sha }}
-      SYSADMIN_PASSWORD: ${{ secrets.SYSADMIN_PASSWORD }}
-      # LDAP_PASSWORD: ${{ secrets.LDAP_PASSWORD }}
+      #      SYSADMIN_PASSWORD: ${{ secrets.SYSADMIN_PASSWORD }}
+      #      LDAP_PASSWORD: ${{ secrets.LDAP_PASSWORD }}
 
     steps:
       - name: Checkout repository
@@ -36,7 +37,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${{ github.sha }}
+          tags: ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:latest, ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${{ github.sha }}
           file: ./Dockerfile
 
       - uses: azure/setup-kubectl@v4
@@ -49,5 +50,8 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > $HOME/.kube/config
       - name: Deploy with env substitution
         run: |
-          envsubst < deployment.yaml | kubectl apply -f -
-          kubectl rollout restart deployment jedligram-backend-deployment
+          kubectl delete -f deployment.yaml || true
+          kubectl apply -f deployment.yaml
+
+# envsubst < deployment.yaml | kubectl apply -f -
+# kubectl rollout restart deployment jedligram-backend-deployment
