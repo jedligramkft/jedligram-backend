@@ -70,6 +70,11 @@ class User extends Authenticatable
 		return $this->hasMany(Post::class);
 	}
 
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+    
 	public function threads()
 	{
 		return $this->belongsToMany(Thread::class, 'thread_user')

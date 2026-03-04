@@ -18,7 +18,7 @@ class CommentResource extends JsonResource
             'id' => $this->id,
             'content' => $this->content,
             'depth' => $this->depth,
-            'user' => new UserResource($this->whenLoaded('user')),
+            'user' => new UserResource($this->user),
             'age' => $this->created_at->diffForHumans(),
             'replies' => CommentResource::collection($this->whenLoaded('children'))
         ];
