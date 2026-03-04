@@ -50,5 +50,5 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > $HOME/.kube/config
       - name: Deploy with env substitution
         run: |
-          kubectl apply -f -
+          kubectl apply -f deployment.yaml
           kubectl rollout restart deployment jedligram-backend-deployment
