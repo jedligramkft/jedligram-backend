@@ -54,7 +54,7 @@ return [
         /*
          * Hide the `Try It` feature. Enabled by default.
          */
-        'hide_try_it' => env('APP_DEBUG', false) === false,
+        'hide_try_it' => false,
 
         /*
          * Hide the schemas in the Table of Contents. Enabled by default.
@@ -135,7 +135,7 @@ return [
     'middleware' => [
         'web',
         RestrictedDocsAccess::class,
-        SysadminAuth::class,
+        // SysadminAuth::class,
     ],
 
     'extensions' => [],
