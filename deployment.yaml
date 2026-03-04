@@ -18,7 +18,6 @@ data:
   LOG_CHANNEL: "stderr"
   SCOUT_DRIVER: "database"
   SYSADMIN_USERNAME: "admin"
-  # API_VERSION is injected by CI/CD via sed; defaults to "latest" for manual apply
   API_VERSION: "latest"
   # LDAP_CACHE: "false"
   # LDAP_LOGGING: "false"
