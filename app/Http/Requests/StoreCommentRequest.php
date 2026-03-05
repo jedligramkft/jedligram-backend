@@ -40,11 +40,11 @@ class StoreCommentRequest extends FormRequest
 
     public function after(){
         return[
-            function(Validator $validatot){
+            function(Validator $validator){
                 if($this->filled('parent_id')){
                     $parentComment = Comment::find($this->input('parent_id'));
                     if($parentComment->post_id != $this->input('post_id')){
-                        $validatot->errors()->add('parent_id', 'The parent comment must belong to the same post.');
+                        $validator->errors()->add('parent_id', 'The parent comment must belong to the same post.');
                     }
                 }
             }
