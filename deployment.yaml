@@ -18,7 +18,7 @@ data:
   LOG_CHANNEL: "stderr"
   SCOUT_DRIVER: "database"
   SYSADMIN_USERNAME: "admin"
-  API_VERSION: "latest"
+  API_VERSION: "ersion latest"
   # LDAP_CACHE: "false"
   # LDAP_LOGGING: "false"
   # LDAP_CONNECTION: "default"
