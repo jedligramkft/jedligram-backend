@@ -187,7 +187,7 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 ### 20. Get Replies for a Comment
 # Fetches all replies to a specific comment, including nested replies.
-GET {{baseUrl}}/comments/2/replies
+GET {{baseUrl}}/comments/27/replies
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
@@ -200,5 +200,5 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 {
     "content": "This is a comment on post 4.",
-    "parent_id": null 
+    "parent_id": 35
 }

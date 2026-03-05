@@ -15,24 +15,18 @@ class CommentController extends Controller
      */
     public function index(Post $post)
     {
-        $comments = Comment::where('post_id', $post->id)
-            ->whereNull('parent_id')
-            ->with([
-                'user',
-                'descendants' => function ($query) {
-
-                    $query->where('depth', '<=', 3)->with('user');
-                }
-            ])
+        $comments = Comment::tree()
+            ->where('post_id', $post->id)
+            ->whereDepth('<', 3)
             ->get()
             ->toTree();
 
-        return response()->json(CommentResource::collection($comments), 200);
+        return response()->json(CommentResource::collection($comments), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     public function replies(Comment $comment){
         $replies = $comment->descendants()->with('user')->get()->toTree();
-        return response()->json(CommentResource::collection($replies), 200);
+        return response()->json(CommentResource::collection($replies), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**
@@ -48,11 +42,11 @@ class CommentController extends Controller
      */
     public function store(StoreCommentRequest $request, Post $post)
     {
-        $request['post_id'] = $post->id;
-        $request['user_id'] = $request->user()->id;
-        $data = $request->validated();
-        $comment = Comment::create($data);
-        return response()->json(new CommentResource($comment->load('user')), 201);
+        // $request['post_id'] = $post->id;
+        // $request['user_id'] = $request->user()->id;
+        // $data = $request->validated();
+        $comment = Comment::create($request->validated());
+        return response()->json(new CommentResource($comment->load('user')), 201, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**

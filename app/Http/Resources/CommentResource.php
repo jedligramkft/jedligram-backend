@@ -24,4 +24,9 @@ class CommentResource extends JsonResource
             'replies' => CommentResource::collection($this->whenLoaded('children'))
         ];
     }
+
+    public function withResponse(Request $request, \Illuminate\Http\JsonResponse $response): void
+    {
+        $response->setEncodingOptions(JSON_UNESCAPED_SLASHES);
+    }
 }

@@ -16,6 +16,13 @@ class StoreCommentRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    protected function prepareForValidation(){
+        $this->merge([
+            'user_id' => $this->user()->id,
+            'post_id' => $this->route('post')->id
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -25,7 +32,7 @@ class StoreCommentRequest extends FormRequest
     {
         return [
             'content' => "string|required",
-            // 'post_id' => "required|exists:posts,id",
+            'post_id' => "required|exists:posts,id",
             'parent_id' => "nullable|exists:comments,id",
             'user_id' => "nullable|exists:users,id"
         ];
