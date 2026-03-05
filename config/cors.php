@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => array_filter([
+    'allowed_origins' => env('APP_ENV') === 'local' ? ['*'] : array_filter([
         env('FRONTEND_URL'),
         env('APP_URL'),
     ]),

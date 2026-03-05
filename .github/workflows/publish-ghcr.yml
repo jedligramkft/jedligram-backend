@@ -46,5 +46,5 @@ jobs:
         run: |
           kubectl apply -f deployment.yaml
           kubectl set image deployment/jedligram-backend-deployment \
-            jedligram-backend=ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${{ github.sha }}
+          jedligram-backend=ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${{ github.sha }}
           kubectl rollout status deployment/jedligram-backend-deployment --timeout=120s
