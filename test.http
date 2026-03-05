@@ -193,7 +193,7 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 ### 21. Create a Comment
 # Creates a new comment on a post or a reply. Optional parent_id for replies.
-POST {{baseUrl}}/posts/4/comments
+POST {{baseUrl}}/posts/1/comments
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}

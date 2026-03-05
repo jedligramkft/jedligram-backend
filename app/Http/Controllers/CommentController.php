@@ -17,6 +17,7 @@ class CommentController extends Controller
     {
         $comments = Comment::tree()
             ->where('post_id', $post->id)
+            ->with('user')
             ->whereDepth('<', 3)
             ->get()
             ->toTree();
