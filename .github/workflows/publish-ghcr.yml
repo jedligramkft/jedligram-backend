@@ -4,18 +4,11 @@ on:
   push:
     branches:
       - master
-      - deploy-pvc
   workflow_dispatch:
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
-    env:
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      APP_KEY: ${{ secrets.APP_KEY }}
-      IMAGE_TAG: ${{ github.sha }}
-      # LDAP_PASSWORD: ${{ secrets.LDAP_PASSWORD }}
 
     steps:
       - name: Checkout repository
@@ -36,7 +29,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${{ github.sha }}
+          tags: |
+            ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${{ github.sha }}
+            ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:latest
           file: ./Dockerfile
 
       - uses: azure/setup-kubectl@v4
@@ -47,7 +42,9 @@ jobs:
         run: |
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > $HOME/.kube/config
-      - name: Deploy with env substitution
+      - name: Deploy to Kubernetes
         run: |
-          envsubst < deployment.yaml | kubectl apply -f -
-          kubectl rollout restart deployment jedligram-backend-deployment
+          kubectl apply -f deployment.yaml
+          kubectl set image deployment/jedligram-backend-deployment \
+            jedligram-backend=ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:${{ github.sha }}
+          kubectl rollout status deployment/jedligram-backend-deployment --timeout=120s

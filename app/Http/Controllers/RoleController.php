@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class RoleController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * List all roles.
      */
     public function index()
     {
@@ -16,7 +16,7 @@ class RoleController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Create a new role.
      */
     public function store(Request $request)
     {
@@ -24,7 +24,7 @@ class RoleController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Show role details by ID.
      */
     public function show(Role $role)
     {
@@ -32,7 +32,7 @@ class RoleController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update a role (not implemented).
      */
     public function update(Request $request, Role $role)
     {
@@ -40,7 +40,7 @@ class RoleController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete a role (not implemented).
      */
     public function destroy(Role $role)
     {
