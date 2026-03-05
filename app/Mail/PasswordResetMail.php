@@ -9,19 +9,19 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class EmailVerificationCodeMail extends Mailable
+class PasswordResetMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public string $verificationCode;
+    public string $resetCode;
     public string $email;
-    
+
     /**
      * Create a new message instance.
      */
-    public function __construct(string $verificationCode, string $email)
+    public function __construct(string $resetCode, string $email)
     {
-        $this->verificationCode = $verificationCode;
+        $this->resetCode = $resetCode;
         $this->email = $email;
     }
 
@@ -31,7 +31,7 @@ class EmailVerificationCodeMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Regisztáció megerősítése',
+            subject: 'Jelszó visszaállítása',
         );
     }
 
@@ -41,7 +41,7 @@ class EmailVerificationCodeMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.email_verification_code',
+            view: 'emails.password_reset',
         );
     }
 }

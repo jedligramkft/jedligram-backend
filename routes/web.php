@@ -8,10 +8,11 @@ use Illuminate\Support\Facades\Mail;
 Route::get('/send-welcome-email', function () {
     $user = new User([
         'name' => 'Gehér Marcell',
-        'email' => 'darkiex03@gmail.com',
+        'email' => 'borsodi.koppany@students.jedlik.eu',
         'password' => bcrypt('password123')
     ]);
 
-    Mail::to($user->email)->send(new WelcomeMail($user));
+//    Mail::to($user->email)->send(new WelcomeMail($user));
+    \App\Http\Controllers\EmailController::sendPasswordResetCode($user);
     return 'Welcome email sent!';
 });

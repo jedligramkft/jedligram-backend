@@ -22,18 +22,7 @@ class UserController extends Controller
     {
         $user = User::create($request->validated());
 
-        // EmailController::sendWelcomeEmail($user);
-
-        //verification code with random numbers and letters
-        $verificationCode = bin2hex(random_bytes(16));
-
-        EmailVerification::updateOrCreate([
-            'user_id' => $user->id,
-            'token' => $verificationCode,
-            'expires_at' => now()->addMinutes(15),
-        ]);
-        
-        Mail::to($user->email)->send(new EmailVerificationCodeMail($verificationCode, $user->email));
+        EmailController::sendEmailVerificationCode($user);
 
         return response()->json($user, 201);
     }
@@ -98,9 +87,9 @@ class UserController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        
+
         $verification = EmailVerification::where('user_id', $user->id)->first();
-        
+
         if (!$verification || !Hash::check($request->verification_code, $verification->token) || $verification->expires_at->isPast()) {
             return response()->json(['message' => 'Invalid or expired verification code'], 400);
         }
