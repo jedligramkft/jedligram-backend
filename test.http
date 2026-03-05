@@ -174,3 +174,31 @@ Content-Type: image/png
 
 < C:\Users\Koppany\Pictures\1686129147.jpg
 --MyBoundary--
+
+# =============================================================================
+# Comments
+# =============================================================================
+
+### 19. Get Comments for a Post
+# Retrieves all comments for a specific post, including nested replies up to 2 levels deep.
+GET {{baseUrl}}/posts/4/comments
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+### 20. Get Replies for a Comment
+# Fetches all replies to a specific comment, including nested replies.
+GET {{baseUrl}}/comments/27/replies
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+### 21. Create a Comment
+# Creates a new comment on a post or a reply. Optional parent_id for replies.
+POST {{baseUrl}}/posts/1/comments
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+{
+    "content": "This is a comment on post 4.",
+    "parent_id": 35
+}
