@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e0a28e5adab8b75b9ec1f2930da0c0da",
+    "content-hash": "d5b2103cb8035d3551c814efb034d2e2",
     "packages": [
         {
             "name": "brick/math",
@@ -212,16 +212,16 @@
         },
         {
             "name": "directorytree/ldaprecord",
-            "version": "v4.0.2",
+            "version": "v3.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DirectoryTree/LdapRecord.git",
-                "reference": "fa70e335cf94ef96aecfafe05c2144a2d3bc3b04"
+                "reference": "86c95c46862a525169a3d9b57db180027ff09bf1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord/zipball/fa70e335cf94ef96aecfafe05c2144a2d3bc3b04",
-                "reference": "fa70e335cf94ef96aecfafe05c2144a2d3bc3b04",
+                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord/zipball/86c95c46862a525169a3d9b57db180027ff09bf1",
+                "reference": "86c95c46862a525169a3d9b57db180027ff09bf1",
                 "shasum": ""
             },
             "require": {
@@ -284,7 +284,74 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-12-29T20:31:24+00:00"
+            "time": "2025-02-26T00:55:14+00:00"
+        },
+        {
+            "name": "directorytree/ldaprecord-laravel",
+            "version": "v3.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DirectoryTree/LdapRecord-Laravel.git",
+                "reference": "bb0aa206723ed07e2b42eadd7311d5949cc770dd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord-Laravel/zipball/bb0aa206723ed07e2b42eadd7311d5949cc770dd",
+                "reference": "bb0aa206723ed07e2b42eadd7311d5949cc770dd",
+                "shasum": ""
+            },
+            "require": {
+                "directorytree/ldaprecord": "^v3.3",
+                "ext-json": "*",
+                "ext-ldap": "*",
+                "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0",
+                "php": ">=8.1",
+                "ramsey/uuid": "*"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.9",
+                "laravel/sanctum": "*",
+                "mockery/mockery": "^1.0",
+                "orchestra/testbench": "^6.0|^7.0|^8.0|^9.0|^10.0",
+                "phpunit/phpunit": "^8.0|^9.0|^10.0|^11.0",
+                "spatie/ray": "^1.28"
+            },
+            "type": "project",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LdapRecord\\Laravel\\LdapServiceProvider",
+                        "LdapRecord\\Laravel\\LdapAuthServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LdapRecord\\Laravel\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "LDAP Authentication & Management for Laravel.",
+            "keywords": [
+                "adldap2",
+                "laravel",
+                "ldap",
+                "ldaprecord"
+            ],
+            "support": {
+                "issues": "https://github.com/DirectoryTree/LdapRecord-Laravel/issues",
+                "source": "https://github.com/DirectoryTree/LdapRecord-Laravel/tree/v3.4.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/stevebauman",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-02-26T01:41:53+00:00"
         },
         {
             "name": "doctrine/dbal",

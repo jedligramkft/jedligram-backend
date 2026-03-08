@@ -1,61 +1,81 @@
 <?php
 
 return [
-	/*
-	|--------------------------------------------------------------------------
-	| Default LDAP Connection Name
-	|--------------------------------------------------------------------------
-	|
-	| This connection name will be used by default when using LDAPRecord.
-	|
-	*/
-	'default' => env('LDAP_CONNECTION', 'default'),
 
-	/*
-	|--------------------------------------------------------------------------
-	| LDAP Connections
-	|--------------------------------------------------------------------------
-	|
-	| Configure one or multiple LDAP connections here.
-	|
-	*/
-	'connections' => [
-		'default' => [
-			/*
-			|------------------------------------------------------------------
-			| Hosts
-			|------------------------------------------------------------------
-			|
-			| The server provided a single LDAP host in LDAP_HOST.
-			| We also accept LDAP_HOSTS (comma-separated) for backward compat.
-			|
-			*/
-			'hosts'            => array_values(array_filter(
-				explode(',', env('LDAP_HOST', '')))
-			),
-			'base_dn'          => env('LDAP_BASE_DN', ''),
-			'username'         => env('LDAP_USERNAME', ''),
-			'password'         => env('LDAP_PASSWORD', ''),
-			'port'             => (int) env('LDAP_PORT', 389),
-			'timeout'          => (int) env('LDAP_TIMEOUT', 5),
+    /*
+    |--------------------------------------------------------------------------
+    | Default LDAP Connection Name
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify which of the LDAP connections below you wish
+    | to use as your default connection for all LDAP operations. Of
+    | course you may add as many connections you'd like below.
+    |
+    */
 
-			// Use TLS upgrade (STARTTLS on ldap://)
-			'use_tls'          => filter_var(env('LDAP_TLS', false), FILTER_VALIDATE_BOOL),
+    'default' => env('LDAP_CONNECTION', 'default'),
 
-			// Use STARTTLS (alias kept for clarity)
-			'use_starttls'     => filter_var(env('LDAP_TLS', false), FILTER_VALIDATE_BOOL),
+    /*
+    |--------------------------------------------------------------------------
+    | LDAP Connections
+    |--------------------------------------------------------------------------
+    |
+    | Below you may configure each LDAP connection your application requires
+    | access to. Be sure to include a valid base DN - otherwise you may
+    | not receive any results when performing LDAP search operations.
+    |
+    */
 
-			// For SSL (ldaps://), set the protocol instead of a boolean.
-			// When LDAP_SSL=true we switch protocol to ldaps://, otherwise null (= ldap://).
-			'protocol'         => filter_var(env('LDAP_SSL', false), FILTER_VALIDATE_BOOL)
-								? 'ldaps://'
-								: null,
+    'connections' => [
 
-			// SASL authentication (rarely needed for simple read-only binds)
-			'use_sasl'         => filter_var(env('LDAP_SASL', false), FILTER_VALIDATE_BOOL),
+        'default' => [
+            'hosts' => [env('LDAP_HOST', '127.0.0.1')],
+            'username' => env('LDAP_USERNAME', 'cn=user,dc=local,dc=com'),
+            'password' => env('LDAP_PASSWORD', 'secret'),
+            'port' => env('LDAP_PORT', 389),
+            'base_dn' => env('LDAP_BASE_DN', 'dc=local,dc=com'),
+            'timeout' => env('LDAP_TIMEOUT', 5),
+            'use_ssl' => env('LDAP_SSL', false),
+            'use_tls' => env('LDAP_TLS', false),
+            'use_sasl' => env('LDAP_SASL', false),
+            'sasl_options' => [
+                // 'mech' => 'GSSAPI',
+            ],
+        ],
 
-			// Custom LDAP options passed to ldap_set_option()
-			'options' => [],
-		],
-	],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | LDAP Logging
+    |--------------------------------------------------------------------------
+    |
+    | When LDAP logging is enabled, all LDAP search and authentication
+    | operations are logged using the default application logging
+    | driver. This can assist in debugging issues and more.
+    |
+    */
+
+    'logging' => [
+        'enabled' => env('LDAP_LOGGING', true),
+        'channel' => env('LOG_CHANNEL', 'stack'),
+        'level' => env('LOG_LEVEL', 'info'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | LDAP Cache
+    |--------------------------------------------------------------------------
+    |
+    | LDAP caching enables the ability of caching search results using the
+    | query builder. This is great for running expensive operations that
+    | may take many seconds to complete, such as a pagination request.
+    |
+    */
+
+    'cache' => [
+        'enabled' => env('LDAP_CACHE', false),
+        'driver' => env('CACHE_DRIVER', 'file'),
+    ],
+
 ];

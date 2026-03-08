@@ -7,6 +7,7 @@ use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 
@@ -31,13 +32,24 @@ class UserController extends Controller
 
     public function login(LoginUserRequest $request)
     {
-        $credentials = $request->validated();
+        $RawCredentials = $request->validated();
 
-        $user = User::where('email', $credentials['email'])->first();
+        $credentials = [
+            'samaccountname' => $RawCredentials['username'],
+            'password' => $RawCredentials['password']
+        ];
 
-        if(!$user || !\Hash::check($credentials['password'], $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+
+//        $user = User::where('email', $credentials['email'])->first();
+//
+//        if(!$user || !\Hash::check($credentials['password'], $user->password)) {
+//            return response()->json(['message' => 'Invalid credentials'], 401);
+//        }
+
+        if (!Auth::attempt($credentials)) {
+            return response()->json(['message' => 'Érvénytelen bejelentkezési adatok'], 401);
         }
+        $user = Auth::user();
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
