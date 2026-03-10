@@ -74,13 +74,29 @@ class User extends Authenticatable
     {
         return $this->hasMany(Comment::class);
     }
-    
+
 	public function threads()
 	{
 		return $this->belongsToMany(Thread::class, 'thread_user')
+                    ->using(ThreadUser::class)
 					->withPivot('id', 'role_id')
 					->withTimestamps();
 	}
+
+    protected array $threadRolesCache = [];
+
+    public function hasThreadRole(int $threadId, array $roleNames): bool{
+        if(!isset($this->threadRolesCache[$threadId])){
+            $thread = $this->threads()
+                ->where('thread_id', $threadId)
+                ->with('pivot.role')
+                ->first();
+
+            $this->threadRolesCache[$threadId] = $thread && $thread->pivot ? $thread->pivot->role->name : 'none';
+        }
+
+        return in_array($this->threadRolesCache[$threadId], $roleNames);
+    }
 
 	public function votes()
 	{

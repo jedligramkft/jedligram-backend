@@ -24,6 +24,11 @@ class ThreadPolicy
         return false;
     }
 
+    public function viewMembers(User $user, Thread $thread): bool
+    {
+        return $thread->users->contains($user->id);
+    }
+
     /**
      * Determine whether the user can create models.
      */

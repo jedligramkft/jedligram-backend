@@ -83,6 +83,11 @@ class ThreadController extends Controller
         return response()->json(PostResource::collection($posts), 200);
     }
 
+    public function members(Thread $thread){
+        
+        return response()->json($thread->users, 200);
+    }
+
     /**
      * Update the specified resource in storage.
      */
