@@ -39,15 +39,8 @@ class UserController extends Controller
             'password' => $RawCredentials['password']
         ];
 
-
-//        $user = User::where('email', $credentials['email'])->first();
-//
-//        if(!$user || !\Hash::check($credentials['password'], $user->password)) {
-//            return response()->json(['message' => 'Invalid credentials'], 401);
-//        }
-
         if (!Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Érvénytelen bejelentkezési adatok'], 401);
+            return response()->json(['message' => 'Invalid credentials'], 401);
         }
         $user = Auth::user();
 
