@@ -7,6 +7,7 @@ use App\Models\Thread;
 use App\Models\ThreadUser;
 use App\Models\User;
 use App\Models\Vote;
+use App\Models\Comment;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
