@@ -1,8 +1,8 @@
 ### Variables
 @baseUrl = http://127.0.0.1:8000/api
 @email = test@example.com
-@username = replace_with_your_ldap_username
-@password = replace_with_your_ldap_password
+@username = YOUR_LDAP_USERNAME
+@password = YOUR_LDAP_PASSWORD
 
 ### 1. Register a new user (DOES NOT WORK)
 POST {{baseUrl}}/register
