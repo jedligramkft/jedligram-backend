@@ -25,7 +25,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('users/profile-picture', [UserController::class, 'uploadPfP']);
     Route::post('posts/{post}/vote', [VoteController::class, 'vote']);
     Route::post('logout', [UserController::class, 'logout']);
-    Route::get('threads/{thread}/members', [UserController::class, 'members'])->middleware('can:viewMembers,thread');
+    Route::get('threads/{thread}/members', [ThreadController::class, 'members'])->middleware('can:viewMembers,thread');
 });
 
 

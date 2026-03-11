@@ -89,10 +89,9 @@ class User extends Authenticatable
         if(!isset($this->threadRolesCache[$threadId])){
             $thread = $this->threads()
                 ->where('thread_id', $threadId)
-                ->with('pivot.role')
                 ->first();
 
-            $this->threadRolesCache[$threadId] = $thread && $thread->pivot ? $thread->pivot->role->name : 'none';
+            $this->threadRolesCache[$threadId] = $thread && $thread->pivot ? $thread->pivot->role_id : null;
         }
 
         return in_array($this->threadRolesCache[$threadId], $roleNames);

@@ -8,24 +8,25 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * Class ThreadUser
- * 
+ *
  * @property int $id
  * @property int $thread_id
  * @property int $user_id
  * @property int $role_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * 
+ *
  * @property Role $role
  * @property Thread $thread
  * @property User $user
  *
  * @package App\Models
  */
-class ThreadUser extends Model
+class ThreadUser extends Pivot
 {
 	protected $table = 'thread_user';
 
