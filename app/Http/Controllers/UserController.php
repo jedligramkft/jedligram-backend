@@ -21,14 +21,14 @@ class UserController extends Controller
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function register(RegisterUserRequest $request)
-    {
-        $user = User::create($request->validated());
-        return response()->json($user, 201);
-    }
+    // /**
+    //  * Store a newly created resource in storage.
+    //  */
+    // public function register(RegisterUserRequest $request)
+    // {
+    //     $user = User::create($request->validated());
+    //     return response()->json($user, 201);
+    // }
 
     public function login(LoginUserRequest $request)
     {
@@ -57,7 +57,8 @@ class UserController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        // $request->user()->currentAccessToken()->delete();
+        Auth::logout();
 
         return response()->json(['message' => 'Logged out successfully']);
     }
