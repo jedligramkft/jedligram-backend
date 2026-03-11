@@ -5,20 +5,33 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RegisterUserRequest;
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\UploadProfilePictureRequest;
+use App\Http\Resources\ThreadResource;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    * List users. Supports `search` query parameter for text search.
+    */
+    public function index(Request $request)
     {
-        //
+        if ($request->filled('search')) {
+            $users = User::search($request->input('search'))->get();
+            if ($users->isEmpty()) {
+                return response()->json(User::all()->toResourceCollection(), 200,  [], JSON_UNESCAPED_SLASHES);
+            }
+            return response()->json(UserResource::collection($users), 200, [], JSON_UNESCAPED_SLASHES);
+        }
+        return response()->json(User::all()->toResourceCollection(), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     // /**
@@ -30,6 +43,9 @@ class UserController extends Controller
     //     return response()->json($user, 201);
     // }
 
+    /**
+     * Authenticate user and return a bearer token.
+     */
     public function login(LoginUserRequest $request)
     {
         $RawCredentials = $request->validated();
@@ -50,52 +66,67 @@ class UserController extends Controller
             'message' => 'Login successful',
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => $user
-        ]);
-
+            'user' => UserResource::make($user)
+        ], 200, [], JSON_UNESCAPED_SLASHES);
     }
 
+    /**
+     * Revoke the current user's access token (logout).
+     */
     public function logout(Request $request)
     {
-        // $request->user()->currentAccessToken()->delete();
+        // TODO error message
         Auth::logout();
 
         return response()->json(['message' => 'Logged out successfully']);
     }
 
-    public function search(Request $request){
-        if($request->filled('search')) {
-            $users = User::search($request->input('search'))->get();
-            if($users->isEmpty()) {
-                return response()->json(User::all());
-            }
-            return response()->json($users);
-        }
-        return response()->json(User::all());
-    }
-
     /**
-     * Display the specified resource.
-     */
+    * Retrieve user details by ID.
+    */
     public function show(User $user)
     {
-        return response()->json($user, 200);
+        return response()->json(UserResource::make($user), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     public function postOfUser(User $user)
     {
-        return response()->json($user->threads, 200);
+        // TODO: create a resource for threads and use it here
+        return response()->json(ThreadResource::collection($user->threads), 200);
     }
 
     /**
-     * Update the specified resource in storage.
-     */
+    * Update user profile information.
+    */
     public function update(UpdateUserRequest $request, User $user)
     {
-        User::findOrFail($user->id);
-        // auth is now handled in the request's auth method
         $user->update($request->validated());
-        return response()->json($user, 200);
+
+        return response()->json(UserResource::make($user), 200, [], JSON_UNESCAPED_SLASHES);
+
+    }
+
+    /**
+     * Upload or replace profile picture for authenticated user.
+     */
+    public function uploadPfP(UploadProfilePictureRequest $request)
+    {
+        $validated = $request->validated();
+
+        $user = $request->user();
+
+        if ($user->image) {
+            Storage::disk('public')->delete($user->image);
+        }
+
+        $path = $request->file('image')->store('pfps', 'public');
+
+        $user->update(['image' => $path]);
+
+        return response()->json([
+            'message' => 'Profile picture updated successfully',
+            'user' => UserResource::make($user),
+        ], 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**

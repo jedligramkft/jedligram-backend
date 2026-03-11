@@ -63,7 +63,8 @@ class User extends Authenticatable implements LdapAuthenticatable
 		'email',
 		'email_verified_at',
 		'password',
-		'remember_token'
+		'remember_token',
+        'image'
 	];
 
 	public function posts()
@@ -71,6 +72,11 @@ class User extends Authenticatable implements LdapAuthenticatable
 		return $this->hasMany(Post::class);
 	}
 
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+    
 	public function threads()
 	{
 		return $this->belongsToMany(Thread::class, 'thread_user')

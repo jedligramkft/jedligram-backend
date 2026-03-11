@@ -4,6 +4,10 @@
 @username = YOUR_LDAP_USERNAME
 @password = YOUR_LDAP_PASSWORD
 
+# =============================================================================
+# AUTHENTICATION
+# =============================================================================
+
 ### 1. Register a new user (DOES NOT WORK)
 POST {{baseUrl}}/register
 Content-Type: application/json
@@ -28,61 +32,60 @@ Accept: application/json
 }
 
 ### 3. Logout
-# We use the token from the request above automatically
+# Revokes the current access token. Requires valid Bearer Token.
 POST {{baseUrl}}/logout
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
+# =============================================================================
+# THREADS
+# =============================================================================
 
-###
+### 4. Get All Threads
+# Retrieves a list of threads. Supports optional search: ?search=keyword
 GET {{baseUrl}}/threads
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
-###
-
+### 5. Create a Thread
+# Creates a new discussion thread.
 POST {{baseUrl}}/threads
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 {
-    "name": "Old Thread Title 3",
+    "name": "Old Thread Title test",
     "description": "This is the content of the new thread."
 }
 
-###
-
-GET {{baseUrl}}/threads/search?search=old
-Accept: application/json
-Authorization: Bearer {{loginRequest.response.body.access_token}}
-
-###
+### 6. Get Single Thread details
+# Fetches details for a specific thread by ID.
 GET {{baseUrl}}/threads/1
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
-###
-
+### 7. Join a Thread
+# Adds the authenticated user to the thread's member list (pivot table).
 POST {{baseUrl}}/threads/1/join
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
-###
-
+### 8. Leave a Thread
+# Removes the authenticated user from the thread's member list.
 DELETE {{baseUrl}}/threads/1/leave
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
-###
-
+### 9. Get Posts within a Thread
+# Lists all posts for a thread. Use ?sort=trending to sort by score.
 GET {{baseUrl}}/threads/1/posts
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
-###
-
+### 10. Create a Post in a Thread
+# Creates a new post attached to a specific thread.
 POST {{baseUrl}}/threads/1/post
 Content-Type: application/json
 Accept: application/json
@@ -92,39 +95,61 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
     "content": "pisztiposzti"
 }
 
-###
 
-GET  {{baseUrl}}/posts
-Content-Content-Type: application/json
+# =============================================================================
+# POSTS & VOTING
+# =============================================================================
+
+### 11. Get Global Posts Feed
+# Retrieves all posts.
+GET {{baseUrl}}/posts
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
-###
-
-GET  {{baseUrl}}/posts/11
-Content-Content-Type: application/json
+### 12. Get Single Post
+# Fetches a post by ID, including its calculated score and current user's vote.
+GET {{baseUrl}}/posts/11
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
-###
-
-GET {{baseUrl}}/users/search?search=Ho
+### 13. Vote on a Post
+# is_upvote (JSON boolean field): true for upvote, false for downvote.
+# Note: Sending the same value twice toggles (deletes) the vote.
+POST {{baseUrl}}/posts/1/vote
+Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
-###
+{
+    "is_upvote": true
+}
 
+
+# =============================================================================
+# USERS
+# =============================================================================
+
+### 14. List Users
+# Returns a list of users. Supports ?search=name
+GET {{baseUrl}}/users
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+### 15. Get User Profile
+# Fetches public profile information for a specific user.
 GET {{baseUrl}}/users/3
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
-###
-
+### 16. Get Threads joined by User
+# Lists all threads that the specified user has joined.
 GET {{baseUrl}}/users/1/threads
 Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
-###
+### 17. Update User Profile
+# Updates the authenticated user's name or email.
+# TODO: Implement 404/403 handling for non-existent users or unauthorized edits.
 PUT {{baseUrl}}/users/54
 Content-Type: application/json
 Accept: application/json
@@ -135,4 +160,44 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
     "email": "updated_email@example.com"
 }
 
-# TODO: prettier error message when trying to update a nonexistent user
+### 18. Upload Profile Picture
+
+POST {{baseUrl}}/users/profile-picture
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+Content-Type: multipart/form-data; boundary=MyBoundary
+Accept: application/json
+
+--MyBoundary
+Content-Disposition: form-data; name="image"; filename="upload.png"
+Content-Type: image/png
+
+< C:\Users\Koppany\Pictures\1686129147.jpg
+--MyBoundary--
+
+# =============================================================================
+# Comments
+# =============================================================================
+
+### 19. Get Comments for a Post
+# Retrieves all comments for a specific post, including nested replies up to 2 levels deep.
+GET {{baseUrl}}/posts/4/comments
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+### 20. Get Replies for a Comment
+# Fetches all replies to a specific comment, including nested replies.
+GET {{baseUrl}}/comments/27/replies
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+### 21. Create a Comment
+# Creates a new comment on a post or a reply. Optional parent_id for replies.
+POST {{baseUrl}}/posts/1/comments
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+{
+    "content": "This is a comment on post 4.",
+    "parent_id": 35
+}

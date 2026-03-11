@@ -19,6 +19,7 @@ class ThreadFactory extends Factory
         return [
             'name' => $this->faker->sentence(3),
             'description' => $this->faker->paragraph(),
+            'rules' => implode("\n ", $this->faker->sentences(5))
         ];
     }
 }

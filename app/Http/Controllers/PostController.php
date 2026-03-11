@@ -6,19 +6,20 @@ use App\Models\Post;
 use App\Models\Thread;
 use Illuminate\Http\Request;
 use App\Http\Requests\CreatePostRequest;
+use App\Http\Resources\PostResource;
 
 class PostController extends Controller
 {
     /**
-     * Display a listing of the resource.
+    * List all posts (returns PostResource collection).
      */
     public function index()
     {
-        return Post::all();
+        return response()->json(PostResource::collection(Post::all()), 200);
     }
 
     /**
-     * Store a newly created resource in storage.
+    * Create a new post in the specified thread. Requires authenticated user.
      */
     public function store(CreatePostRequest $request, Thread $thread)
     {
@@ -29,19 +30,19 @@ class PostController extends Controller
         $data['thread_id'] = $thread->id;
         $post = Post::create($data);
 
-        return response()->json($post, 201);
+        return response()->json(PostResource::make($post), 201);
     }
 
     /**
-     * Display the specified resource.
+    * Retrieve a single post by ID.
      */
     public function show(Post $post)
     {
-        return response()->json($post, 200);
+        return response()->json(PostResource::make($post), 200);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update a post (not implemented).
      */
     public function update(Request $request, Post $post)
     {
@@ -49,7 +50,7 @@ class PostController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete a post (not implemented).
      */
     public function destroy(Post $post)
     {
