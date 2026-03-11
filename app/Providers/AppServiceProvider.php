@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Cache\RateLimiting\Limit;
 use App\Models\User;
 use App\Policies\UserPolicy;
@@ -32,11 +33,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force HTTPS when the configured APP_URL uses https (e.g. behind a TLS-terminating ingress)
+        if (str_starts_with(config('app.url'), 'https://')) {
+            URL::forceScheme('https');
+        }
+
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Thread::class, ThreadPolicy::class);
-      
+
         $this->bootLdap();
-      
+
         // Rate-limiter for the sysadmin panel:
         // - login page: max 10 attempts per minute per IP (brute-force protection)
         // - protected actions: max 30 requests per minute per IP
@@ -56,7 +62,7 @@ class AppServiceProvider extends ServiceProvider
             $openApi->secure(
                 SecurityScheme::http('bearer')
             );
-        });     
+        });
     }
 
     /**
