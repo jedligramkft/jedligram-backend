@@ -73,7 +73,7 @@ spec:
             - name: laravel-storage
               mountPath: /var/www/html/storage/app/public
 
-          envFrom:          kubectl rollout restart deployment jedligram-backend-deployment
+          envFrom:
             - configMapRef:
                 name: jedligram-backend-config
             - secretRef:
