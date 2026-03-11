@@ -10,6 +10,9 @@ use App\Models\User;
 use App\Policies\UserPolicy;
 use App\Policies\ThreadPolicy;
 use App\Models\Thread;
+use LdapRecord\Connection;
+use LdapRecord\Container;
+
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
@@ -31,7 +34,9 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Thread::class, ThreadPolicy::class);
-
+      
+        $this->bootLdap();
+      
         // Rate-limiter for the sysadmin panel:
         // - login page: max 10 attempts per minute per IP (brute-force protection)
         // - protected actions: max 30 requests per minute per IP
@@ -51,6 +56,27 @@ class AppServiceProvider extends ServiceProvider
             $openApi->secure(
                 SecurityScheme::http('bearer')
             );
-        });
+        });     
+    }
+
+    /**
+     * Register LDAPRecord connections from config/ldap.php.
+     *
+     * Since we use the base `ldaprecord` package (not `ldaprecord-laravel`),
+     * connections must be added to the Container manually.
+     */
+    protected function bootLdap(): void
+    {
+        $defaultName = config('ldap.default', 'default');
+
+        foreach (config('ldap.connections', []) as $name => $settings) {
+            $connection = new Connection($settings);
+
+            if ($name === $defaultName) {
+                Container::addConnection($connection);          // default connection
+            } else {
+                Container::addConnection($connection, $name);   // named connection
+            }
+        }
     }
 }
