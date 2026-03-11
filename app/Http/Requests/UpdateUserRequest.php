@@ -36,7 +36,6 @@ class UpdateUserRequest extends FormRequest
     protected function failedAuthorization()
     {
         throw new HttpResponseException(response()->json([
-            'success' => false,
             'message' => 'You are not allowed to update this profile.',
             'error' => 'UNAUTHORIZED_ACCESS'
         ], 403));

@@ -24,7 +24,7 @@ class ProductionDataSeeder extends Seeder
         $adminUser = [
             'name' => 'admin',
             'email' => 'admin@admin.com',
-            'password' => 'admin'
+            'password' => 'adminadmin'
         ];
 
         User::firstOrCreate($adminUser);

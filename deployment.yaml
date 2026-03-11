@@ -1,0 +1,145 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jedligram-backend-config
+data:
+  APP_URL: "https://jedligrambackend-gehermarcell.jcloud.jedlik.cloud"
+  FRONTEND_URL: "https://jedligrambackend-gehermarcell.jcloud.jedlik.cloud"
+  APP_NAME: "Jedligram Backend"
+  APP_ENV: "local"
+  APP_DEBUG: "true"
+  DB_CONNECTION: "mysql"
+  DB_USERNAME: "geher.marcell"
+  DB_HOST: "jcloud02.jedlik.eu"
+  DB_DATABASE: "geher_marcell_db_1"
+  DB_PORT: "3306"
+  SESSION_DRIVER: "file"
+  CACHE_STORE: "file"
+  LOG_CHANNEL: "stderr"
+  SCOUT_DRIVER: "database"
+  SYSADMIN_USERNAME: "admin"
+  API_VERSION: "ersion latest"
+  # LDAP_CACHE: "false"
+  # LDAP_LOGGING: "false"
+  # LDAP_CONNECTION: "default"
+  # LDAP_HOST: "jdc.jedlik.eu"
+  # LDAP_USERNAME: "cn=Vendég,ou=Idegen,dc=jedlik,dc=helyi"
+  # LDAP_PASSWORD: "${LDAP_PASSWORD}"
+  # LDAP_PORT: "389"
+  # LDAP_BASE_DN: "dc=jedlik,dc=helyi"
+  # LDAP_TIMEOUT: "5"
+  # LDAP_SSL: "false"
+  # LDAP_TLS: "false"
+  # LDAP_SASL: "false"
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: laravel-storage-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Gi
+  selector:
+    matchLabels:
+      student: geher-marcell
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jedligram-backend-deployment
+spec:
+  selector:
+    matchLabels:
+      app: jedligram-backend
+  template:
+    metadata:
+      labels:
+        app: jedligram-backend
+    spec:
+      containers:
+        - name: jedligram-backend
+          image: ghcr.io/geher-marcell/jedligram-backend-vizsgaremek:latest
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8000
+
+          volumeMounts:
+            - name: laravel-storage
+              mountPath: /var/www/html/storage/app/public
+
+          envFrom:
+            - configMapRef:
+                name: jedligram-backend-config
+            - secretRef:
+                name: jedligram-backend-secret
+
+      volumes:
+        - name: laravel-storage
+          persistentVolumeClaim:
+            claimName: laravel-storage-pvc
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 33:33 /var/www/html/storage"]
+          volumeMounts:
+            - name: laravel-storage
+              mountPath: /var/www/html/storage/app/public
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jedligram-backend-cluster-ip-service
+spec:
+  selector:
+    app: jedligram-backend
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      targetPort: 8000
+      port: 80
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: jedligram-certificate
+spec:
+  secretName: jedligram-certificate
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - jedligrambackend-gehermarcell.jcloud.jedlik.cloud
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jedligram-backend-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - jedligrambackend-gehermarcell.jcloud.jedlik.cloud
+      secretName: jedligram-certificate
+
+  rules:
+    - host: jedligrambackend-gehermarcell.jcloud.jedlik.cloud
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jedligram-backend-cluster-ip-service
+                port:
+                  number: 80
