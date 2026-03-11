@@ -24,7 +24,6 @@ data:
   LDAP_CONNECTION: "default"
   LDAP_HOST: "jdc.jedlik.eu"
   LDAP_USERNAME: "cn=Vendég,ou=Idegen,dc=jedlik,dc=helyi"
-  LDAP_PASSWORD: "${LDAP_PASSWORD}"
   LDAP_PORT: "389"
   LDAP_BASE_DN: "dc=jedlik,dc=helyi"
   LDAP_TIMEOUT: "5"
@@ -74,7 +73,7 @@ spec:
             - name: laravel-storage
               mountPath: /var/www/html/storage/app/public
 
-          envFrom:
+          envFrom:          kubectl rollout restart deployment jedligram-backend-deployment
             - configMapRef:
                 name: jedligram-backend-config
             - secretRef:
