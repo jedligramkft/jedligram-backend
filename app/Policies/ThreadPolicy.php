@@ -46,6 +46,11 @@ class ThreadPolicy
         return $user->hasThreadRole($thread->id, [1]);
     }
 
+    public function ban(User $user, Thread $thread): bool
+    {
+        return $user->hasThreadRole($thread->id, [1, 2]);
+    }
+
     /**
      * Determine whether the user can delete the model.
      */

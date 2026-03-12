@@ -58,6 +58,9 @@ class ThreadUserController extends Controller
         //
     }
 
+    /**
+     * Update the role of a user in a thread. Only admins can assign roles, and banned role cannot be assigned through this method.
+     */
     public function assignRole(AssignRoleRequest $request, Thread $thread, User $user){
         $validated = $request->validated();
         if($validated['role_id'] == 4){
@@ -72,6 +75,21 @@ class ThreadUserController extends Controller
         return response()->json(['message' => 'Role updated successfully' ], 200);
     }
 
+    /**
+     * Ban a user from a thread. This is done by assigning the banned role to the user in the thread. Only admins and moderators can ban users.
+     */
+    public function ban(AssignRoleRequest $request, Thread $thread, User $user){
+        $validated = $request->validated();
+        if($validated['role_id'] != 4){
+            return response()->json(['message' => 'Cannot assign non-banned role'], 400);
+        }
+        if (!$thread->users->contains($user->id)) {
+            return response()->json(['message' => 'User is not a member of this thread'], 422);
+        }
+        $thread->users()->updateExistingPivot($user->id, ['role_id' => $validated['role_id']]);
+        return response()->json(['message' => 'User banned successfully' ], 200);
+    }
+    
     /**
      * Remove the specified resource from storage.
      */
