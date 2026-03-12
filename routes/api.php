@@ -21,6 +21,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('posts', PostController::class);
     Route::get('posts/{post}/comments', [CommentController::class, 'index']);
     Route::post('posts/{post}/comments', [CommentController::class, 'store']);
+    //TODO: TEST THIS
+    Route::delete('posts/{post}/comments/{comment}', [CommentController::class, 'destroy'])->middleware('can:delete,comment');
     Route::get('comments/{comment}/replies', [CommentController::class, 'replies']);
     Route::put('users/{user}', [UserController::class, 'update']);
     Route::post('users/profile-picture', [UserController::class, 'uploadPfP']);
