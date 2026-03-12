@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CreatePostRequest;
 use App\Http\Resources\PostResource;
 
+use function Pest\Laravel\post;
+
 class PostController extends Controller
 {
     /**
@@ -50,10 +52,16 @@ class PostController extends Controller
     }
 
     /**
-     * Delete a post (not implemented).
+     * Delete a post or remove as moderator.
      */
-    public function destroy(Post $post)
+    public function destroy(Request $request, Thread $thread, Post $post)
     {
-        //
+        if($request->user()->id == $post->user_id) {
+            $post->update(['content' => '[deleted]']);
+            return response()->json(['message' => 'Post deleted'], 200);
+        }
+
+        $post->update(['content' => '[removed]']);
+        return response()->json(['message' => 'Post removed'], 200);
     }
 }
