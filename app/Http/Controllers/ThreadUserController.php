@@ -88,8 +88,10 @@ class ThreadUserController extends Controller
         }
         $thread->users()->updateExistingPivot($user->id, ['role_id' => $validated['role_id']]);
         return response()->json(['message' => 'User banned successfully' ], 200);
+
+        //TODO : test if the prevention of self-ban works correctly
     }
-    
+
     /**
      * Remove the specified resource from storage.
      */
