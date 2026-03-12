@@ -27,7 +27,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('logout', [UserController::class, 'logout']);
     Route::get('threads/{thread}/members', [ThreadController::class, 'members'])->middleware('can:viewMembers,thread');
     Route::patch('threads/{thread}/members/{user}', [ThreadUserController::class, 'assignRole'])->middleware('can:updateRole,thread');
-    Route::patch('threads/{thread}/members/{user}', [ThreadUserController::class, 'ban'])->middleware('can:ban,thread');
+    Route::patch('threads/{thread}/members/{user}', [ThreadUserController::class, 'ban'])->middleware('can:ban,thread,user');
 });
 
 Route::apiResource('threads', ThreadController::class)->only(['index']);

@@ -46,9 +46,9 @@ class ThreadPolicy
         return $user->hasThreadRole($thread->id, [1]);
     }
 
-    public function ban(User $user, Thread $thread): bool
+    public function ban(User $user, Thread $thread, User $model): bool
     {
-        return $user->hasThreadRole($thread->id, [1, 2]);
+        return $user->hasThreadRole($thread->id, [1, 2]) && !$user->id == $model->id;
     }
 
     /**
