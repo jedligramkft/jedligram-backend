@@ -1,12 +1,12 @@
 <?php
 
 use App\Http\Controllers\CommentController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ThreadUserController;
 use App\Http\Controllers\VoteController;
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
@@ -26,6 +26,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('posts/{post}/vote', [VoteController::class, 'vote']);
     Route::post('logout', [UserController::class, 'logout']);
     Route::get('threads/{thread}/members', [ThreadController::class, 'members'])->middleware('can:viewMembers,thread');
+    Route::patch('threads/{thread}/members/{user}', [ThreadUserController::class, 'assignRole'])->middleware('can:updateRole,thread');
 });
 
 

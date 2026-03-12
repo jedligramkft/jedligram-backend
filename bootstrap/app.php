@@ -8,6 +8,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use App\Http\Middleware\SysadminAuth;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -31,10 +32,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 404);
             }
         });
-        $exceptions->render(function (Throwable $e, HttpRequest $request) {
+        $exceptions->render(function (AccessDeniedHttpException $e, HttpRequest $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
-                    'message' => 'Unathorized',
+                    'message' => 'Unauthorized',
                 ], 403);
             }
         });

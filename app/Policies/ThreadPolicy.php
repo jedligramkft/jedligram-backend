@@ -41,9 +41,9 @@ class ThreadPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Thread $thread): bool
+    public function updateRole(User $user, Thread $thread): bool
     {
-        return false;
+        return $user->hasThreadRole($thread->id, [1]);
     }
 
     /**
