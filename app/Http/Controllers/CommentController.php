@@ -79,6 +79,11 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment, Post $post, Request $request)
     {
+        // Ensure the comment belongs to the specified post context
+        if ($comment->post_id !== $post->id) {
+            abort(404);
+        }
+
         if($request->user()->id == $comment->user_id) {
             $comment->update(['content' => '[deleted]']);
             return response()->json(['message' => 'Comment deleted'], 200);
