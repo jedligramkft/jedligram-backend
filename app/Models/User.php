@@ -85,7 +85,7 @@ class User extends Authenticatable
 
     protected array $threadRolesCache = [];
 
-    public function hasThreadRole(int $threadId, array $roleNames): bool{
+    public function hasThreadRole(int $threadId, array $roleIds): bool{
         if(!isset($this->threadRolesCache[$threadId])){
             $thread = $this->threads()
                 ->where('thread_id', $threadId)
@@ -94,7 +94,7 @@ class User extends Authenticatable
             $this->threadRolesCache[$threadId] = $thread && $thread->pivot ? $thread->pivot->role_id : null;
         }
 
-        return in_array($this->threadRolesCache[$threadId], $roleNames);
+        return in_array($this->threadRolesCache[$threadId], $roleIds);
     }
 
 	public function votes()
