@@ -18,6 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Prepend CORS middleware so it runs before all others (including auth)
+        $middleware->prepend(\Illuminate\Http\Middleware\HandleCors::class);
+
         // Register sysadmin session-guard middleware alias
         $middleware->alias([
             'sysadmin.auth' => SysadminAuth::class,

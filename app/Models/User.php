@@ -13,6 +13,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Scout\Searchable;
+use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 
 /**
  * Class User
@@ -32,9 +34,9 @@ use Laravel\Scout\Searchable;
  *
  * @package App\Models
  */
-class User extends Authenticatable
+class User extends Authenticatable implements LdapAuthenticatable
 {
-    use HasApiTokens, HasFactory, Searchable;
+    use HasApiTokens, HasFactory, Searchable, AuthenticatesWithLdap;
 	protected $table = 'users';
 
     public function toSearchableArray()

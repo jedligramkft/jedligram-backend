@@ -8,6 +8,7 @@ use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ThreadUserController;
 use App\Http\Controllers\VoteController;
+use App\Http\Controllers\LdapTestController;
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('threads/{thread}/join', [ThreadController::class, 'join']);

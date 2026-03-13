@@ -9,9 +9,10 @@ use App\Http\Requests\UploadProfilePictureRequest;
 use App\Http\Resources\ThreadResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
@@ -32,27 +33,31 @@ class UserController extends Controller
         return response()->json(User::all()->toResourceCollection(), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
-    /**
-    * Register a new user and return created user resource.
-    */
-    public function register(RegisterUserRequest $request)
-    {
-        $user = User::create($request->validated());
-        return response()->json(UserResource::make($user), 201, [], JSON_UNESCAPED_SLASHES);
-    }
+    // /**
+    //  * Store a newly created resource in storage.
+    //  */
+    // public function register(RegisterUserRequest $request)
+    // {
+    //     $user = User::create($request->validated());
+    //     return response()->json($user, 201);
+    // }
 
     /**
      * Authenticate user and return a bearer token.
      */
     public function login(LoginUserRequest $request)
     {
-        $credentials = $request->validated();
+        $RawCredentials = $request->validated();
 
-        $user = User::where('email', $credentials['email'])->first();
+        $credentials = [
+            'samaccountname' => $RawCredentials['username'],
+            'password' => $RawCredentials['password']
+        ];
 
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+        if (!Auth::attempt($credentials)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
+        $user = Auth::user();
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -69,11 +74,8 @@ class UserController extends Controller
      */
     public function logout(Request $request)
     {
-        $user = $request->user();
-        if (!$user) {
-            return response()->json(['message' => 'User not authenticated'], 401);
-        }
-        $user->currentAccessToken()->delete();
+        // TODO error message
+        Auth::logout();
 
         return response()->json(['message' => 'Logged out successfully']);
     }

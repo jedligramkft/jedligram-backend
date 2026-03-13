@@ -7,8 +7,7 @@
 # AUTHENTICATION
 # =============================================================================
 
-### 1. Register a new user
-# Creates a new user record and returns user details.
+### 1. Register a new user (DOES NOT WORK)
 POST {{baseUrl}}/register
 Content-Type: application/json
 Accept: application/json
@@ -20,15 +19,14 @@ Accept: application/json
     "password_confirmation": "{{password}}"
 }
 
-### 2. Login
-# Authenticates credentials and returns a Sanctum 'access_token'.
+### 2. Login using LDAP (Run this to get your Token)
 # @name loginRequest
 POST {{baseUrl}}/login
 Content-Type: application/json
 Accept: application/json
 
 {
-    "email": "{{email}}",
+    "username": "{{username}}",
     "password": "{{password}}"
 }
 

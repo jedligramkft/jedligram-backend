@@ -10,6 +10,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "directorytree/ldaprecord": "3.8",
+        "directorytree/ldaprecord-laravel": "3.4",
         "dedoc/scramble": "^0.13.14",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
