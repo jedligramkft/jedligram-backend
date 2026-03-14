@@ -75,10 +75,21 @@ class CommentController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     *  Delete comment or remove as moderator.
      */
-    public function destroy(Comment $comment)
+    public function destroy(Comment $comment, Post $post, Request $request)
     {
-        //
+        // Ensure the comment belongs to the specified post context
+        if ($comment->post_id !== $post->id) {
+            abort(404);
+        }
+
+        if($request->user()->id == $comment->user_id) {
+            $comment->update(['content' => '[deleted]']);
+            return response()->json(['message' => 'Comment deleted'], 200);
+        }
+
+        $comment->update(['content' => '[removed]']);
+        return response()->json(['message' => 'Comment removed'], 200);
     }
 }

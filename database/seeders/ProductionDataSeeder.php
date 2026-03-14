@@ -14,7 +14,8 @@ class ProductionDataSeeder extends Seeder
         $roles = [
             'admin',
             'moderator',
-            'user'
+            'user',
+            'banned'
         ];
 
         foreach ($roles as $role) {

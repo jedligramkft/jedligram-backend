@@ -1,8 +1,7 @@
 ### Variables
-@baseUrl = http://127.0.0.1:8000/api
-@email = test@example.com
-@username = YOUR_LDAP_USERNAME
-@password = YOUR_LDAP_PASSWORD
+@baseUrl=http://127.0.0.1:8000/api
+@email=test6@example.com
+@password=password123
 
 # =============================================================================
 # AUTHENTICATION
@@ -31,6 +30,14 @@ Accept: application/json
     "password": "{{password}}"
 }
 
+
+
+### 2b. Debug substitution
+GET https://httpbin.org/anything
+Accept: application/json
+X-Debug-Token: {{loginRequest.response.body.access_token}}
+
+
 ### 3. Logout
 # Revokes the current access token. Requires valid Bearer Token.
 POST {{baseUrl}}/logout
@@ -56,7 +63,7 @@ Accept: application/json
 Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 {
-    "name": "Old Thread Title test",
+    "name": "Old Thread Title test2",
     "description": "This is the content of the new thread."
 }
 
@@ -95,6 +102,11 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
     "content": "pisztiposzti"
 }
 
+### 11. view members of threads
+# Gets the members of a thread, only accessed by users of the thread with admin or moderator roles
+GET {{baseUrl}}/threads/5/members
+Accept: application/json
+Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 # =============================================================================
 # POSTS & VOTING
@@ -201,3 +213,4 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
     "content": "This is a comment on post 4.",
     "parent_id": 35
 }
+

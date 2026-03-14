@@ -76,13 +76,28 @@ class User extends Authenticatable implements LdapAuthenticatable
     {
         return $this->hasMany(Comment::class);
     }
-    
+
 	public function threads()
 	{
 		return $this->belongsToMany(Thread::class, 'thread_user')
+                    ->using(ThreadUser::class)
 					->withPivot('id', 'role_id')
 					->withTimestamps();
 	}
+
+    protected array $threadRolesCache = [];
+
+    public function hasThreadRole(int $threadId, array $roleIds): bool{
+        if(!isset($this->threadRolesCache[$threadId])){
+            $thread = $this->threads()
+                ->where('thread_id', $threadId)
+                ->first();
+
+            $this->threadRolesCache[$threadId] = $thread && $thread->pivot ? $thread->pivot->role_id : null;
+        }
+
+        return in_array($this->threadRolesCache[$threadId], $roleIds);
+    }
 
 	public function votes()
 	{

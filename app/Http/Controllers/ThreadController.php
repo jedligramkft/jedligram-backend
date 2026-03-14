@@ -5,15 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Thread;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreThreadRequest;
-use App\Http\Requests\CreatePostRequest;
 use App\Http\Resources\PostResource;
 use App\Http\Resources\ThreadResource;
-use Illuminate\Support\Facades\Gate;
 
 class ThreadController extends Controller
 {
     /**
-    * List threads. Supports `search` query parameter for text search.
+     * List threads. Supports `search` query parameter for text search.
      */
     public function index(Request $request)
     {
@@ -29,7 +27,7 @@ class ThreadController extends Controller
     }
 
     /**
-    * Create a new thread and attach the creator as a member.
+     * Create a new thread and attach the creator as a member.
      */
     public function store(StoreThreadRequest $request)
     {
@@ -39,7 +37,7 @@ class ThreadController extends Controller
     }
 
     /**
-    * Get thread details, including member count.
+     * Get thread details, including member count.
      */
     public function show(Thread $thread)
     {
@@ -81,6 +79,21 @@ class ThreadController extends Controller
             return $query->latest();
         })->get();
         return response()->json(PostResource::collection($posts), 200);
+    }
+
+    public function members(Thread $thread)
+    {
+        $members = $thread->users()->withPivot('role_id')->get()->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role_id' => $user->pivot->role_id,
+            ];
+        });
+
+        return response()->json($members, 200);
+        // return response()->json($thread->users, 200);
     }
 
     /**
