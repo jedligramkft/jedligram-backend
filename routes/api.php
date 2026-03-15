@@ -10,8 +10,6 @@ use App\Http\Controllers\ThreadUserController;
 use App\Http\Controllers\VoteController;
 use App\Http\Controllers\LdapTestController;
 
-Route::post('verify-email', [UserController::class, 'verifyEmail']);
-
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('threads/{thread}/join', [ThreadController::class, 'join']);
     Route::delete('threads/{thread}/leave', [ThreadController::class, 'leave']);

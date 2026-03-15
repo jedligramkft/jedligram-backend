@@ -214,13 +214,3 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
     "parent_id": 35
 }
 
-###
-
-POST {{baseUrl}}/verify-email
-Content-Type: application/json
-Accept: application/json
-
-{
-    "email": "{{email}}",
-    "verification_code": "e0dc463562c6b127dde3ff4377cc18cd" 
-}
