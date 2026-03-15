@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string $name
  * @property string $email
  * @property Carbon|null $email_verified_at
+ * @property Carbon|null $welcome_email_sent_at
  * @property string $password
  * @property string|null $remember_token
  * @property Carbon|null $created_at
@@ -37,7 +38,8 @@ class User extends Authenticatable
 	protected $table = 'users';
 
 	protected $casts = [
-		'email_verified_at' => 'datetime',
+		// 'email_verified_at' => 'datetime',
+		'welcome_email_sent_at' => 'datetime',
         'password' => 'hashed'
 	];
 
@@ -49,7 +51,8 @@ class User extends Authenticatable
 	protected $fillable = [
 		'name',
 		'email',
-		'email_verified_at',
+		// 'email_verified_at',
+		'welcome_email_sent_at',
 		'password',
 		'remember_token'
 	];

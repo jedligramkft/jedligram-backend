@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\RegisterUserRequest;
-use App\Mail\EmailVerificationCodeMail;
 use App\Models\EmailVerification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class UserController extends Controller
 {
@@ -39,6 +39,23 @@ class UserController extends Controller
 
         if(!$user->email_verified_at) {
             return response()->json(['message' => 'Email not verified'], 403);
+        }
+
+        // Automically mark that the welcome email was handled to prevent duplicate sends.
+        $isFirstSuccessfulLogin = User::whereKey($user->id)
+            ->whereNull('welcome_email_sent_at')
+            ->update(['welcome_email_sent_at' => now()]) === 1;
+
+        if ($isFirstSuccessfulLogin) {
+            try {
+                EmailController::sendWelcomeEmail($user);
+            } catch (Throwable $exception) {
+                Log::error('Failed to send welcome email on first login.', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'error' => $exception->getMessage(),
+                ]);
+            }
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
