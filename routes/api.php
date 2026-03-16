@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ThreadController;
@@ -11,8 +11,8 @@ use App\Http\Controllers\VoteController;
 use App\Http\Controllers\LdapTestController;
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
-    Route::post('threads/{thread}/join', [ThreadController::class, 'join']);
-    Route::delete('threads/{thread}/leave', [ThreadController::class, 'leave']);
+    Route::post('threads/{thread}/join', [ThreadUserController::class, 'join']);
+    Route::delete('threads/{thread}/leave', [ThreadUserController::class, 'leave']);
     Route::get('threads/{thread}/posts', [ThreadController::class, 'postsOfThread']);
     Route::delete('threads/{thread}/posts/{post}', [PostController::class, 'destroy'])->middleware('can:delete,post');
     Route::get('threads/search', [ThreadController::class, 'search']);
@@ -29,7 +29,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('users/profile-picture', [UserController::class, 'uploadPfP']);
     Route::post('posts/{post}/vote', [VoteController::class, 'vote']);
     Route::post('logout', [UserController::class, 'logout']);
-    Route::get('threads/{thread}/members', [ThreadController::class, 'members'])->middleware('can:viewMembers,thread');
+    Route::get('threads/{thread}/members', [ThreadUserController::class, 'index'])->middleware('can:viewMembers,thread');
     Route::patch('threads/{thread}/members/{user}', [ThreadUserController::class, 'assignRole'])->middleware('can:updateRole,thread');
     Route::patch('threads/{thread}/members/{user}/ban', [ThreadUserController::class, 'ban'])->middleware('can:ban,thread,user');
 });

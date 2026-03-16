@@ -13,10 +13,44 @@ class ThreadUserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Thread $thread)
     {
-        //
+        $members = $thread->users()->withPivot('role_id')->get()->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role_id' => $user->pivot->role_id,
+            ];
+        });
+
+        return response()->json($members, 200);
     }
+
+    /**
+     * Join the authenticated user to the given thread.
+     */
+    public function join(Request $request, Thread $thread)
+    {
+        if ($thread->users->contains($request->user())) {
+            return response()->json(['message' => 'You are already a member of this thread'], 409);
+        }
+        $thread->users()->syncWithoutDetaching([$request->user()->id, ['role_id' => 3]]);
+        return response()->json(['message' => 'You joined the thread'], 200);
+    }
+
+    /**
+     * Remove the authenticated user from the given thread.
+     */
+    public function leave(Request $request, Thread $thread)
+    {
+        if (!$thread->users->contains($request->user())) {
+            return response()->json(['message' => 'You are not a member of this thread'], 422);
+        }
+        $thread->users()->detach($request->user()->id);
+        return response()->json(['message' => 'You left the thread'], 200);
+    }
+
 
     /**
      * Show the form for creating a new resource.
