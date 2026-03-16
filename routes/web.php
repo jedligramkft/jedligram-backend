@@ -11,8 +11,7 @@ Route::get('/send-welcome-email', function () {
         'email' => 'borsodi.koppany@students.jedlik.eu',
         'password' => bcrypt('password123')
     ]);
-
-//    Mail::to($user->email)->send(new WelcomeMail($user));
-    \App\Http\Controllers\EmailController::sendPasswordResetCode($user);
+    
+    \App\Http\Controllers\EmailController::sendWelcomeEmail($user);
     return 'Welcome email sent!';
 });
