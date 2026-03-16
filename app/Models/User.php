@@ -40,6 +40,7 @@ class User extends Authenticatable
 	protected $casts = [
 		'email_verified_at' => 'datetime',
 		'welcome_email_sent_at' => 'datetime',
+		'is_2fa_enabled' => 'boolean',
         'password' => 'hashed'
 	];
 
@@ -53,6 +54,7 @@ class User extends Authenticatable
 		'email',
 		'email_verified_at',
 		'welcome_email_sent_at',
+		'is_2fa_enabled',
 		'password',
 		'remember_token'
 	];

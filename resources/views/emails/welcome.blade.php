@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <body>
-        <h1>Kedves, {{ $user->name }}</h1>
+        <h3>Kedves, {{ $name }}</h3>
 
         <p>Örülünk, hogy csatlakoztál közösségünkhöz. Íme néhány gyors tipp a kezdéshez:</p>
 
@@ -11,13 +11,11 @@
             <li>Oszd meg gondolataidat és ötleteidet.</li>
         </ul>
 
-        <p>
-            <a href="https://jedlik.eu" style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007BFF; text-decoration: none; border-radius: 5px;">Kezdés</a>
-        </p>
+        <x-button href="{{ env('FRONTEND_URL') }}">Látogasd meg a Jedligramot</x-button>
 
         <p>Ha bármilyen kérdésed van, fordulj bizalommal ügyfélszolgálatunkhoz.</p>
 
-        <p>Köszönettel,<br>
+        <p>Üdvözlettel,<br>
         A Jedligram Csapata</p>
     </body>
 </html>

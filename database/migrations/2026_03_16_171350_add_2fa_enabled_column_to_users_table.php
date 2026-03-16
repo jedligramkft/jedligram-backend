@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('email_verifications', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade')->unique();
-            $table->string('token');
-            $table->timestamp('expires_at');
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->boolean('is_2fa_enabled')->default(false);
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('email_verifications');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('is_2fa_enabled');
+        });
     }
 };

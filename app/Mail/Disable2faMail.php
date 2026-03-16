@@ -5,24 +5,20 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class PasswordResetMail extends Mailable
+class Disable2faMail extends Mailable
 {
     use Queueable, SerializesModels;
-
-    public string $resetCode;
-    public string $email;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(string $resetCode, string $email)
+    public function __construct(private string $verificationCode, private string $email, private string $name)
     {
-        $this->resetCode = $resetCode;
-        $this->email = $email;
     }
 
     /**
@@ -31,7 +27,7 @@ class PasswordResetMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Jelszó visszaállítása',
+            subject: 'Két faktoros azonosítás kikapcsolása',
         );
     }
 
@@ -41,7 +37,22 @@ class PasswordResetMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.password_reset',
+            view: 'emails.disable_2fa',
+            with: [
+                'verificationCode' => $this->verificationCode,
+                'email' => $this->email,
+                'name' => $this->name,
+            ],
         );
+    }
+
+    /**
+     * Get the attachments for the message.
+     *
+     * @return array<int, Attachment>
+     */
+    public function attachments(): array
+    {
+        return [];
     }
 }

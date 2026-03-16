@@ -1,17 +1,93 @@
 <?php
 
-use App\Mail\WelcomeMail;
+use App\Http\Controllers\EmailController;
+use App\Http\Controllers\UserController;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
 
-Route::get('/send-welcome-email', function () {
-    $user = new User([
-        'name' => 'Gehér Marcell',
-        'email' => 'borsodi.koppany@students.jedlik.eu',
-        'password' => bcrypt('password123')
+Route::post('/send-welcome-email', function (Request $request) {
+    $request->validate([
+        'name' => 'required|string',
+        'email' => 'required|email',
     ]);
-    
-    \App\Http\Controllers\EmailController::sendWelcomeEmail($user);
-    return 'Welcome email sent!';
+
+    $name = $request->input('name');
+    $email = $request->input('email');
+
+    EmailController::sendWelcomeEmail($email, $name);
+
+    return response()->json(['message' => 'Verification email sent to ' . $email . '!']);
+});
+
+Route::post('/send-enable-2fa-email', function (Request $request) {
+    $request->validate([
+        'name' => 'required|string',
+        'email' => 'required|email',
+    ]);
+
+    $name = $request->input('name');
+    $email = $request->input('email');
+
+    $user = User::firstOrCreate(
+        ['email' => $email],
+        [
+            'name' => $name,
+            'password' => Hash::make(Str::random(32)),
+        ]
+    );
+
+    try{
+        EmailController::sendEnable2faEmail($user);
+    }
+    catch (\Exception $e) {
+        Log::error('Failed to send enable 2FA email', [
+            'email' => $email,
+            'error' => $e->getMessage(),
+        ]);
+        return response()->json(['message' => 'Failed to send enable 2FA email: ' . $e->getMessage()], 500);
+    }
+
+    return response()->json(['message' => 'Verification email sent to ' . $email . '!']);
+});
+
+Route::post('/send-disable-2fa-email', function (Request $request) {
+    $request->validate([
+        'name' => 'required|string',
+        'email' => 'required|email',
+    ]);
+
+    $name = $request->input('name');
+    $email = $request->input('email');
+
+    $user = User::firstOrCreate(
+        ['email' => $email],
+        [
+            'name' => $name,
+            'password' => Hash::make(Str::random(32)),
+        ]
+    );
+
+    try{
+        EmailController::sendDisable2faEmail($user);
+    }
+    catch (\Exception $e) {
+        Log::error('Failed to send enable 2FA email', [
+            'email' => $email,
+            'error' => $e->getMessage(),
+        ]);
+        return response()->json(['message' => 'Failed to send enable 2FA email: ' . $e->getMessage()], 500);
+    }
+
+    return response()->json(['message' => 'Verification email sent to ' . $email . '!']);
+});
+
+Route::post('/verify-2fa', [UserController::class, 'verify2fa']);
+
+Route::get('/email-test', function () {
+    return view('emailtest');
 });

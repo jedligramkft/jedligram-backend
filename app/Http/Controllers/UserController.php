@@ -6,6 +6,7 @@ use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\RegisterUserRequest;
 use App\Models\EmailVerification;
 use App\Models\User;
+use App\Models\Verify2fa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -48,7 +49,7 @@ class UserController extends Controller
 
         if ($isFirstSuccessfulLogin) {
             try {
-                EmailController::sendWelcomeEmail($user);
+                EmailController::sendWelcomeEmail($user->email, $user->name);
             } catch (Throwable $exception) {
                 Log::error('Failed to send welcome email on first login.', [
                     'user_id' => $user->id,
@@ -118,5 +119,45 @@ class UserController extends Controller
         $verification->delete();
 
         return response()->json(['message' => 'Email verified successfully']);
+    }
+
+    public function verify2fa(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'verification_code' => 'required|string',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $verification = Verify2fa::where('user_id', $user->id)->first();
+
+        $isTokenValid = $verification
+            && (Hash::check($request->verification_code, $verification->token)
+                || hash_equals((string) $verification->token, (string) $request->verification_code));
+
+        if (!$verification || !$isTokenValid || $verification->expires_at->isPast()) {
+            Log::warning('2FA verification failed', [
+                'email' => $request->email,
+                'has_verification_row' => (bool) $verification,
+                'token_match' => $isTokenValid,
+                'is_expired' => $verification ? $verification->expires_at->isPast() : null,
+            ]);
+
+            return response()->json(['message' => 'Invalid or expired verification code'], 400);
+        }
+
+        // Update the user's 2FA status based on the enables_2fa field in the verification record
+        $user->is_2fa_enabled = $verification->enables_2fa;
+        $user->save();
+
+        // Delete the verification record after successful verification
+        $verification->delete();
+
+        return response()->json(['message' => '2FA verification successful']);
     }
 }
