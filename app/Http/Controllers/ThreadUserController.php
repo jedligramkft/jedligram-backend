@@ -32,7 +32,7 @@ class ThreadUserController extends Controller
      */
     public function join(Request $request, Thread $thread)
     {
-        if ($thread->users->contains($request->user())) {
+        if ($thread->users()->whereKey($request->user()->id)->exists()) {
             return response()->json(['message' => 'You are already a member of this thread'], 409);
         }
         $thread->users()->syncWithoutDetaching([$request->user()->id, ['role_id' => 3]]);
@@ -44,7 +44,7 @@ class ThreadUserController extends Controller
      */
     public function leave(Request $request, Thread $thread)
     {
-        if (!$thread->users->contains($request->user())) {
+        if (!$thread->users()->whereKey($request->user()->id)->exists()) {
             return response()->json(['message' => 'You are not a member of this thread'], 422);
         }
         $thread->users()->detach($request->user()->id);
