@@ -3,9 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
 
-use App\Policies\PostPolicy;
+
+
 
 class CreatePostRequest extends FormRequest
 {
