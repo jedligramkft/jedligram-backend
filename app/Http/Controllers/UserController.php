@@ -23,8 +23,6 @@ class UserController extends Controller
     {
         $user = User::create($request->validated());
 
-        EmailController::sendEmailVerificationCode($user);
-
         return response()->json($user, 201);
     }
 
@@ -37,9 +35,19 @@ class UserController extends Controller
         if(!$user || !Hash::check($credentials['password'], $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
-
-        if(!$user->email_verified_at) {
-            return response()->json(['message' => 'Email not verified'], 403);
+        if($user->is_2fa_enabled){
+            try {
+                EmailController::sendLoginVerification($user);
+            } catch (Throwable $exception) {
+                Log::error('Failed to send login verification email.', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'error' => $exception->getMessage(),
+                ]);
+                return response()->json(['message' => 'Failed to send login verification email: ' . $exception->getMessage()], 500);
+            }
+            
+            return response()->json(['message' => 'Login verification code sent to email. Please verify to complete login.']);
         }
 
         // Automically mark that the welcome email was handled to prevent duplicate sends.
@@ -60,14 +68,13 @@ class UserController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
-
+        
         return response()->json([
             'message' => 'Login successful',
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => $user
         ]);
-
     }
 
     public function logout(Request $request)
@@ -92,8 +99,7 @@ class UserController extends Controller
         //
     }
 
-    public function verifyEmail(Request $request)
-    {
+    public function verifyLogin(Request $request){
         $request->validate([
             'email' => 'required|email',
             'verification_code' => 'required|string',
@@ -105,20 +111,23 @@ class UserController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
-
-        $verification = EmailVerification::where('user_id', $user->id)->first();
+        $verification = Verify2fa::where('user_id', $user->id)->first();
 
         if (!$verification || !Hash::check($request->verification_code, $verification->token) || $verification->expires_at->isPast()) {
             return response()->json(['message' => 'Invalid or expired verification code'], 400);
         }
 
-        $user->email_verified_at = now();
-        $user->save();
-
         // Delete the verification record after successful verification
         $verification->delete();
+        $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json(['message' => 'Email verified successfully']);
+        //TODO issue a login token here instead of just returning a success message, or better yet, merge this verification step into the main login flow to avoid multiple token issuances and logins.
+        return response()->json([
+            'message' => 'Login successful',
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user' => $user
+        ]);
     }
 
     public function verify2fa(Request $request)
@@ -152,7 +161,7 @@ class UserController extends Controller
         }
 
         // Update the user's 2FA status based on the enables_2fa field in the verification record
-        $user->is_2fa_enabled = $verification->enables_2fa;
+        $user->is_2fa_enabled = $verification->enables_2fa ?? $user->is_2fa_enabled;
         $user->save();
 
         // Delete the verification record after successful verification

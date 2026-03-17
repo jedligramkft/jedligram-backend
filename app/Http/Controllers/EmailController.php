@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\Disable2faMail;
 use App\Mail\EmailVerificationCodeMail;
 use App\Mail\Enable2faMail;
+use App\Mail\LoginVerificationMail;
 use App\Mail\PasswordResetMail;
 use App\Mail\WelcomeMail;
 use App\Models\EmailVerification;
@@ -33,6 +34,11 @@ class EmailController extends Controller
         Mail::to($email)->send(new WelcomeMail($name));
     }
 
+    /**
+     * Sends an email to user with a code to enable or disable 2FA, depending on the $enables2fa parameter.
+     * @param User $targetUser The user to whom the email verification code will be sent.
+     * @param bool $enables2fa Indicates whether the email is for enabling or disabling 2FA, used to determine the email content.
+     */
     public static function sendToggle2faEmail(User $targetUser, bool $enables2fa)
     {
         $token = self::generateToken(6);
@@ -54,23 +60,24 @@ class EmailController extends Controller
         Mail::to($targetUser)->send($emailToSend);
     }
 
-
     /**
-     * Generates an n-digit verification code, stores it in the database, and sends it to the user's email.
-     * @param User $targetUser The user to whom the verification code will be sent.
-     */
-    public static function sendEmailVerificationCode(User $targetUser)
+    * Sends a login verification email with a code to the specified user.
+    * @param User $targetUser The user to whom the login verification email will be sent.
+    */
+    public static function sendLoginVerification(User $targetUser)
     {
         $token = self::generateToken(6);
         $expiryMinutes = 15;
 
-        //Add to the EmailVerification table
-        EmailVerification::updateOrCreate([
-            'user_id' => $targetUser->id,
-            'token' => $token,
-            'expires_at' => now()->addMinutes($expiryMinutes),
-        ]);
+        Verify2fa::updateOrCreate(
+            ['user_id' => $targetUser->id],
+            [
+                'token' => $token,
+                'expires_at' => now()->addMinutes($expiryMinutes),
+                'enables_2fa' => null, // No change to 2FA status, just a login verification
+            ]
+        );
 
-        Mail::to($targetUser)->send(new EmailVerificationCodeMail($token, $targetUser->email));
+        Mail::to($targetUser)->send(new LoginVerificationMail($token, $targetUser->email));
     }
 }

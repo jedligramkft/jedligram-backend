@@ -40,7 +40,7 @@ Route::post('/send-toggle-2fa-email', function (Request $request) {
         ['email' => $email],
         [
             'name' => $name,
-            'password' => Hash::make(Str::random(32)),
+            'password' => Hash::make("jelszo123"),
         ]
     );
 
@@ -58,7 +58,31 @@ Route::post('/send-toggle-2fa-email', function (Request $request) {
     return response()->json(['message' => 'Verification email sent to ' . $email . '!']);
 });
 
+Route::post('/send-2fa', function (Request $request) {
+    $request->validate([
+        'name' => 'required|string',
+        'email' => 'required|email',
+    ]);
+
+    $name = $request->input('name');
+    $email = $request->input('email');
+
+    //TODO replace with actual user lookup instead of creating a new user every time
+    $user = User::firstOrCreate(
+        ['email' => $email],
+        [
+            'name' => $name,
+            'password' => Hash::make("jelszo123"),
+        ]
+    );
+
+    EmailController::sendLoginVerification($user);
+
+    return response()->json(['message' => 'Verification email sent to ' . $email . '!']);
+});
+
 Route::post('/verify-2fa', [UserController::class, 'verify2fa']);
+Route::post('/verify-login', [UserController::class, 'verifyLogin']);
 
 Route::get('/email-test', function () {
     return view('emailtest');

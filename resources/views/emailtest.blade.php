@@ -16,11 +16,12 @@
         <button id="disable2faBtn" type="button">Disable 2FA</button>
     </div>
 
-    <div>
+    <div style="margin-top:8px;">
         <label for="email">Verification Code:</label>
         <input type="text" id="verificationCode" name="verificationCode">
     </div>
     <button id="verify2fa" type="button">Verify 2FA code</button>
+    <button id="verifylogin" type="button">Verify Login</button>
 
 </div>
 
@@ -32,6 +33,7 @@
     document.getElementById('enable2faBtn').addEventListener('click', enable2FA);
     document.getElementById('disable2faBtn').addEventListener('click', disable2FA);
     document.getElementById('verify2fa').addEventListener('click', verify2FA);
+    document.getElementById('verifylogin').addEventListener('click', verifyLogin);
 
     function enable2FA() {
         const email = document.getElementById('email').value;
@@ -70,6 +72,19 @@
 
         const body = JSON.stringify({ email, verification_code: code });
         sendRequest("/verify-2fa", body);
+    }
+
+    function verifyLogin() {
+        const email = document.getElementById('email').value;
+        const code = document.getElementById('verificationCode').value;
+
+        if (!email || !code) {
+            alert('Please enter both email and verification code to verify login.');
+            return;
+        }
+
+        const body = JSON.stringify({ email, verification_code: code });
+        sendRequest("/verify-login", body);
     }
 
     async function sendWelcomeEmail() {
