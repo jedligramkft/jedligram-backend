@@ -20,8 +20,6 @@ Route::post('logout', [UserController::class, 'logout']);
 Route::apiResource('roles', RoleController::class);
 Route::apiResource('votes', VoteController::class);
 
-Route::post('verify-email', [UserController::class, 'verifyEmail']);
-
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/logout', [UserController::class, 'logout']);
 

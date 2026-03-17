@@ -3,11 +3,11 @@
 <div>
     <div>
         <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required value="Darkiex">
+        <input type="text" id="name" name="name" required>
     </div>
     <div>
         <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required value="darkiex03@gmail.com">
+        <input type="email" id="email" name="email" required>
     </div>
 
     <div style="margin-top:8px;">

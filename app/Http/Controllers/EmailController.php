@@ -3,12 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Mail\Disable2faMail;
-use App\Mail\EmailVerificationCodeMail;
 use App\Mail\Enable2faMail;
 use App\Mail\LoginVerificationMail;
-use App\Mail\PasswordResetMail;
 use App\Mail\WelcomeMail;
-use App\Models\EmailVerification;
 use App\Models\User;
 use App\Models\Verify2fa;
 use Illuminate\Support\Facades\Mail;
@@ -16,18 +13,19 @@ use Illuminate\Support\Facades\Mail;
 class EmailController extends Controller
 {
     /**
-     * Generates a random token of the specified length.
-     * @param int $length The length of the token to generate (default is 10).
+     * Generates a random hexadecimal token from the specified number of bytes.
+     * @param int $numBytes The number of random bytes to use (default is 10). The resulting token will be 2 * $numBytes characters long.
      * @return string The generated token.
      */
-    private static function generateToken(int $length = 10)
+    private static function generateToken(int $numBytes = 10)
     {
-        return bin2hex(random_bytes($length));
+        return bin2hex(random_bytes($numBytes));
     }
 
     /**
      * Sends a welcome email to the specified user.
-     * @param User $targetUser The user to whom the welcome email will be sent.
+     * @param string $email The email address to which the welcome email will be sent.
+     * @param string $name  The name of the recipient to personalize the welcome email.
      */
     public static function sendWelcomeEmail(string $email, string $name)
     {

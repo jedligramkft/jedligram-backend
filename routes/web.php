@@ -6,9 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Mail;
 
 Route::post('/send-welcome-email', function (Request $request) {
     $request->validate([

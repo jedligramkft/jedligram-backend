@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\RegisterUserRequest;
-use App\Models\EmailVerification;
 use App\Models\User;
 use App\Models\Verify2fa;
 use Illuminate\Http\Request;
@@ -50,7 +49,7 @@ class UserController extends Controller
             return response()->json(['message' => 'Login verification code sent to email. Please verify to complete login.']);
         }
 
-        // Automically mark that the welcome email was handled to prevent duplicate sends.
+        // Automatically mark that the welcome email was handled to prevent duplicate sends.
         $isFirstSuccessfulLogin = User::whereKey($user->id)
             ->whereNull('welcome_email_sent_at')
             ->update(['welcome_email_sent_at' => now()]) === 1;
@@ -111,7 +110,7 @@ class UserController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        $verification = Verify2fa::where('user_id', $user->id)->first();
+        $verification = Verify2fa::where('user_id', $user->id)->whereNull('enables_2fa')->first();
 
         if (!$verification || !Hash::check($request->verification_code, $verification->token) || $verification->expires_at->isPast()) {
             return response()->json(['message' => 'Invalid or expired verification code'], 400);
@@ -121,7 +120,6 @@ class UserController extends Controller
         $verification->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        //TODO issue a login token here instead of just returning a success message, or better yet, merge this verification step into the main login flow to avoid multiple token issuances and logins.
         return response()->json([
             'message' => 'Login successful',
             'access_token' => $token,
@@ -143,11 +141,10 @@ class UserController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        $verification = Verify2fa::where('user_id', $user->id)->first();
+        $verification = Verify2fa::where('user_id', $user->id)->whereNotNull("enables_2fa")->first();
 
         $isTokenValid = $verification
-            && (Hash::check($request->verification_code, $verification->token)
-                || hash_equals((string) $verification->token, (string) $request->verification_code));
+            && (Hash::check($request->verification_code, $verification->token));
 
         if (!$verification || !$isTokenValid || $verification->expires_at->isPast()) {
             Log::warning('2FA verification failed', [
