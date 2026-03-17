@@ -148,13 +148,12 @@ class UserController extends Controller
         }
 
         $user = User::where('email', 'admin@example.com')
-            ->orWhere('samaccountname', 'admin')
+            ->orWhere('name', 'admin')
             ->first();
 
         if (!$user) {
             $user = User::create([
-                'samaccountname' => 'admin',
-                'name' => 'Admin',
+                'name' => 'admin',
                 'email' => 'admin@example.com',
                 'password' => Hash::make('admin'),
             ]);

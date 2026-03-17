@@ -16,7 +16,8 @@ class StoreCommentRequest extends FormRequest
         return $this->user() !== null;
     }
 
-    protected function prepareForValidation(){
+    protected function prepareForValidation()
+    {
         $this->merge([
             'user_id' => $this->user()->id,
             'post_id' => $this->route('post')->id
@@ -38,12 +39,13 @@ class StoreCommentRequest extends FormRequest
         ];
     }
 
-    public function after(){
-        return[
-            function(Validator $validator){
-                if($this->filled('parent_id')){
+    public function after()
+    {
+        return [
+            function (Validator $validator) {
+                if ($this->filled('parent_id')) {
                     $parentComment = Comment::find($this->input('parent_id'));
-                    if($parentComment->post_id != $this->input('post_id')){
+                    if ($parentComment->post_id != $this->input('post_id')) {
                         $validator->errors()->add('parent_id', 'The parent comment must belong to the same post.');
                     }
                 }
