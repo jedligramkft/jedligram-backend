@@ -42,8 +42,8 @@
             return;
         }
 
-        const body = JSON.stringify({ email, name });
-        sendRequest("/send-enable-2fa-email", body);
+        const body = JSON.stringify({ email, name, will_be_enabled: true });
+        sendRequest("/send-toggle-2fa-email", body);
     }
 
     function disable2FA() {
@@ -55,8 +55,8 @@
             return;
         }
 
-        const body = JSON.stringify({ email, name });
-        sendRequest("/send-disable-2fa-email", body);
+        const body = JSON.stringify({ email, name, will_be_enabled: false });
+        sendRequest("/send-toggle-2fa-email", body);
     }
 
     function verify2FA() {

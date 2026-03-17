@@ -33,7 +33,7 @@ class EmailController extends Controller
         Mail::to($email)->send(new WelcomeMail($name));
     }
 
-    public static function sendEnable2faEmail(User $targetUser)
+    public static function sendToggle2faEmail(User $targetUser, bool $enables2fa)
     {
         $token = self::generateToken(6);
         $expiryMinutes = 15;
@@ -43,28 +43,15 @@ class EmailController extends Controller
             [
                 'token' => $token,
                 'expires_at' => now()->addMinutes($expiryMinutes),
-                'enables_2fa' => true,
+                'enables_2fa' => $enables2fa,
             ]
         );
 
-        Mail::to($targetUser)->send(new Enable2faMail($token, $targetUser->email, $targetUser->name));
-    }
+        $emailToSend = $enables2fa 
+            ? new Enable2faMail($token, $targetUser->email, $targetUser->name) 
+            : new Disable2faMail($token, $targetUser->email, $targetUser->name);
 
-    public static function sendDisable2faEmail(User $targetUser)
-    {
-        $token = self::generateToken(6);
-        $expiryMinutes = 15;
-
-        Verify2fa::updateOrCreate(
-            ['user_id' => $targetUser->id],
-            [
-                'token' => $token,
-                'expires_at' => now()->addMinutes($expiryMinutes),
-                'enables_2fa' => false,
-            ]
-        );
-
-        Mail::to($targetUser)->send(new Disable2faMail($token, $targetUser->email, $targetUser->name));
+        Mail::to($targetUser)->send($emailToSend);
     }
 
 

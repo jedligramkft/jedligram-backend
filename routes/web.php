@@ -24,15 +24,18 @@ Route::post('/send-welcome-email', function (Request $request) {
     return response()->json(['message' => 'Verification email sent to ' . $email . '!']);
 });
 
-Route::post('/send-enable-2fa-email', function (Request $request) {
+Route::post('/send-toggle-2fa-email', function (Request $request) {
     $request->validate([
         'name' => 'required|string',
         'email' => 'required|email',
+        'will_be_enabled' => 'required|boolean',
     ]);
 
     $name = $request->input('name');
     $email = $request->input('email');
+    $willBeEnabled = $request->input('will_be_enabled');
 
+    //TODO replace with actual user lookup instead of creating a new user every time
     $user = User::firstOrCreate(
         ['email' => $email],
         [
@@ -42,45 +45,14 @@ Route::post('/send-enable-2fa-email', function (Request $request) {
     );
 
     try{
-        EmailController::sendEnable2faEmail($user);
+        EmailController::sendToggle2faEmail($user, $willBeEnabled);
     }
     catch (\Exception $e) {
-        Log::error('Failed to send enable 2FA email', [
+        Log::error('Failed to send 2FA email', [
             'email' => $email,
             'error' => $e->getMessage(),
         ]);
-        return response()->json(['message' => 'Failed to send enable 2FA email: ' . $e->getMessage()], 500);
-    }
-
-    return response()->json(['message' => 'Verification email sent to ' . $email . '!']);
-});
-
-Route::post('/send-disable-2fa-email', function (Request $request) {
-    $request->validate([
-        'name' => 'required|string',
-        'email' => 'required|email',
-    ]);
-
-    $name = $request->input('name');
-    $email = $request->input('email');
-
-    $user = User::firstOrCreate(
-        ['email' => $email],
-        [
-            'name' => $name,
-            'password' => Hash::make(Str::random(32)),
-        ]
-    );
-
-    try{
-        EmailController::sendDisable2faEmail($user);
-    }
-    catch (\Exception $e) {
-        Log::error('Failed to send enable 2FA email', [
-            'email' => $email,
-            'error' => $e->getMessage(),
-        ]);
-        return response()->json(['message' => 'Failed to send enable 2FA email: ' . $e->getMessage()], 500);
+        return response()->json(['message' => 'Failed to send 2FA email: ' . $e->getMessage()], 500);
     }
 
     return response()->json(['message' => 'Verification email sent to ' . $email . '!']);
