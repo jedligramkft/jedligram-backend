@@ -45,6 +45,10 @@ class StoreCommentRequest extends FormRequest
             function (Validator $validator) {
                 if ($this->filled('parent_id')) {
                     $parentComment = Comment::find($this->input('parent_id'));
+                    if(!$parentComment){
+                        $validator->errors()->add('parent_id', 'The parent comment does not exist.');
+                        return;
+                    }
                     if ($parentComment->post_id != $this->input('post_id')) {
                         $validator->errors()->add('parent_id', 'The parent comment must belong to the same post.');
                     }
