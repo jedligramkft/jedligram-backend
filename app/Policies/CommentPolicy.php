@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Comment;
+use App\Models\Post;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -28,9 +29,9 @@ class CommentPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user, Thread $thread): bool
+    public function create(User $user, Post $post): bool
     {
-        return $thread->isMember($user);
+        return $post->thread->isMember($user);
     }
 
     /**

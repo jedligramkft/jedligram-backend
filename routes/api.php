@@ -16,12 +16,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('threads/{thread}/posts', [ThreadController::class, 'postsOfThread']);
     Route::delete('threads/{thread}/posts/{post}', [PostController::class, 'destroy'])->middleware('can:delete,post');
     Route::get('threads/search', [ThreadController::class, 'search']);
-    Route::post('threads/{thread}/post', [PostController::class, 'store']);
+    Route::post('threads/{thread}/post', [PostController::class, 'store'])->middleware('can:create,App\Models\Post,thread');
     Route::post('threads', [ThreadController::class, 'store']);
     Route::get('threads/{thread}', [ThreadController::class, 'show']);
     Route::apiResource('posts', PostController::class);
     Route::get('posts/{post}/comments', [CommentController::class, 'index']);
-    Route::post('posts/{post}/comments', [CommentController::class, 'store']);
+    Route::post('posts/{post}/comments', [CommentController::class, 'store'])->middleware('can:create,App\Models\Comment,post');
     //TODO: TEST THIS
     Route::delete('posts/{post}/comments/{comment}', [CommentController::class, 'destroy'])->middleware('can:delete,comment');
     Route::get('comments/{comment}/replies', [CommentController::class, 'replies']);
