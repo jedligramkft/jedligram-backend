@@ -4,9 +4,7 @@ namespace App\Policies;
 
 use App\Models\Comment;
 use App\Models\Post;
-use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class CommentPolicy
 {
