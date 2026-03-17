@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Post;
+use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
@@ -27,9 +28,9 @@ class PostPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user, Thread $thread): bool
     {
-        return false;
+        return $thread->isMember($user);
     }
 
     /**
@@ -49,7 +50,7 @@ class PostPolicy
             return true;
         }
 
-        return $user->hasThreadRole($post->thread_id, [1, 2]); 
+        return $user->hasThreadRole($post->thread_id, [1, 2]);
     }
 
     /**
