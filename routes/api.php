@@ -19,7 +19,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('threads/{thread}/post', [PostController::class, 'store'])->middleware('can:create,App\Models\Post,thread');
     Route::post('threads', [ThreadController::class, 'store']);
     Route::get('threads/{thread}', [ThreadController::class, 'show'])->middleware('can:view,thread');
-    Route::apiResource('posts', PostController::class);
+    Route::apiResource('posts', PostController::class)->except(['index', 'show']);
+    Route::get('posts', [PostController::class, 'index'])->middleware('can:viewAny,App\Models\Post');
+    Route::get('posts/{post}', [PostController::class, 'show'])->middleware('can:view,post');
     Route::get('posts/{post}/comments', [CommentController::class, 'index'])->middleware('can:viewAny,post');
     Route::post('posts/{post}/comments', [CommentController::class, 'store'])->middleware('can:create,App\Models\Comment,post');
     //TODO: TEST THIS
