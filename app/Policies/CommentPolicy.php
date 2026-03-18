@@ -29,7 +29,7 @@ class CommentPolicy
      */
     public function create(User $user, Post $post): bool
     {
-        return $post->thread->isMember($user) && $user->hasThreadRole($post->thread_id, [1, 2, 3]);
+        return $user->hasThreadRole($post->thread_id, [1, 2, 3]);
     }
 
     /**

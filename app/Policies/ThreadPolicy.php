@@ -66,7 +66,7 @@ class ThreadPolicy
      */
     public function delete(User $user, Thread $thread): bool
     {
-        return false;
+        return $user->hasThreadRole($thread->id, [1, 2, 3]);
     }
 
     /**

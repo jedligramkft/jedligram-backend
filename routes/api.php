@@ -12,7 +12,7 @@ use App\Http\Controllers\LdapTestController;
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('threads/{thread}/join', [ThreadUserController::class, 'join']);
-    Route::delete('threads/{thread}/leave', [ThreadUserController::class, 'leave']);
+    Route::delete('threads/{thread}/leave', [ThreadUserController::class, 'leave'])->middleware('can:delete,thread');
     Route::get('threads/{thread}/posts', [ThreadController::class, 'postsOfThread'])->middleware('can:view,thread');
     Route::delete('threads/{thread}/posts/{post}', [PostController::class, 'destroy'])->middleware('can:delete,post');
     Route::get('threads/search', [ThreadController::class, 'search']);

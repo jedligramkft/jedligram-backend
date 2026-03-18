@@ -30,7 +30,7 @@ class PostPolicy
      */
     public function create(User $user, Thread $thread): bool
     {
-        return $thread->isMember($user) && $user->hasThreadRole($thread->id, [1, 2, 3]);
+        return $user->hasThreadRole($thread->id, [1, 2, 3]);
     }
 
     /**
