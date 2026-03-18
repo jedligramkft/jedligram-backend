@@ -12,6 +12,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Scout\Searchable;
+use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 
 /**
  * Class User
@@ -32,10 +35,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  *
  * @package App\Models
  */
-class User extends Authenticatable
+class User extends Authenticatable implements LdapAuthenticatable
 {
-    use HasApiTokens, HasFactory;
+    use HasApiTokens, HasFactory, Searchable, AuthenticatesWithLdap;
 	protected $table = 'users';
+
+    public function toSearchableArray()
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+        ];
+    }
 
 	protected $casts = [
 		'email_verified_at' => 'datetime',
@@ -56,7 +68,8 @@ class User extends Authenticatable
 		'welcome_email_sent_at',
 		'is_2fa_enabled',
 		'password',
-		'remember_token'
+		'remember_token',
+        'image'
 	];
 
 	public function posts()
@@ -64,12 +77,32 @@ class User extends Authenticatable
 		return $this->hasMany(Post::class);
 	}
 
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
 	public function threads()
 	{
-		return $this->belongsToMany(Thread::class)
+		return $this->belongsToMany(Thread::class, 'thread_user')
+                    ->using(ThreadUser::class)
 					->withPivot('id', 'role_id')
 					->withTimestamps();
 	}
+
+    protected array $threadRolesCache = [];
+
+    public function hasThreadRole(int $threadId, array $roleIds): bool{
+        if(!isset($this->threadRolesCache[$threadId])){
+            $thread = $this->threads()
+                ->where('thread_id', $threadId)
+                ->first();
+
+            $this->threadRolesCache[$threadId] = $thread && $thread->pivot ? $thread->pivot->role_id : null;
+        }
+
+        return in_array($this->threadRolesCache[$threadId], $roleIds);
+    }
 
 	public function votes()
 	{

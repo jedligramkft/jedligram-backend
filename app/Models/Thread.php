@@ -28,19 +28,20 @@ use Laravel\Scout\Searchable;
  */
 class Thread extends Model
 {
-	use HasFactory;
-  use Searchable;
-	protected $table = 'threads';
+    use HasFactory;
+    use Searchable;
+    protected $table = 'threads';
 
-	protected $fillable = [
-		'name',
-		'description'
-	];
+    protected $fillable = [
+        'name',
+        'description',
+        'rules'
+    ];
 
-	public function posts()
-	{
-		return $this->hasMany(Post::class);
-	}
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
 
     public function toSearchableArray()
     {
@@ -51,10 +52,16 @@ class Thread extends Model
         ];
     }
 
-	public function users()
-	{
-		return $this->belongsToMany(User::class)
-					->withPivot('id', 'role_id')
-					->withTimestamps();
-	}
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'thread_user')
+            ->using(ThreadUser::class)
+            ->withPivot('id', 'role_id')
+            ->withTimestamps();
+    }
+
+    public function isMember(User $user)
+    {
+        return $this->users()->whereKey($user->id)->exists();
+    }
 }

@@ -14,7 +14,8 @@ class ProductionDataSeeder extends Seeder
         $roles = [
             'admin',
             'moderator',
-            'user'
+            'user',
+            'banned'
         ];
 
         foreach ($roles as $role) {
@@ -24,7 +25,7 @@ class ProductionDataSeeder extends Seeder
         $adminUser = [
             'name' => 'admin',
             'email' => 'admin@admin.com',
-            'password' => 'admin'
+            'password' => 'adminadmin'
         ];
 
         User::firstOrCreate($adminUser);
