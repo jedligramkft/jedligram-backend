@@ -20,11 +20,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('threads', [ThreadController::class, 'store']);
     Route::get('threads/{thread}', [ThreadController::class, 'show'])->middleware('can:view,thread');
     Route::apiResource('posts', PostController::class);
-    Route::get('posts/{post}/comments', [CommentController::class, 'index']);
+    Route::get('posts/{post}/comments', [CommentController::class, 'index'])->middleware('can:viewAny,post');
     Route::post('posts/{post}/comments', [CommentController::class, 'store'])->middleware('can:create,App\Models\Comment,post');
     //TODO: TEST THIS
     Route::delete('posts/{post}/comments/{comment}', [CommentController::class, 'destroy'])->middleware('can:delete,comment');
-    Route::get('comments/{comment}/replies', [CommentController::class, 'replies']);
+    Route::get('comments/{comment}/replies', [CommentController::class, 'replies'])->middleware('can:view,comment');
     Route::put('users/{user}', [UserController::class, 'update']);
     Route::post('users/profile-picture', [UserController::class, 'uploadPfP']);
     Route::post('posts/{post}/vote', [VoteController::class, 'vote']);

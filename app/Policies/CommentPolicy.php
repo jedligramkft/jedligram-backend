@@ -11,9 +11,9 @@ class CommentPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user, Post $post): bool
     {
-        return false;
+        return $user->hasThreadRole($post->thread_id, [1, 2, 3]);
     }
 
     /**
@@ -21,7 +21,7 @@ class CommentPolicy
      */
     public function view(User $user, Comment $comment): bool
     {
-        return false;
+        return $user->hasThreadRole($comment->post->thread_id, [1, 2, 3]);
     }
 
     /**
@@ -29,7 +29,7 @@ class CommentPolicy
      */
     public function create(User $user, Post $post): bool
     {
-        return $post->thread->isMember($user);
+        return $post->thread->isMember($user) && $user->hasThreadRole($post->thread_id, [1, 2, 3]);
     }
 
     /**
