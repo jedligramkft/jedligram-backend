@@ -3,14 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterUserRequest;
-<<<<<<< HEAD
-=======
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UploadProfilePictureRequest;
 use App\Http\Resources\ThreadResource;
 use App\Http\Resources\UserResource;
->>>>>>> master
 use App\Models\User;
 use App\Models\Verify2fa;
 use Illuminate\Http\Request;
@@ -19,10 +16,6 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-<<<<<<< HEAD
-use Throwable;
-=======
->>>>>>> master
 
 class UserController extends Controller
 {
@@ -41,14 +34,6 @@ class UserController extends Controller
         return response()->json(User::all()->toResourceCollection(), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
-<<<<<<< HEAD
-    public function register(RegisterUserRequest $request)
-    {
-        $user = User::create($request->validated());
-
-        return response()->json($user, 201);
-    }
-=======
     // /**
     //  * Store a newly created resource in storage.
     //  */
@@ -57,7 +42,6 @@ class UserController extends Controller
     //     $user = User::create($request->validated());
     //     return response()->json($user, 201);
     // }
->>>>>>> master
 
     /**
      * Authenticate user and return a bearer token.
@@ -71,22 +55,24 @@ class UserController extends Controller
             'password' => $RawCredentials['password']
         ];
 
-<<<<<<< HEAD
-        if(!$user || !Hash::check($credentials['password'], $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+        if (!Auth::attempt($credentials)) {
+            return $this->tryAuthWithoutLdap($request);
         }
-        if($user->is_2fa_enabled){
+        $user = Auth::user();
+
+        if ($user->is_2fa_enabled) {
             try {
                 EmailController::sendLoginVerification($user);
-            } catch (Throwable $exception) {
+            } catch (\Throwable $exception) {
                 Log::error('Failed to send login verification email.', [
                     'user_id' => $user->id,
                     'email' => $user->email,
                     'error' => $exception->getMessage(),
                 ]);
+
                 return response()->json(['message' => 'Failed to send login verification email: ' . $exception->getMessage()], 500);
             }
-            
+
             return response()->json(['message' => 'Login verification code sent to email. Please verify to complete login.']);
         }
 
@@ -98,23 +84,14 @@ class UserController extends Controller
         if ($isFirstSuccessfulLogin) {
             try {
                 EmailController::sendWelcomeEmail($user->email, $user->name);
-            } catch (Throwable $exception) {
+            } catch (\Throwable $exception) {
                 Log::error('Failed to send welcome email on first login.', [
                     'user_id' => $user->id,
                     'email' => $user->email,
                     'error' => $exception->getMessage(),
                 ]);
             }
-=======
-        // if (!Auth::attempt($credentials)) {
-        //     return response()->json(['message' => 'Invalid credentials'], 401);
-        // }
-        // $user = Auth::user();
-        if (!Auth::attempt($credentials)) {
-            return $this->tryAuthWithoutLdap($request);
->>>>>>> master
         }
-        $user = Auth::user();
 
         $token = $user->createToken('auth_token')->plainTextToken;
         
@@ -122,13 +99,8 @@ class UserController extends Controller
             'message' => 'Login successful',
             'access_token' => $token,
             'token_type' => 'Bearer',
-<<<<<<< HEAD
-            'user' => $user
-        ]);
-=======
             'user' => UserResource::make($user)
         ], 200, [], JSON_UNESCAPED_SLASHES);
->>>>>>> master
     }
 
     /**
@@ -197,7 +169,6 @@ class UserController extends Controller
         //
     }
 
-<<<<<<< HEAD
     public function verifyLogin(Request $request){
         $request->validate([
             'email' => 'required|email',
@@ -229,29 +200,7 @@ class UserController extends Controller
     }
 
     public function verify2fa(Request $request)
-=======
-    public function tryAuthWithoutLdap(LoginUserRequest $request)
->>>>>>> master
     {
-        $RawCredentials = $request->validated();
-
-        if ($RawCredentials['username'] !== 'admin' || $RawCredentials['password'] !== 'admin') {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
-
-        $user = User::where('email', 'admin@example.com')
-            ->orWhere('name', 'admin')
-            ->first();
-
-        if (!$user) {
-            $user = User::create([
-                'name' => 'admin',
-                'email' => 'admin@example.com',
-                'password' => Hash::make('admin'),
-            ]);
-        }
-
-<<<<<<< HEAD
         $verification = Verify2fa::where('user_id', $user->id)->whereNotNull("enables_2fa")->first();
 
         $isTokenValid = $verification
@@ -276,7 +225,28 @@ class UserController extends Controller
         $verification->delete();
 
         return response()->json(['message' => '2FA verification successful']);
-=======
+    }
+
+    public function tryAuthWithoutLdap(LoginUserRequest $request)
+    {
+        $RawCredentials = $request->validated();
+
+        if ($RawCredentials['username'] !== 'admin' || $RawCredentials['password'] !== 'admin') {
+            return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+
+        $user = User::where('email', 'admin@example.com')
+            ->orWhere('name', 'admin')
+            ->first();
+
+        if (!$user) {
+            $user = User::create([
+                'name' => 'admin',
+                'email' => 'admin@example.com',
+                'password' => Hash::make('admin'),
+            ]);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -285,6 +255,5 @@ class UserController extends Controller
             'token_type' => 'Bearer',
             'user' => UserResource::make($user),
         ], 200, [], JSON_UNESCAPED_SLASHES);
->>>>>>> master
     }
 }
