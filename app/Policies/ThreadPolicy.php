@@ -57,8 +57,6 @@ class ThreadPolicy
         }
 
         return Response::allow();
-
-        // return $user->hasThreadRole($thread->id, [1, 2]) && $user->id !== $model->id;
     }
 
     /**
