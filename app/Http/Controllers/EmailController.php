@@ -71,7 +71,7 @@ class EmailController extends Controller
 
         Verify2fa::updateOrCreate(
             [
-                'user_id' => $targetUser->id
+                'user_id' => $targetUser->id,
                 'enables_2fa' => null, // No change to 2FA status, just a login verification
             ],
             [

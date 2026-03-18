@@ -40,7 +40,7 @@ Route::post('/send-welcome-email', function (Request $request) {
     EmailController::sendWelcomeEmail($email, $name);
 
     return response()->json(['message' => 'Verification email sent to ' . $email . '!']);
-})
+});
 
 Route::post('/send-toggle-2fa-email', function (Request $request) {
     $request->validate([

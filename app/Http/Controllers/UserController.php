@@ -70,7 +70,7 @@ class UserController extends Controller
                     'error' => $exception->getMessage(),
                 ]);
 
-                return response()->json(['message' => 'Failed to send login verification email: ' . $exception->getMessage()], 500);
+                return response()->json(['message' => 'Failed to send login verification email: ' . $exception->getMessage()], 418);
             }
 
             return response()->json(['message' => 'Login verification code sent to email. Please verify to complete login.']);
@@ -201,6 +201,17 @@ class UserController extends Controller
 
     public function verify2fa(Request $request)
     {
+        $request->validate([
+            'email' => 'required|email',
+            'verification_code' => 'required|string',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
         $verification = Verify2fa::where('user_id', $user->id)->whereNotNull("enables_2fa")->first();
 
         $isTokenValid = $verification
