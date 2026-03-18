@@ -5,7 +5,7 @@ metadata:
 data:
   APP_URL: "https://jedligrambackend-gehermarcell.jcloud.jedlik.cloud"
   FRONTEND_URL: "https://jedligrambackend-gehermarcell.jcloud.jedlik.cloud"
-  APP_NAME: "Jedligram Backend"
+  APP_NAME: "JedligramApi"
   APP_ENV: "local"
   APP_DEBUG: "true"
   SYSADMIN_USERNAME: "admin"
@@ -40,7 +40,7 @@ data:
   MAIL_USERNAME: "jedligram@gmail.com"
   MAIL_ENCRYPTION: "tls"
   MAIL_FROM_ADDRESS: "jedligram@gmail.com"
-
+  MAIL_FROM_NAME: "Jedligram"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
