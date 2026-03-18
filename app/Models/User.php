@@ -23,6 +23,7 @@ use LdapRecord\Laravel\Auth\LdapAuthenticatable;
  * @property string $name
  * @property string $email
  * @property Carbon|null $email_verified_at
+ * @property Carbon|null $welcome_email_sent_at
  * @property string $password
  * @property string|null $remember_token
  * @property Carbon|null $created_at
@@ -50,6 +51,8 @@ class User extends Authenticatable implements LdapAuthenticatable
 
 	protected $casts = [
 		'email_verified_at' => 'datetime',
+		'welcome_email_sent_at' => 'datetime',
+		'is_2fa_enabled' => 'boolean',
         'password' => 'hashed'
 	];
 
@@ -62,6 +65,8 @@ class User extends Authenticatable implements LdapAuthenticatable
 		'name',
 		'email',
 		'email_verified_at',
+		'welcome_email_sent_at',
+		'is_2fa_enabled',
 		'password',
 		'remember_token',
         'image'
