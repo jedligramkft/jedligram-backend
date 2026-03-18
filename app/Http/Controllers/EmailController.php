@@ -43,11 +43,13 @@ class EmailController extends Controller
         $expiryMinutes = 15;
 
         Verify2fa::updateOrCreate(
-            ['user_id' => $targetUser->id],
+            [
+                'user_id' => $targetUser->id,
+                'enables_2fa' => $enables2fa,
+            ],
             [
                 'token' => $token,
                 'expires_at' => now()->addMinutes($expiryMinutes),
-                'enables_2fa' => $enables2fa,
             ]
         );
 
@@ -68,11 +70,13 @@ class EmailController extends Controller
         $expiryMinutes = 15;
 
         Verify2fa::updateOrCreate(
-            ['user_id' => $targetUser->id],
+            [
+                'user_id' => $targetUser->id
+                'enables_2fa' => null, // No change to 2FA status, just a login verification
+            ],
             [
                 'token' => $token,
                 'expires_at' => now()->addMinutes($expiryMinutes),
-                'enables_2fa' => null, // No change to 2FA status, just a login verification
             ]
         );
 

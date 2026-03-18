@@ -19,7 +19,7 @@ return new class extends Migration
 
             // Add this column to decide if this token enables or disables 2FA.
             // True for enabling, false for disabling, and null for verifying the login.
-            $table->boolean('enables_2fa')->nullable()->default(false); 
+            $table->boolean('enables_2fa')->nullable();
             $table->timestamps();
         });
     }
