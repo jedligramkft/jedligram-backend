@@ -93,7 +93,7 @@ class ThreadUserController extends Controller
     }
 
     /**
-     * Update the role of a user in a thread. Only admins can assign roles, and banned role cannot be assigned through this method.
+     * Update the role of a user in a thread. Only admins can assign roles, and banned role cannot be assigned through this method. Can be used to unban members
      */
     public function assignRole(AssignRoleRequest $request, Thread $thread, User $user){
         $validated = $request->validated();
