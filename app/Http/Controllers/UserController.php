@@ -78,8 +78,17 @@ class UserController extends Controller
      */
     public function logout(Request $request)
     {
-        // TODO error message
-        Auth::logout();
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $currentToken = $user->currentAccessToken();
+
+        if ($currentToken) {
+            $currentToken->delete();
+        }
 
         return response()->json(['message' => 'Logged out successfully']);
     }
