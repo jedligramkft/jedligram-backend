@@ -35,7 +35,7 @@ class ThreadUserController extends Controller
         if ($thread->users()->whereKey($request->user()->id)->exists()) {
             return response()->json(['message' => 'You are already a member of this thread'], 409);
         }
-        $thread->users()->syncWithoutDetaching([$request->user()->id, ['role_id' => 3]]);
+        $thread->users()->syncWithoutDetaching([$request->user()->id => ['role_id' => 3]]);
         return response()->json(['message' => 'You joined the thread'], 200);
     }
 
