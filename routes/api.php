@@ -12,19 +12,21 @@ use App\Http\Controllers\LdapTestController;
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('threads/{thread}/join', [ThreadUserController::class, 'join']);
-    Route::delete('threads/{thread}/leave', [ThreadUserController::class, 'leave']);
-    Route::get('threads/{thread}/posts', [ThreadController::class, 'postsOfThread']);
+    Route::delete('threads/{thread}/leave', [ThreadUserController::class, 'leave'])->middleware('can:delete,thread');
+    Route::get('threads/{thread}/posts', [ThreadController::class, 'postsOfThread'])->middleware('can:view,thread');
     Route::delete('threads/{thread}/posts/{post}', [PostController::class, 'destroy'])->middleware('can:delete,post');
     Route::get('threads/search', [ThreadController::class, 'search']);
     Route::post('threads/{thread}/post', [PostController::class, 'store'])->middleware('can:create,App\Models\Post,thread');
     Route::post('threads', [ThreadController::class, 'store']);
-    Route::get('threads/{thread}', [ThreadController::class, 'show']);
-    Route::apiResource('posts', PostController::class);
-    Route::get('posts/{post}/comments', [CommentController::class, 'index']);
+    Route::get('threads/{thread}', [ThreadController::class, 'show'])->middleware('can:view,thread');
+    Route::apiResource('posts', PostController::class)->except(['index', 'show']);
+    Route::get('posts', [PostController::class, 'index'])->middleware('can:viewAny,App\Models\Post');
+    Route::get('posts/{post}', [PostController::class, 'show'])->middleware('can:view,post');
+    Route::get('posts/{post}/comments', [CommentController::class, 'index'])->middleware('can:viewAny,post');
     Route::post('posts/{post}/comments', [CommentController::class, 'store'])->middleware('can:create,App\Models\Comment,post');
     //TODO: TEST THIS
     Route::delete('posts/{post}/comments/{comment}', [CommentController::class, 'destroy'])->middleware('can:delete,comment');
-    Route::get('comments/{comment}/replies', [CommentController::class, 'replies']);
+    Route::get('comments/{comment}/replies', [CommentController::class, 'replies'])->middleware('can:view,comment');
     Route::put('users/{user}', [UserController::class, 'update']);
     Route::post('users/profile-picture', [UserController::class, 'uploadPfP']);
     Route::post('posts/{post}/vote', [VoteController::class, 'vote']);

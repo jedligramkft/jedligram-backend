@@ -35,7 +35,7 @@ class ThreadUserController extends Controller
         if ($thread->users()->whereKey($request->user()->id)->exists()) {
             return response()->json(['message' => 'You are already a member of this thread'], 409);
         }
-        $thread->users()->syncWithoutDetaching([$request->user()->id, ['role_id' => 3]]);
+        $thread->users()->syncWithoutDetaching([$request->user()->id => ['role_id' => 3]]);
         return response()->json(['message' => 'You joined the thread'], 200);
     }
 
@@ -93,7 +93,7 @@ class ThreadUserController extends Controller
     }
 
     /**
-     * Update the role of a user in a thread. Only admins can assign roles, and banned role cannot be assigned through this method.
+     * Update the role of a user in a thread. Only admins can assign roles, and banned role cannot be assigned through this method. Can be used to unban members
      */
     public function assignRole(AssignRoleRequest $request, Thread $thread, User $user){
         $validated = $request->validated();

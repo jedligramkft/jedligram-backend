@@ -21,7 +21,7 @@ class ThreadPolicy
      */
     public function view(User $user, Thread $thread): bool
     {
-        return false;
+        return $user->hasThreadRole($thread->id, [1, 2, 3]);
     }
 
     public function viewMembers(User $user, Thread $thread): bool
@@ -46,9 +46,17 @@ class ThreadPolicy
         return $user->hasThreadRole($thread->id, [1]);
     }
 
-    public function ban(User $user, Thread $thread, User $model): bool
+    public function ban(User $user, Thread $thread, User $model): Response
     {
-        return $user->hasThreadRole($thread->id, [1, 2]) && $user->id !== $model->id;
+        if ($user->id === $model->id) {
+            return Response::deny('You cannot ban yourself.');
+        }
+
+        if (! $user->hasThreadRole($thread->id, [1, 2])) {
+            return Response::deny('You must be an admin or moderator in this thread.');
+        }
+
+        return Response::allow();
     }
 
     /**
@@ -56,7 +64,7 @@ class ThreadPolicy
      */
     public function delete(User $user, Thread $thread): bool
     {
-        return false;
+        return $user->hasThreadRole($thread->id, [1, 2, 3]);
     }
 
     /**
