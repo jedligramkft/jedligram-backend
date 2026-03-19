@@ -21,7 +21,7 @@ class ThreadPolicy
      */
     public function view(User $user, Thread $thread): bool
     {
-        return $user->hasThreadRole($thread->id, [1, 2, 3]);
+        return (!$thread->isMember($user)) || $user->hasThreadRole($thread->id, [1, 2, 3]);
     }
 
     public function viewMembers(User $user, Thread $thread): bool

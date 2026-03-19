@@ -23,7 +23,8 @@ class StoreThreadRequest extends FormRequest
     {
         return [
             "name" => "required|string|max:30|unique:threads,name",
-            "description" => "nullable|string|max:200"
+            "description" => "nullable|string|max:200",
+            "rules" => "nullable|string"
         ];
     }
 }
