@@ -196,7 +196,15 @@ describe('Creating a thread', function () {
             ->assertJsonValidationErrors([$expectedErrorField]);
     })->with("invalid_thread_data");
 
+    test('it should return 422 when trying to create a thread with a name that already exists', function(array $validData) {
+        $user = User::factory()->create();
+        $existingThread = Thread::factory()->create([
+            'name' => "New test thread"
+        ]);
 
-    //TODO: test for name unique constraint
-    // test('it should return 4')
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/threads', $validData);
+        $response->assertStatus(422);
+
+    })->with("valid_thread_data");
 });

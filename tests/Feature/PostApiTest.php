@@ -33,14 +33,20 @@ beforeEach(function () {
 });
 
 //TODO: figure out how to test posts
+describe('Creating a new post inside of a thread', function () {
+    test('authenticated member can create a post inside the thread', function () {
+        $user = User::factory()->create();
+        $thread = Thread::factory()->create();
+        ThreadUser::create([
+            'thread_id' => $thread->id,
+            'user_id' => $user->id,
+            'role_id' => 3,
+        ]);
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/posts');
 
-test('authenticated user can fetch a list of all posts', function () {
-    $user = User::factory()->create();
-
-    $response = $this->actingAs($user, 'sanctum')
-                     ->getJson('/api/posts');
-
-    $response->assertStatus(200)
-             ->assertJsonCount(4)
-             ->dump();
+        $response->assertStatus(200)
+            ->assertJsonCount(4)
+            ->dump();
+    });
 });
