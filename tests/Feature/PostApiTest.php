@@ -104,4 +104,19 @@ describe('Creating a new post inside of a thread', function () {
         $response->assertStatus(422)
             ->assertJsonValidationErrors($missingField);
     })->with('invalid_post_data');
+
+    test('banned users cannot create a post in the thread', function(array $validData){
+        $user = User::factory()->create();
+        $thread = Thread::factory()->create();
+        ThreadUser::create([
+            'thread_id' => $thread->id,
+            'user_id' => $user->id,
+            'role_id' => 4,
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/threads/{$thread->id}/post", $validData);
+
+        $response->assertStatus(403);
+    })->with('valid_post_data');
 });
