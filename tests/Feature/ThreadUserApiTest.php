@@ -112,6 +112,63 @@ describe('Leaving threads', function () {
     });
 });
 
+describe('Listing the members of a thread', function () {
+    beforeEach(function () {
+        $this->adminUser = User::factory()->create();
+        ThreadUser::create([
+            'thread_id' => $this->thread->id,
+            'user_id' => $this->adminUser->id,
+            'role_id' => 1,
+        ]);
+        $this->modUser = User::factory()->create();
+        ThreadUser::create([
+            'thread_id' => $this->thread->id,
+            'user_id' => $this->modUser->id,
+            'role_id' => 2,
+        ]);
+    });
+
+    test('Admin members can see the list of the threads members', function () {
+        $response = $this->actingAs($this->adminUser, 'sanctum')
+            ->getJson("/api/threads/{$this->thread->id}/members");
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                '*' => ['id', 'name', 'email', 'role_id'],
+            ]);
+    });
+
+    test('Moderator members can see the list of the threads members', function () {
+        $response = $this->actingAs($this->modUser, 'sanctum')
+            ->getJson("/api/threads/{$this->thread->id}/members");
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                '*' => ['id', 'name', 'email', 'role_id'],
+            ]);
+    });
+
+    test('Regular members cannot see the list of the threads members', function () {
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->getJson("/api/threads/{$this->thread->id}/members");
+
+        $response->assertStatus(403);
+    });
+
+    test('Unauthenticated users cannot see the list of the threads members', function () {
+        $response = $this->getJson("/api/threads/{$this->thread->id}/members");
+
+        $response->assertStatus(401);
+    });
+
+    test('Users cannot see the list of the threads members if the thread does not exist', function () {
+        $response = $this->actingAs($this->adminUser, 'sanctum')
+            ->getJson("/api/threads/999/members");
+
+        $response->assertStatus(404);
+    });
+});
+
 function dbHas()
 {
     test()->assertDatabaseHas('thread_user', [
