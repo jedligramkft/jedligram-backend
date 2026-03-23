@@ -13,6 +13,18 @@ beforeEach(function () {
 
     $this->thread = Thread::factory()->create();
     $this->user = User::factory()->create();
+    $this->adminUser = User::factory()->create();
+    ThreadUser::create([
+        'thread_id' => $this->thread->id,
+        'user_id' => $this->adminUser->id,
+        'role_id' => 1,
+    ]);
+    $this->modUser = User::factory()->create();
+    ThreadUser::create([
+        'thread_id' => $this->thread->id,
+        'user_id' => $this->modUser->id,
+        'role_id' => 2,
+    ]);
 });
 
 describe('Joining threads', function () {
@@ -171,19 +183,6 @@ describe('Listing the members of a thread', function () {
 
 describe('Assigning roles', function () {
     beforeEach(function () {
-        $this->adminUser = User::factory()->create();
-        ThreadUser::create([
-            'thread_id' => $this->thread->id,
-            'user_id' => $this->adminUser->id,
-            'role_id' => 1,
-        ]);
-        $this->modUser = User::factory()->create();
-        ThreadUser::create([
-            'thread_id' => $this->thread->id,
-            'user_id' => $this->modUser->id,
-            'role_id' => 2,
-        ]);
-
         ThreadUser::create([
             'thread_id' => $this->thread->id,
             'user_id' => $this->user->id,
@@ -259,6 +258,86 @@ describe('Assigning roles', function () {
         $response->assertStatus(401);
         dbHasRole(3);
     })->with('valid_role_assignment_data');
+});
+
+describe('Banning users', function () {
+    beforeEach(function () {
+        ThreadUser::create([
+            'thread_id' => $this->thread->id,
+            'user_id' => $this->user->id,
+            'role_id' => 3,
+        ]);
+    });
+    test('admins can ban a user', function (array $data) {
+        $response = $this->actingAs($this->adminUser, 'sanctum')
+            ->patchJson("/api/threads/{$this->thread->id}/members/{$this->user->id}/ban", $data);
+
+        $response->assertStatus(200);
+        dbHasRole(4);
+    })->with('valid_ban_data');
+
+    test('admins cannot ban themselves', function (array $data) {
+        $response = $this->actingAs($this->adminUser, 'sanctum')
+            ->patchJson("/api/threads/{$this->thread->id}/members/{$this->adminUser->id}/ban", $data);
+
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('thread_user', [
+            'thread_id' => $this->thread->id,
+            'user_id'   => $this->adminUser->id,
+            'role_id'   => 1,
+        ]);
+    })->with('valid_ban_data');
+
+    test('moderators can ban users', function (array $data) {
+        $response = $this->actingAs($this->modUser, 'sanctum')
+            ->patchJson("/api/threads/{$this->thread->id}/members/{$this->user->id}/ban", $data);
+
+        $response->assertStatus(200);
+        dbHasRole(4);
+    })->with('valid_ban_data');
+
+    test('regular users cannot ban users', function (array $data) {
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->patchJson("/api/threads/{$this->thread->id}/members/{$this->user->id}/ban", $data);
+
+        $response->assertStatus(403);
+        dbHasRole(3);
+    })->with('valid_ban_data');
+
+    test('admins cannot ban users with invalid data', function (array $data, string $errorField, int $status) {
+        $response = $this->actingAs($this->adminUser, 'sanctum')
+            ->patchJson("/api/threads/{$this->thread->id}/members/{$this->user->id}/ban", $data);
+
+        $response->dump()->assertStatus($status);
+        if ($status === 422) {
+            $response->assertJsonValidationErrors($errorField);
+        } else {
+            $response->assertJsonFragment(['message' => 'Cannot assign non-banned role']);
+        }
+        dbHasRole(3);
+    })->with('invalid_ban_data');
+
+    test('admins cannot ban users in a non-existing thread', function (array $data) {
+        $response = $this->actingAs($this->adminUser, 'sanctum')
+            ->patchJson("/api/threads/999/members/{$this->user->id}/ban", $data);
+
+        $response->assertStatus(404);
+        dbHasRole(3);
+    })->with('valid_ban_data');
+
+    test('admins cannot ban non-existing users', function (array $data) {
+        $response = $this->actingAs($this->adminUser, 'sanctum')
+            ->patchJson("/api/threads/{$this->thread->id}/members/999/ban", $data);
+
+        $response->assertStatus(404);
+    })->with('valid_ban_data');
+
+    test('unathenticated admins cannot ban users', function (array $data) {
+        $response = $this->patchJson("/api/threads/{$this->thread->id}/members/{$this->user->id}/ban", $data);
+
+        $response->assertStatus(401);
+        dbHasRole(3);
+    })->with('valid_ban_data');
 });
 
 function dbHas()
