@@ -22,7 +22,8 @@ class PostPolicy
      */
     public function view(User $user, Post $post): bool
     {
-        return false;
+        //MADE USING TDD
+        return $post->thread->isMember($user);
     }
 
     /**

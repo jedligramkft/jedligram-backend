@@ -11,28 +11,8 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->seed(ProductionDataSeeder::class);
-
-    // $users = User::factory(20)->create();
-
-    // Thread::factory(2)->create()
-    //     ->each(function ($thread) use ($users) {
-
-    //         $users->random(rand(3, 10))->each(function ($user) use ($thread) {
-    //             ThreadUser::create([
-    //                 'thread_id' => $thread->id,
-    //                 'user_id' => $user->id,
-    //                 'role_id' => 3,
-    //             ]);
-    //         });
-
-    //         Post::factory(2)->create([
-    //             'thread_id' => $thread->id,
-    //             'user_id' => $users->random()->id,
-    //         ]);
-    //     });
 });
 
-//TODO: figure out how to test posts
 describe('Creating a new post inside of a thread', function () {
     test('authenticated member can create a post inside the thread', function (array $validData) {
         $user = User::factory()->create();
@@ -219,6 +199,59 @@ describe('Post deletion', function () {
     test('trying to delete non-existent post should return 404', function () {
         $response = $this->actingAs($this->user, 'sanctum')
             ->deleteJson("/api/posts/999");
+
+        $response->assertStatus(404);
+    });
+});
+
+describe('Fetching a single post', function(){
+    beforeEach(function () {
+        $this->user = User::factory()->create();
+        $this->thread = Thread::factory()->create();
+        ThreadUser::create([
+            'thread_id' => $this->thread->id,
+            'user_id' => $this->user->id,
+            'role_id' => 3,
+        ]);
+
+        $this->post = Post::factory()->create([
+            'thread_id' => $this->thread->id,
+            'user_id' => $this->user->id,
+        ]);
+    });
+
+    test('authenticated members can fetch a single post of the thread', function () {
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->getJson("/api/posts/{$this->post->id}");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'id' => $this->post->id,
+                'content' => $this->post->content,
+                'user_id' => $this->post->user_id,
+                'thread_id' => $this->post->thread_id,
+                'score' => 0,
+            ]);
+    });
+
+    test('unauthenticated users cannot fetch a single post of the thread', function () {
+        $response = $this->getJson("/api/posts/{$this->post->id}");
+
+        $response->assertStatus(401);
+    });
+
+    test('non members cannot fetch a single post of the thread', function () {
+        $otherUser = User::factory()->create();
+
+        $response = $this->actingAs($otherUser, 'sanctum')
+            ->getJson("/api/posts/{$this->post->id}");
+
+        $response->assertStatus(403);
+    });
+
+    test('trying to fetch a non existent post should return 404', function () {
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->getJson("/api/posts/999");
 
         $response->assertStatus(404);
     });

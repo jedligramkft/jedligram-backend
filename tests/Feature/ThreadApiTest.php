@@ -6,7 +6,6 @@ use App\Models\ThreadUser;
 use App\Models\User;
 use Database\Seeders\ProductionDataSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Pest\Support\Str;
 
 uses(RefreshDatabase::class);
 
