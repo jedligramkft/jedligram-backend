@@ -12,24 +12,24 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->seed(ProductionDataSeeder::class);
 
-    $users = User::factory(20)->create();
+    // $users = User::factory(20)->create();
 
-    Thread::factory(2)->create()
-        ->each(function ($thread) use ($users) {
+    // Thread::factory(2)->create()
+    //     ->each(function ($thread) use ($users) {
 
-            $users->random(rand(3, 10))->each(function ($user) use ($thread) {
-                ThreadUser::create([
-                    'thread_id' => $thread->id,
-                    'user_id' => $user->id,
-                    'role_id' => 3,
-                ]);
-            });
+    //         $users->random(rand(3, 10))->each(function ($user) use ($thread) {
+    //             ThreadUser::create([
+    //                 'thread_id' => $thread->id,
+    //                 'user_id' => $user->id,
+    //                 'role_id' => 3,
+    //             ]);
+    //         });
 
-            Post::factory(2)->create([
-                'thread_id' => $thread->id,
-                'user_id' => $users->random()->id,
-            ]);
-        });
+    //         Post::factory(2)->create([
+    //             'thread_id' => $thread->id,
+    //             'user_id' => $users->random()->id,
+    //         ]);
+    //     });
 });
 
 //TODO: figure out how to test posts
@@ -51,7 +51,7 @@ describe('Creating a new post inside of a thread', function () {
             ]);
     })->with('valid_post_data');
 
-    test('unathenticated user cannot create a post inside the thread', function(array $validData) {
+    test('unathenticated user cannot create a post inside the thread', function (array $validData) {
         $user = User::factory()->create();
         $thread = Thread::factory()->create();
         ThreadUser::create([
@@ -65,7 +65,7 @@ describe('Creating a new post inside of a thread', function () {
         $response->assertStatus(401);
     })->with('valid_post_data');
 
-    test('authenticated unauthorized user cannot create a post inside of a thread', function(array $validData){
+    test('authenticated unauthorized user cannot create a post inside of a thread', function (array $validData) {
         $user = User::factory()->create();
         $thread = Thread::factory()->create();
         ThreadUser::create([
@@ -80,7 +80,7 @@ describe('Creating a new post inside of a thread', function () {
         $response->assertStatus(403);
     })->with('valid_post_data');
 
-    test('trying to create a post inside of a non existent thread should return 404', function(array $validData) {
+    test('trying to create a post inside of a non existent thread should return 404', function (array $validData) {
         $user = User::factory()->create();
 
         $response = $this->actingAs($user, 'sanctum')
@@ -105,7 +105,7 @@ describe('Creating a new post inside of a thread', function () {
             ->assertJsonValidationErrors($missingField);
     })->with('invalid_post_data');
 
-    test('banned users cannot create a post in the thread', function(array $validData){
+    test('banned users cannot create a post in the thread', function (array $validData) {
         $user = User::factory()->create();
         $thread = Thread::factory()->create();
         ThreadUser::create([
@@ -120,3 +120,118 @@ describe('Creating a new post inside of a thread', function () {
         $response->assertStatus(403);
     })->with('valid_post_data');
 });
+
+describe('Post deletion', function () {
+    beforeEach(function () {
+        $this->thread =  Thread::create([
+            'name' => 'Test Thread',
+            'description' => 'A thread for testing post deletion',
+            'rules' => 'Be respectful',
+        ]);
+
+        $this->user = User::factory()->create();
+        ThreadUser::create([
+            'thread_id' => $this->thread->id,
+            'user_id' => $this->user->id,
+            'role_id' => 3,
+        ]);
+
+        $this->post = Post::factory()->create([
+            'thread_id' => $this->thread->id,
+            'user_id' => $this->user->id,
+            'content' => 'This is a test post',
+        ]);
+    });
+
+    test('authenticated members can delete their own posts', function () {
+        dbHas();
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->deleteJson("/api/posts/{$this->post->id}");
+
+        $response->assertStatus(200);
+
+        dbMissing();
+    });
+
+    test('admin users can remove any post', function () {
+        $adminUser = User::factory()->create();
+        ThreadUser::create([
+            'thread_id' => $this->thread->id,
+            'user_id' => $adminUser->id,
+            'role_id' => 1,
+        ]);
+
+        dbHas();
+
+        $response = $this->actingAs($adminUser, 'sanctum')
+            ->deleteJson("/api/posts/{$this->post->id}");
+
+        $response->assertStatus(200);
+
+        dbMissing();
+    });
+
+    test('moderator users can remove any post', function () {
+        $moderatorUser = User::factory()->create();
+        ThreadUser::create([
+            'thread_id' => $this->thread->id,
+            'user_id' => $moderatorUser->id,
+            'role_id' => 2,
+        ]);
+
+        dbHas();
+
+        $response = $this->actingAs($moderatorUser, 'sanctum')
+            ->deleteJson("/api/posts/{$this->post->id}");
+
+        $response->assertStatus(200);
+
+        dbMissing();
+    });
+
+    test('users cannot delete other users posts', function () {
+        $otherUser = User::factory()->create();
+        ThreadUser::create([
+            'thread_id' => $this->thread->id,
+            'user_id' => $otherUser->id,
+            'role_id' => 3,
+        ]);
+
+        dbHas();
+
+        $response = $this->actingAs($otherUser, 'sanctum')
+            ->deleteJson("/api/posts/{$this->post->id}");
+
+        $response->assertStatus(403);
+
+        dbHas();
+    });
+
+    test('unauthenticated users cannot delete posts', function () {
+        dbHas();
+
+        $response = $this->deleteJson("/api/posts/{$this->post->id}");
+
+        $response->assertStatus(401);
+        dbHas();
+    });
+
+    test('trying to delete non-existent post should return 404', function () {
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->deleteJson("/api/posts/999");
+
+        $response->assertStatus(404);
+    });
+});
+
+function dbHas()
+{
+    test()->assertDatabaseHas('posts', [
+        'id' => test()->thread->id,
+    ]);
+}
+
+function dbMissing()
+{
+    test()->assertSoftDeleted('posts', ['id' => test()->post->id]);
+}
