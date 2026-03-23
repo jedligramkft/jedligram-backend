@@ -32,7 +32,7 @@ describe('Joining threads', function () {
         $response = $this->actingAs($this->user, 'sanctum')
             ->postJson("/api/threads/{$this->thread->id}/join");
 
-        dbHas();
+        dbHasUser();
         $response->assertStatus(200);
     });
 
@@ -73,19 +73,19 @@ describe('Leaving threads', function () {
     });
 
     test('authenticated members can leave the thread', function () {
-        dbHas();
+        dbHasUser();
 
         $response = $this->actingAs($this->user, 'sanctum')
             ->deleteJson("/api/threads/{$this->thread->id}/leave");
 
         $response->assertStatus(200);
 
-        dbMissing();
+        dbMissingUser();
     });
 
     test('unauthenticated users cannot leave a thread', function () {
         $response = $this->deleteJson("/api/threads/{$this->thread->id}/leave");
-        dbHas();
+        dbHasUser();
         $response->assertStatus(401);
     });
 
@@ -98,7 +98,7 @@ describe('Leaving threads', function () {
         $response = $this->actingAs($this->user, 'sanctum')
             ->deleteJson("/api/threads/{$this->thread->id}/leave");
 
-        dbMissing();
+        dbMissingUser();
         $response->assertStatus(403);
     });
 
@@ -106,7 +106,7 @@ describe('Leaving threads', function () {
         $response = $this->actingAs($this->user, 'sanctum')
             ->deleteJson("/api/threads/999/leave");
 
-        dbHas();
+        dbHasUser();
         $response->assertStatus(404);
     });
 
@@ -119,7 +119,7 @@ describe('Leaving threads', function () {
         $response = $this->actingAs($this->user, 'sanctum')
             ->deleteJson("/api/threads/{$this->thread->id}/leave");
 
-        dbHas();
+        dbHasUser();
         $response->assertStatus(403);
     });
 });
@@ -195,7 +195,7 @@ describe('Assigning roles', function () {
             ->patchJson("/api/threads/{$this->thread->id}/members/{$this->user->id}", $data);
 
         $response->assertStatus(200);
-        dbHasRole($data['role_id']);
+        dbHasUserRole($data['role_id']);
     })->with('valid_role_assignment_data');
 
     test('moderator cannot assign roles', function (array $data) {
@@ -203,7 +203,7 @@ describe('Assigning roles', function () {
             ->patchJson("/api/threads/{$this->thread->id}/members/{$this->user->id}", $data);
 
         $response->assertStatus(403);
-        dbHasRole(3);
+        dbHasUserRole(3);
     })->with('valid_role_assignment_data');
 
     test('regular users cannot assign roles', function (array $data) {
@@ -211,7 +211,7 @@ describe('Assigning roles', function () {
             ->patchJson("/api/threads/{$this->thread->id}/members/{$this->user->id}", $data);
 
         $response->assertStatus(403);
-        dbHasRole(3);
+        dbHasUserRole(3);
     })->with('valid_role_assignment_data');
 
     test('admin cannot assign invalid roles', function (array $data, string $errorField, int $status) {
@@ -224,7 +224,7 @@ describe('Assigning roles', function () {
         } else {
             $response->assertJsonFragment(['message' => 'Cannot assign banned role']);
         }
-        dbHasRole(3);
+        dbHasUserRole(3);
     })->with('invalid_role_assignment_data');
 
     test('admin cannot assign roles in a non-existing thread', function (array $data) {
@@ -232,7 +232,7 @@ describe('Assigning roles', function () {
             ->patchJson("/api/threads/999/members/{$this->user->id}", $data);
 
         $response->assertStatus(404);
-        dbHasRole(3);
+        dbHasUserRole(3);
     })->with('valid_role_assignment_data');
 
     test('admin cannot assign roles to a non-existing user', function (array $data) {
@@ -249,14 +249,14 @@ describe('Assigning roles', function () {
             ->patchJson("/api/threads/{$this->thread->id}/members/{$this->user->id}", $data);
 
         $response->assertStatus(403);
-        dbHasRole(3);
+        dbHasUserRole(3);
     })->with('valid_role_assignment_data');
 
     test('unathenticated admins cannot assing roles', function (array $data) {
         $response = $this->patchJson("/api/threads/{$this->thread->id}/members/{$this->user->id}", $data);
 
         $response->assertStatus(401);
-        dbHasRole(3);
+        dbHasUserRole(3);
     })->with('valid_role_assignment_data');
 });
 
@@ -273,7 +273,7 @@ describe('Banning users', function () {
             ->patchJson("/api/threads/{$this->thread->id}/members/{$this->user->id}/ban", $data);
 
         $response->assertStatus(200);
-        dbHasRole(4);
+        dbHasUserRole(4);
     })->with('valid_ban_data');
 
     test('admins cannot ban themselves', function (array $data) {
@@ -293,7 +293,7 @@ describe('Banning users', function () {
             ->patchJson("/api/threads/{$this->thread->id}/members/{$this->user->id}/ban", $data);
 
         $response->assertStatus(200);
-        dbHasRole(4);
+        dbHasUserRole(4);
     })->with('valid_ban_data');
 
     test('regular users cannot ban users', function (array $data) {
@@ -301,20 +301,20 @@ describe('Banning users', function () {
             ->patchJson("/api/threads/{$this->thread->id}/members/{$this->user->id}/ban", $data);
 
         $response->assertStatus(403);
-        dbHasRole(3);
+        dbHasUserRole(3);
     })->with('valid_ban_data');
 
     test('admins cannot ban users with invalid data', function (array $data, string $errorField, int $status) {
         $response = $this->actingAs($this->adminUser, 'sanctum')
             ->patchJson("/api/threads/{$this->thread->id}/members/{$this->user->id}/ban", $data);
 
-        $response->dump()->assertStatus($status);
+        $response->assertStatus($status);
         if ($status === 422) {
             $response->assertJsonValidationErrors($errorField);
         } else {
             $response->assertJsonFragment(['message' => 'Cannot assign non-banned role']);
         }
-        dbHasRole(3);
+        dbHasUserRole(3);
     })->with('invalid_ban_data');
 
     test('admins cannot ban users in a non-existing thread', function (array $data) {
@@ -322,7 +322,7 @@ describe('Banning users', function () {
             ->patchJson("/api/threads/999/members/{$this->user->id}/ban", $data);
 
         $response->assertStatus(404);
-        dbHasRole(3);
+        dbHasUserRole(3);
     })->with('valid_ban_data');
 
     test('admins cannot ban non-existing users', function (array $data) {
@@ -336,11 +336,11 @@ describe('Banning users', function () {
         $response = $this->patchJson("/api/threads/{$this->thread->id}/members/{$this->user->id}/ban", $data);
 
         $response->assertStatus(401);
-        dbHasRole(3);
+        dbHasUserRole(3);
     })->with('valid_ban_data');
 });
 
-function dbHas()
+function dbHasUser()
 {
     test()->assertDatabaseHas('thread_user', [
         'thread_id' => test()->thread->id,
@@ -348,7 +348,7 @@ function dbHas()
     ]);
 }
 
-function dbMissing()
+function dbMissingUser()
 {
     test()->assertDatabaseMissing('thread_user', [
         'thread_id' => test()->thread->id,
@@ -356,7 +356,7 @@ function dbMissing()
     ]);
 }
 
-function dbHasRole($roleId)
+function dbHasUserRole($roleId)
 {
     test()->assertDatabaseHas('thread_user', [
         'thread_id' => test()->thread->id,
