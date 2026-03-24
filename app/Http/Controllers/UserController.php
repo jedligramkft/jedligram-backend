@@ -171,10 +171,6 @@ class UserController extends Controller
     }
 
     /**
-     * Update the bio of the authenticated user.
-     */
-
-    /**
      * Remove the specified resource from storage.
      */
     public function destroy(User $user)
