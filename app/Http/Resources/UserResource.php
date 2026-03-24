@@ -29,7 +29,8 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'image_url' => $this->image
                 ? asset('storage/' . $this->image)
-                : asset('images/default_pfp.png')
+                : asset('images/default_pfp.png'),
+            'bio' => $this->bio
         ];
     }
 

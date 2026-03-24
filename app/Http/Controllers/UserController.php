@@ -94,7 +94,7 @@ class UserController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
-        
+
         return response()->json([
             'message' => 'Login successful',
             'access_token' => $token,
@@ -169,6 +169,10 @@ class UserController extends Controller
             'user' => UserResource::make($user),
         ], 200, [], JSON_UNESCAPED_SLASHES);
     }
+
+    /**
+     * Update the bio of the authenticated user.
+     */
 
     /**
      * Remove the specified resource from storage.
