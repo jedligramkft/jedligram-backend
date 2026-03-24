@@ -42,7 +42,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 Route::apiResource('threads', ThreadController::class)->only(['index']);
 Route::post('register', [UserController::class, 'register']);
 Route::post('login', [UserController::class, 'login'])->middleware('throttle:login');
-Route::get('users/{user}/threads', [UserController::class, 'postOfUser']);
+Route::get('users/{user}/threads', [UserController::class, 'threadsOfUser']);
 Route::get('users/{user}', [UserController::class, 'show']);
 Route::get('users', [UserController::class, 'index']);
 Route::apiResource('roles', RoleController::class);
