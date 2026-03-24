@@ -14,7 +14,7 @@ test('it can fetch the list of users', function () {
     $response->assertStatus(200)
         ->assertJsonCount(3)
         ->assertJsonStructure([
-            '*' => ['id', 'name', 'email', 'image_url'],
+            '*' => ['id', 'name', 'email', 'image_url', 'bio'],
         ]);
 });
 
@@ -29,6 +29,7 @@ describe('Fethcing a single users', function () {
                 'name' => $user->name,
                 'email' => $user->email,
                 'image_url' => 'http://localhost/images/default_pfp.png',
+                'bio' => $user->bio,
             ]);
     });
 
