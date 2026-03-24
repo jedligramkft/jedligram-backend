@@ -131,10 +131,12 @@ class UserController extends Controller
         return response()->json(UserResource::make($user), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
-    public function postOfUser(User $user)
+    /**
+     * List the threads that have the user as a member.
+     */
+    public function threadsOfUser(User $user)
     {
-        // TODO: create a resource for threads and use it here
-        return response()->json(ThreadResource::collection($user->threads), 200);
+        return response()->json(ThreadResource::collection($user->threads->loadCount('users')), 200);
     }
 
     /**
