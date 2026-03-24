@@ -69,7 +69,8 @@ class User extends Authenticatable implements LdapAuthenticatable
 		'is_2fa_enabled',
 		'password',
 		'remember_token',
-        'image'
+        'image',
+        'bio'
 	];
 
 	public function posts()
