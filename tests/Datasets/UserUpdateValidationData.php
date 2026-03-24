@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Http\UploadedFile;
+
 dataset('invalid_profile_data', [
     'missing name entirely' => [
         ['email' => 'valid@example.com', 'bio' => 'Hello!'],
@@ -77,7 +79,21 @@ dataset('valid_profile_data', [
         [
             'name'  => str_repeat('N', 255),
             'email' => str_repeat('e', 243) . '@example.com',
-            'bio'   => str_repeat('B', 200) 
+            'bio'   => str_repeat('B', 200)
         ]
     ],
+]);
+
+dataset('valid_profile_picture_data', [
+    'standard JPEG' => ['profile.jpeg', null],
+    'standard PNG' => ['profile.png', null],
+    'standard GIF' => ['animated.gif', null],
+    'image exactly at the maximum size limit' => ['borderline.jpg', 2048],
+]);
+
+dataset('invalid_profile_picture_data', [
+    'missing image entirely' => [null, null, null, 'image'],
+    'file is not an image' => ['document.pdf', 100, 'application/pdf', 'image'],
+    'image is the wrong mime type' => ['vector.svg', 100, 'image/svg+xml', 'image'],
+    'image exceeds the 2MB limit' => ['massive.jpg', 2500, 'image/jpeg', 'image'],
 ]);
