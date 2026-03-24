@@ -124,7 +124,7 @@ describe('Updating user profile', function () {
         $response->assertStatus(403);
     })->with('valid_profile_data');
 
-    test('unathenticated users cannot update their profiles', function (array $payload) {
+    test('unauthenticated users cannot update their profiles', function (array $payload) {
         $response = $this->putJson("/api/users/{$this->user->id}", $payload);
 
         $response->assertStatus(401);
