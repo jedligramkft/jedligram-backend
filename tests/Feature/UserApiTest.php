@@ -41,15 +41,18 @@ describe('Fethcing a single users', function () {
 });
 
 describe('Profile picture upload', function () {
-    test('authenticated user can upload a profile picture', function () {
+    test('authenticated user can upload a profile picture', function (string $filename, ?int $size) {
         Storage::fake('public');
-
         $user = User::factory()->create();
 
-        $file = UploadedFile::fake()->image('profile.jpg');
+        $file = UploadedFile::fake()->image($filename);
+        if ($size) {
+            $file->size($size);
+        }
 
         $response = $this->actingAs($user, 'sanctum')
-            ->postJson('/api/users/profile-picture', [
+            ->withHeaders(['Accept' => 'application/json'])
+            ->post('/api/users/profile-picture', [
                 'image' => $file,
             ]);
 
@@ -57,7 +60,25 @@ describe('Profile picture upload', function () {
             ->assertJson([
                 'message' => 'Profile picture updated successfully',
             ]);
-    });
+    })->with('valid_profile_picture_data');
+
+    test('it rejects invalid profile picture uploads', function (?string $filename, ?int $size, ?string $mime, string $errorKey) {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        $payload = [];
+
+        if ($filename) {
+            $payload['image'] = UploadedFile::fake()->create($filename, $size ?? 0, $mime);
+        }
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->withHeaders(['Accept' => 'application/json'])
+            ->post('/api/users/profile-picture', $payload);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors([$errorKey]);
+    })->with('invalid_profile_picture_data');
 
     test('unathenticated user cannot upload a profile picture', function () {
         Storage::fake('public');
@@ -71,21 +92,6 @@ describe('Profile picture upload', function () {
         ]);
 
         $response->assertStatus(401);
-    });
-
-    test('authenticated user cannot upload a non-image file as profile picture', function () {
-        Storage::fake('public');
-
-        $user = User::factory()->create();
-
-        $file = UploadedFile::fake()->image('document.pdf');
-
-        $response = $this->actingAs($user, 'sanctum')
-            ->postJson('/api/users/profile-picture', [
-                'image' => $file,
-            ]);
-
-        $response->assertStatus(422);
     });
 });
 
