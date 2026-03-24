@@ -87,3 +87,37 @@ describe('Profile picture upload', function () {
         $response->assertStatus(422);
     });
 });
+
+describe('Updating a users bio', function () {
+    beforeEach(function () {
+        $this->user = User::factory()->create();
+    });
+
+    test('authenticated user can update their bio', function ($payload) {
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->putJson("/api/users/{$this->user->id}", $payload);
+
+        $response->assertOk()
+            ->assertJsonFragment($payload);
+    })->with('valid_bio_data');
+
+    test('authenticated user cannot update their bio with invalid data', function ($payload, $field, $status) {
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->putJson("/api/users/{$this->user->id}", $payload);
+
+        $response->assertStatus($status)
+            ->assertJsonValidationErrors($field);
+    })->with('invalid_bio_data');
+
+    test('authenticated user cannot update another users bio', function () {
+        $user = User::factory()->create();
+
+
+        $payload = ['bio' => 'This is a new bio.'];
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->putJson("/api/users/{$user->id}", $payload);
+
+        $response->assertStatus(403);
+    });
+});
