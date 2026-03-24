@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use App\Http\Middleware\SysadminAuth;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -48,6 +49,13 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'message' => $e->getMessage() ?: 'Unauthorized',
                 ], 403);
+            }
+        });
+        $exceptions->render(function (ThrottleRequestsException $e, HttpRequest $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'message' => 'Too many requests. Please try again later.',
+                ], 429);
             }
         });
     })->create();
