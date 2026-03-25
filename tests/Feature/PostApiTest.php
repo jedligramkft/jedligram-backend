@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Resources\UserResource;
 use App\Models\Post;
 use App\Models\Thread;
 use App\Models\ThreadUser;
@@ -225,10 +226,11 @@ describe('Fetching a single post', function(){
             ->getJson("/api/posts/{$this->post->id}");
 
         $response->assertStatus(200)
+            ->dump()
             ->assertJson([
                 'id' => $this->post->id,
                 'content' => $this->post->content,
-                'user_id' => $this->post->user_id,
+                'user' => (new UserResource($this->post->user))->resolve(),
                 'thread_id' => $this->post->thread_id,
                 'score' => 0,
             ]);

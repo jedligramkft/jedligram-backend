@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\RegisterUserRequest;
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UploadProfilePictureRequest;
@@ -12,7 +11,6 @@ use App\Models\User;
 use App\Models\Verify2fa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -34,15 +32,6 @@ class UserController extends Controller
         return response()->json(User::all()->toResourceCollection(), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
-    // /**
-    //  * Store a newly created resource in storage.
-    //  */
-    // public function register(RegisterUserRequest $request)
-    // {
-    //     $user = User::create($request->validated());
-    //     return response()->json($user, 201);
-    // }
-
     /**
      * Authenticate user and return a bearer token.
      */
@@ -56,7 +45,7 @@ class UserController extends Controller
         ];
 
         if (!Auth::attempt($credentials)) {
-            return $this->tryAuthWithoutLdap($request);
+            return response()->json(['message' => 'Invalid credentials'], 401);
         }
         $user = Auth::user();
 
@@ -172,15 +161,8 @@ class UserController extends Controller
         ], 200, [], JSON_UNESCAPED_SLASHES);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(User $user)
+    public function verifyLogin(Request $request)
     {
-        //
-    }
-
-    public function verifyLogin(Request $request){
         $request->validate([
             'email' => 'required|email',
             'verification_code' => 'required|string',
@@ -247,35 +229,5 @@ class UserController extends Controller
         $verification->delete();
 
         return response()->json(['message' => '2FA verification successful']);
-    }
-
-    public function tryAuthWithoutLdap(LoginUserRequest $request)
-    {
-        $RawCredentials = $request->validated();
-
-        if ($RawCredentials['username'] !== 'admin' || $RawCredentials['password'] !== 'admin') {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
-
-        $user = User::where('email', 'admin@example.com')
-            ->orWhere('name', 'admin')
-            ->first();
-
-        if (!$user) {
-            $user = User::create([
-                'name' => 'admin',
-                'email' => 'admin@example.com',
-                'password' => Hash::make('admin'),
-            ]);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'Login successful WITHOUT LDAP',
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'user' => UserResource::make($user),
-        ], 200, [], JSON_UNESCAPED_SLASHES);
     }
 }

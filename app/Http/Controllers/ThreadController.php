@@ -21,7 +21,6 @@ class ThreadController extends Controller
                 return response()->json(ThreadResource::collection($threads->loadCount('users')), 200);
             }
         }
-        // it works funny
         $allthreads = Thread::withCount('users')->get();
         return response()->json(ThreadResource::collection($allthreads), 200);
     }
@@ -55,21 +54,5 @@ class ThreadController extends Controller
             return $query->latest();
         })->get();
         return response()->json(PostResource::collection($posts), 200);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Thread $thread)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Thread $thread)
-    {
-        //
     }
 }

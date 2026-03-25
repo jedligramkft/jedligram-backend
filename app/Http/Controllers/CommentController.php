@@ -25,17 +25,13 @@ class CommentController extends Controller
         return response()->json(CommentResource::collection($comments), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
-    public function replies(Comment $comment){
+    /**
+     * Display the replies of a comment.
+     */
+    public function replies(Comment $comment)
+    {
         $replies = $comment->descendants()->with('user')->get()->toTree();
         return response()->json(CommentResource::collection($replies), 200, [], JSON_UNESCAPED_SLASHES);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -43,35 +39,8 @@ class CommentController extends Controller
      */
     public function store(StoreCommentRequest $request, Post $post)
     {
-        // $request['post_id'] = $post->id;
-        // $request['user_id'] = $request->user()->id;
-        // $data = $request->validated();
         $comment = Comment::create($request->validated());
         return response()->json(new CommentResource($comment->load('user')), 201, [], JSON_UNESCAPED_SLASHES);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Comment $comment)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Comment $comment)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Comment $comment)
-    {
-        //
     }
 
     /**

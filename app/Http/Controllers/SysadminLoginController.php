@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use App\Services\ConsoleHistoryService;
-use Illuminate\Support\Facades\Log;
 
 class SysadminLoginController extends Controller
 {

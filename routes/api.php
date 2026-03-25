@@ -8,16 +8,14 @@ use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ThreadUserController;
 use App\Http\Controllers\VoteController;
-use App\Http\Controllers\LdapTestController;
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('threads/{thread}/join', [ThreadUserController::class, 'join']);
     Route::delete('threads/{thread}/leave', [ThreadUserController::class, 'leave'])->middleware('can:delete,thread');
     Route::get('threads/{thread}/posts', [ThreadController::class, 'postsOfThread'])->middleware('can:view,thread');
-    Route::delete('threads/{thread}/posts/{post}', [PostController::class, 'destroy'])->middleware('can:delete,post');
     Route::get('threads/search', [ThreadController::class, 'search']);
     Route::get('threads/{thread}', [ThreadController::class, 'show'])->middleware('can:view,thread');
-    Route::apiResource('posts', PostController::class)->except(['index', 'show', 'destroy']);
+    Route::put('posts/{post}', [PostController::class, 'update']);
     // FIXED WITH TDD
     Route::delete('posts/{post}', [PostController::class, 'destroy'])->middleware('can:delete,post');
     Route::get('posts', [PostController::class, 'index'])->middleware('can:viewAny,App\Models\Post');
@@ -45,5 +43,3 @@ Route::post('login', [UserController::class, 'login'])->middleware('throttle:log
 Route::get('users/{user}/threads', [UserController::class, 'threadsOfUser']);
 Route::get('users/{user}', [UserController::class, 'show']);
 Route::get('users', [UserController::class, 'index']);
-Route::apiResource('roles', RoleController::class);
-Route::apiResource('votes', VoteController::class);
