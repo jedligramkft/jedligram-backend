@@ -43,4 +43,3 @@ Route::post('login', [UserController::class, 'login'])->middleware('throttle:log
 Route::get('users/{user}/threads', [UserController::class, 'threadsOfUser']);
 Route::get('users/{user}', [UserController::class, 'show']);
 Route::get('users', [UserController::class, 'index']);
-Route::apiResource('roles', RoleController::class);
