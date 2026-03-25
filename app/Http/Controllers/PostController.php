@@ -8,12 +8,10 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CreatePostRequest;
 use App\Http\Resources\PostResource;
 
-use function Pest\Laravel\post;
-
 class PostController extends Controller
 {
     /**
-    * List all posts (returns PostResource collection).
+     * List all posts (returns PostResource collection).
      */
     public function index()
     {
@@ -21,7 +19,7 @@ class PostController extends Controller
     }
 
     /**
-    * Create a new post in the specified thread. Requires authenticated user.
+     * Create a new post in the specified thread. Requires authenticated user.
      */
     public function store(CreatePostRequest $request, Thread $thread)
     {
@@ -36,7 +34,7 @@ class PostController extends Controller
     }
 
     /**
-    * Retrieve a single post by ID.
+     * Retrieve a single post by ID.
      */
     public function show(Post $post)
     {
@@ -44,19 +42,11 @@ class PostController extends Controller
     }
 
     /**
-     * Update a post (not implemented).
-     */
-    public function update(Request $request, Post $post)
-    {
-        //
-    }
-
-    /**
      * Delete a post or remove as moderator.
      */
     public function destroy(Request $request, Thread $thread, Post $post)
     {
-        if($request->user()->id == $post->user_id) {
+        if ($request->user()->id == $post->user_id) {
             $post->update(['content' => '[deleted]']);
             return response()->json(['message' => 'Post deleted'], 200);
         }
