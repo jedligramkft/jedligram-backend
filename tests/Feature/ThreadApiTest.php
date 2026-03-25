@@ -124,7 +124,7 @@ describe('Viewing the posts of a thread', function () {
             ->assertJsonStructure(['*' => [
                 "id",
                 "content",
-                "user_id",
+                "user",
                 "thread_id",
                 "score",
                 "age",
