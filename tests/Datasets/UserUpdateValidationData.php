@@ -13,8 +13,8 @@ dataset('invalid_profile_data', [
         'name',
         422
     ],
-    'name exceeds 255 chars' => [
-        ['name' => str_repeat('a', 256), 'email' => 'valid@example.com'],
+    'name exceeds 40 chars' => [
+        ['name' => str_repeat('a', 41), 'email' => 'valid@example.com'],
         'name',
         422
     ],
@@ -33,8 +33,8 @@ dataset('invalid_profile_data', [
         'email',
         422
     ],
-    'email exceeds 255 chars' => [
-        ['name' => 'John Doe', 'email' => str_repeat('a', 246) . '@gmail.com'],
+    'email exceeds 60 chars' => [
+        ['name' => 'John Doe', 'email' => str_repeat('a', 60) . '@gmail.com'],
         'email',
         422
     ],
@@ -43,8 +43,8 @@ dataset('invalid_profile_data', [
         'bio',
         422
     ],
-    'bio exceeds 200 chars' => [
-        ['name' => 'John Doe', 'email' => 'valid@example.com', 'bio' => str_repeat('b', 201)],
+    'bio exceeds 100 chars' => [
+        ['name' => 'John Doe', 'email' => 'valid@example.com', 'bio' => str_repeat('b', 101)],
         'bio',
         422
     ],
@@ -77,9 +77,9 @@ dataset('valid_profile_data', [
 
     'payload hitting exact maximum lengths' => [
         [
-            'name'  => str_repeat('N', 255),
-            'email' => str_repeat('e', 243) . '@example.com',
-            'bio'   => str_repeat('B', 200)
+            'name'  => str_repeat('N', 40),
+            'email' => str_repeat('e', 48) . '@example.com',
+            'bio'   => str_repeat('B', 100)
         ]
     ],
 ]);
