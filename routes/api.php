@@ -35,15 +35,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('threads', [ThreadController::class, 'store']);
         Route::post('posts/{post}/comments', [CommentController::class, 'store'])->middleware('can:create,App\Models\Comment,post');
     });
+});
 
-    Route::post('/toggle-2fa', [UserController::class, 'toggle2fa']);
-    });
-    
-    Route::apiResource('threads', ThreadController::class)->only(['index']);
-    Route::post('register', [UserController::class, 'register']);
-    Route::post('login', [UserController::class, 'login'])->middleware('throttle:login');
-    Route::get('users/{user}/threads', [UserController::class, 'threadsOfUser']);
-    Route::get('users/{user}', [UserController::class, 'show']);
-    Route::get('users', [UserController::class, 'index']);
-    
-    Route::post('/verify-2fa', [UserController::class, 'verifyToken']);
+Route::apiResource('threads', ThreadController::class)->only(['index']);
+Route::post('register', [UserController::class, 'register']);
+Route::post('login', [UserController::class, 'login'])->middleware('throttle:login');
+Route::get('users/{user}/threads', [UserController::class, 'threadsOfUser']);
+Route::get('users/{user}', [UserController::class, 'show']);
+Route::get('users', [UserController::class, 'index']);
