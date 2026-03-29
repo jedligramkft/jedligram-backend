@@ -37,7 +37,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
 
     Route::post('/toggle-2fa', [UserController::class, 'toggle2fa']);
-    Route::post('/is-2fa-enabled', [UserController::class, 'is2faEnabled']);
+    Route::get('/is-2fa-enabled', [UserController::class, 'is2faEnabled']);
     });
     
     Route::apiResource('threads', ThreadController::class)->only(['index']);
@@ -47,4 +47,4 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('users/{user}', [UserController::class, 'show']);
     Route::get('users', [UserController::class, 'index']);
     
-    Route::post('/verify-2fa', [UserController::class, 'verifyToken']);
+    Route::post('/verify-2fa', [UserController::class, 'verifyToken'])->middleware('throttle:login');

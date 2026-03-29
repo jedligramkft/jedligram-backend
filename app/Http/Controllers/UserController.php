@@ -57,7 +57,6 @@ class UserController extends Controller
                     "requires_verification" => true, 
                     "message"=>"Verification code sent to email"
                 ], 202);
-                
             } catch (\Throwable $exception) {
                 Log::error('Failed to send login verification email.', [
                     'user_id' => $user->id,
@@ -65,10 +64,8 @@ class UserController extends Controller
                     'error' => $exception->getMessage(),
                 ]);
 
-                return response()->json(['message' => 'Failed to send login verification email: ' . $exception->getMessage()], 418);
+                return response()->json(['message' => 'Failed to send login verification email: ' . $exception->getMessage()], 500);
             }
-
-            return response()->json(['message' => 'Login verification code sent to email. Please verify to complete login.']);
         }
 
         // Automatically mark that the welcome email was handled to prevent duplicate sends.
@@ -183,10 +180,17 @@ class UserController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        $verification = Verify2fa::where('user_id', $user->id)->first();
+        // Multiple verification contexts can exist per user (login/enable/disable 2FA).
+        // Search active records and pick the one that matches the submitted code.
+        $verification = Verify2fa::where('user_id', $user->id)
+            ->where('expires_at', '>', now())
+            ->get()
+            ->first(function ($candidate) use ($request) {
+                return Hash::check($request->verification_code, $candidate->token);
+            });
 
-        if (!$verification || !Hash::check($request->verification_code, $verification->token) || $verification->expires_at->isPast()) {
-            return response()->json(['message' => 'Verification record not found or expired'], 404);
+        if (!$verification) {
+            return response()->json(['message' => 'Verification record not found or expired'], 422);
         }
 
         $isLoggingIn = $verification->enables_2fa === null;
@@ -199,7 +203,7 @@ class UserController extends Controller
                 'message' => 'Login successful',
                 'access_token' => $token,
                 'token_type' => 'Bearer',
-                'user' => $user
+                'user' => UserResource::make($user)
             ]);
         } else {
             // Update the user's 2FA status based on the enables_2fa field in the verification record
@@ -210,8 +214,6 @@ class UserController extends Controller
 
             return response()->json(['message' => '2FA verification successful']);
         }
-
-        return response()->json(['message' => 'Verification record found', 'verification' => $verification], 200);
     }
 
     /**
@@ -235,14 +237,18 @@ class UserController extends Controller
                     "message"=>"Verification code sent to email"
             ], 202);
         } catch (\Throwable $exception) {
-            return response()->json(['message' => 'Failed to send toggle 2FA email: ' . $exception->getMessage()], 418);
+            return response()->json(['message' => 'Failed to send toggle 2FA email: ' . $exception->getMessage()], 500);
         }
 
         return response()->json(['message' => 'Toggle 2FA verification code sent to email. Please verify to complete the action.']);
     }
 
     /**
-     * Check if 2FA is enabled for the authenticated user. This function returns a JSON response indicating whether 2FA is currently enabled for the user, allowing the frontend to adjust its behavior accordingly (e.g., prompting for a verification code during login if 2FA is enabled).
+     * Check if 2FA is enabled for the currently authenticated user.
+     * This authenticated endpoint returns a JSON response indicating whether 2FA
+     * is currently enabled for the user, allowing the frontend to adjust its
+     * behavior in account or security settings (e.g., showing 2FA indicators or
+     * controls) based on the user’s 2FA status.
      */
     public function is2faEnabled(Request $request)
     {
