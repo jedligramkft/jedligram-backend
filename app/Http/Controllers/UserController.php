@@ -240,4 +240,18 @@ class UserController extends Controller
 
         return response()->json(['message' => 'Toggle 2FA verification code sent to email. Please verify to complete the action.']);
     }
+
+    /**
+     * Check if 2FA is enabled for the authenticated user. This function returns a JSON response indicating whether 2FA is currently enabled for the user, allowing the frontend to adjust its behavior accordingly (e.g., prompting for a verification code during login if 2FA is enabled).
+     */
+    public function is2faEnabled(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        return response()->json(['is_2fa_enabled' => $user->is_2fa_enabled]);
+    }
 }

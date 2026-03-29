@@ -37,6 +37,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
 
     Route::post('/toggle-2fa', [UserController::class, 'toggle2fa']);
+    Route::post('/is-2fa-enabled', [UserController::class, 'is2faEnabled']);
     });
     
     Route::apiResource('threads', ThreadController::class)->only(['index']);
