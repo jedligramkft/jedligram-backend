@@ -25,8 +25,8 @@ class UserResource extends JsonResource
         }
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'email' => $this->email,
+            'name' => $this->display_name ?? $this->name,
+            'email' => $this->display_email ?? $this->email,
             'image_url' => $this->image
                 ? asset('storage/' . $this->image)
                 : asset('images/default_pfp.png'),

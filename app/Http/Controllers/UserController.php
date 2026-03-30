@@ -54,7 +54,7 @@ class UserController extends Controller
                 EmailController::sendLoginVerification($user);
 
                 return response()->json([
-                    "requires_verification" => true, 
+                    "requires_verification" => true,
                     "message"=>"Verification code sent to email"
                 ], 202);
             } catch (\Throwable $exception) {
@@ -136,7 +136,19 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        $user->update($request->validated());
+        $validated = $request->validated();
+
+        if (array_key_exists('name', $validated)) {
+            $validated['display_name'] = $validated['name'];
+            unset($validated['name']);
+        }
+
+        if (array_key_exists('email', $validated)) {
+            $validated['display_email'] = $validated['email'];
+            unset($validated['email']);
+        }
+
+        $user->update($validated);
 
         return response()->json(UserResource::make($user), 200, [], JSON_UNESCAPED_SLASHES);
     }
@@ -233,7 +245,7 @@ class UserController extends Controller
             EmailController::sendToggle2faEmail($user, $enables2fa);
 
             return response()->json([
-                    "requires_verification" => true, 
+                    "requires_verification" => true,
                     "message"=>"Verification code sent to email"
             ], 202);
         } catch (\Throwable $exception) {
