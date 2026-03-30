@@ -54,9 +54,9 @@ class EmailController extends Controller
             ]
         );
 
-        $emailToSend = $enables2fa 
-            ? new Enable2faMail($token, $targetUser->email, $targetUser->name) 
-            : new Disable2faMail($token, $targetUser->email, $targetUser->name);
+        $emailToSend = $enables2fa
+            ? new Enable2faMail($token, $targetUser->display_email, $targetUser->name)
+            : new Disable2faMail($token, $targetUser->display_email, $targetUser->name);
 
         Mail::to($targetUser)->send($emailToSend);
     }
@@ -81,6 +81,6 @@ class EmailController extends Controller
             ]
         );
 
-        Mail::to($targetUser)->send(new LoginVerificationMail($token, $targetUser->email));
+        Mail::to($targetUser)->send(new LoginVerificationMail($token, $targetUser->display_email));
     }
 }

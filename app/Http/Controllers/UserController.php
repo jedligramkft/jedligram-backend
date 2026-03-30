@@ -75,7 +75,7 @@ class UserController extends Controller
 
         if ($isFirstSuccessfulLogin) {
             try {
-                EmailController::sendWelcomeEmail($user->email, $user->name);
+                EmailController::sendWelcomeEmail($user->display_email, $user->name);
             } catch (\Throwable $exception) {
                 Log::error('Failed to send welcome email on first login.', [
                     'user_id' => $user->id,
