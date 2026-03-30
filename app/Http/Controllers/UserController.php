@@ -54,7 +54,7 @@ class UserController extends Controller
                 EmailController::sendLoginVerification($user);
 
                 return response()->json([
-                    "requires_verification" => true, 
+                    "requires_verification" => true,
                     "message"=>"Verification code sent to email"
                 ], 202);
             } catch (\Throwable $exception) {
@@ -177,7 +177,10 @@ class UserController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+            $user = User::where('display_email', $request->email)->first();
+            if(!$user){
+                return response()->json(['message' => 'User not found'], 404);
+            }
         }
 
         // Multiple verification contexts can exist per user (login/enable/disable 2FA).
@@ -233,7 +236,7 @@ class UserController extends Controller
             EmailController::sendToggle2faEmail($user, $enables2fa);
 
             return response()->json([
-                    "requires_verification" => true, 
+                    "requires_verification" => true,
                     "message"=>"Verification code sent to email"
             ], 202);
         } catch (\Throwable $exception) {
