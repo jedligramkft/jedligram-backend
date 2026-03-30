@@ -189,7 +189,10 @@ class UserController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+            $user = User::where('display_email', $request->email)->first();
+            if(!$user){
+                return response()->json(['message' => 'User not found'], 404);
+            }
         }
 
         // Multiple verification contexts can exist per user (login/enable/disable 2FA).
