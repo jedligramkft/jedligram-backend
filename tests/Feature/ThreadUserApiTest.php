@@ -160,11 +160,15 @@ describe('Listing the members of a thread', function () {
             ]);
     });
 
-    test('Regular members cannot see the list of the threads members', function () {
+    test('Regular members can see the list of the threads members', function () {
+        $this->thread->users()->attach($this->user->id);
         $response = $this->actingAs($this->user, 'sanctum')
             ->getJson("/api/threads/{$this->thread->id}/members");
 
-        $response->assertStatus(403);
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                '*' => ['id', 'name', 'email', 'role_id'],
+            ]);
     });
 
     test('Unauthenticated users cannot see the list of the threads members', function () {
