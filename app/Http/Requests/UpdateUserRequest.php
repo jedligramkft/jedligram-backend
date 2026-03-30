@@ -24,13 +24,32 @@ class UpdateUserRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
+
+    protected function prepareForValidation()
+    {
+        if($this->has('name') && !$this->has('display_name')){
+            $this->merge([
+                'display_name' => $this->input('name'),
+            ]);
+        }
+        if($this->has('email') && !$this->has('display_email')){
+            $this->merge([
+                'display_email' => $this->input('email'),
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         $userId = $this->route('user')->id;
+
+        $nameEmailPresenceRule = $this->isMethod('put') ? 'required' : 'sometimes';
+
         return [
-            "name" => "required|string|max:40",
-            "email" => "required|string|email|max:60|unique:users,email," . $userId,
-            "bio" => "nullable|string|max:100"
+            'name'  => [$nameEmailPresenceRule, 'string', 'max:40'],
+            'email' => [$nameEmailPresenceRule, 'string', 'email', 'max:60', 'unique:users,email,' . $userId],
+
+            'bio' => ['sometimes', 'nullable', 'string', 'max:100'],
         ];
     }
 

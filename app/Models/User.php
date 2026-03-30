@@ -70,7 +70,9 @@ class User extends Authenticatable implements LdapAuthenticatable
 		'password',
 		'remember_token',
         'image',
-        'bio'
+        'bio',
+        'display_name',
+        'display_email'
 	];
 
 	public function posts()
