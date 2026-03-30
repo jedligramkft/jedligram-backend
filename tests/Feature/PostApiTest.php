@@ -226,7 +226,6 @@ describe('Fetching a single post', function(){
             ->getJson("/api/posts/{$this->post->id}");
 
         $response->assertStatus(200)
-            ->dump()
             ->assertJson([
                 'id' => $this->post->id,
                 'content' => $this->post->content,
