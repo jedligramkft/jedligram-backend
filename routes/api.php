@@ -10,8 +10,11 @@ use App\Http\Controllers\ThreadUserController;
 use App\Http\Controllers\VoteController;
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
-    Route::post('threads/{thread}/image', [ThreadController::class, 'threadImage']);
-    Route::post('threads/{thread}/header', [ThreadController::class, 'headerImage']);
+    Route::group(['middleware' => ['throttle:uploads']], function () {
+        Route::post('threads/{thread}/image', [ThreadController::class, 'threadImage'])->middleware('can:upload,thread');
+        Route::post('threads/{thread}/header', [ThreadController::class, 'headerImage'])->middleware('can:upload,thread');
+        Route::post('users/profile-picture', [UserController::class, 'uploadPfP']);
+    });
     Route::post('threads/{thread}/join', [ThreadUserController::class, 'join']);
     Route::delete('threads/{thread}/leave', [ThreadUserController::class, 'leave'])->middleware('can:delete,thread');
     Route::get('threads/{thread}/posts', [ThreadController::class, 'postsOfThread'])->middleware('can:view,thread');
@@ -26,7 +29,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('posts/{post}/comments/{comment}', [CommentController::class, 'destroy'])->middleware('can:delete,comment');
     Route::get('comments/{comment}/replies', [CommentController::class, 'replies'])->middleware('can:view,comment');
     Route::put('users/{user}', [UserController::class, 'update']);
-    Route::post('users/profile-picture', [UserController::class, 'uploadPfP'])->middleware('throttle:uploads');
     Route::post('posts/{post}/vote', [VoteController::class, 'vote']);
     Route::post('logout', [UserController::class, 'logout']);
     Route::get('threads/{thread}/members', [ThreadUserController::class, 'index'])->middleware('can:viewMembers,thread');
