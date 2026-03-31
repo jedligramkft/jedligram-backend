@@ -10,6 +10,7 @@ use App\Http\Controllers\ThreadUserController;
 use App\Http\Controllers\VoteController;
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::post('threads/{thread}/image', [ThreadController::class, 'threadImage']);
     Route::post('threads/{thread}/join', [ThreadUserController::class, 'join']);
     Route::delete('threads/{thread}/leave', [ThreadUserController::class, 'leave'])->middleware('can:delete,thread');
     Route::get('threads/{thread}/posts', [ThreadController::class, 'postsOfThread'])->middleware('can:view,thread');
@@ -38,13 +39,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('/toggle-2fa', [UserController::class, 'toggle2fa']);
     Route::get('/is-2fa-enabled', [UserController::class, 'is2faEnabled']);
-    });
-    
-    Route::apiResource('threads', ThreadController::class)->only(['index']);
-    Route::post('register', [UserController::class, 'register']);
-    Route::post('login', [UserController::class, 'login'])->middleware('throttle:login');
-    Route::get('users/{user}/threads', [UserController::class, 'threadsOfUser']);
-    Route::get('users/{user}', [UserController::class, 'show']);
-    Route::get('users', [UserController::class, 'index']);
-    
-    Route::post('/verify-2fa', [UserController::class, 'verifyToken'])->middleware('throttle:login');
+});
+
+Route::apiResource('threads', ThreadController::class)->only(['index']);
+Route::post('register', [UserController::class, 'register']);
+Route::post('login', [UserController::class, 'login'])->middleware('throttle:login');
+Route::get('users/{user}/threads', [UserController::class, 'threadsOfUser']);
+Route::get('users/{user}', [UserController::class, 'show']);
+Route::get('users', [UserController::class, 'index']);
+
+Route::post('/verify-2fa', [UserController::class, 'verifyToken'])->middleware('throttle:login');

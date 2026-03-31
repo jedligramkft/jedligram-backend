@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Thread;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreThreadRequest;
+use App\Http\Requests\UploadThreadImageRequest;
 use App\Http\Resources\PostResource;
 use App\Http\Resources\ThreadResource;
+use Illuminate\Support\Facades\Storage;
 
 class ThreadController extends Controller
 {
@@ -54,5 +56,32 @@ class ThreadController extends Controller
             return $query->latest();
         })->get();
         return response()->json(PostResource::collection($posts), 200);
+    }
+
+    /**
+     * Upload thread image
+     */
+    public function threadImage(UploadThreadImageRequest $request, Thread $thread){
+        $validated = $request->validated();
+
+        if($thread->image){
+            Storage::disk('public')->delete($thread->image);
+        }
+
+        $path = $validated['image']->store('threadImages', 'public');
+
+        $thread->update(['image' => $path]);
+
+        return response()->json([
+            'message' => 'Thread image updated successfully',
+            'thread' => ThreadResource::make($thread),
+        ], 200, [], JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * Upload a header image for the thread
+     */
+    public function headerImage(){
+
     }
 }

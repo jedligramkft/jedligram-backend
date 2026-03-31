@@ -35,7 +35,9 @@ class Thread extends Model
     protected $fillable = [
         'name',
         'description',
-        'rules'
+        'rules',
+        'image',
+        'header'
     ];
 
     public function posts()
