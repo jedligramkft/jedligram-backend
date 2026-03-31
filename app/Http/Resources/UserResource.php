@@ -15,8 +15,8 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        if(!$this->resource){
-            return[
+        if (!$this->resource) {
+            return [
                 'id' => null,
                 'name' => "[Deleted User]",
                 'email' => null,
@@ -30,7 +30,10 @@ class UserResource extends JsonResource
             'image_url' => $this->image
                 ? asset('storage/' . $this->image)
                 : asset('images/default_pfp.png'),
-            'bio' => $this->bio
+            'bio' => $this->bio,
+            'role_id' => $this->whenPivotLoaded('thread_user', function () {
+                return $this->pivot->role_id;
+            }),
         ];
     }
 
