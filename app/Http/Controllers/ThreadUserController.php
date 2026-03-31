@@ -19,6 +19,7 @@ class ThreadUserController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'image_url' => $user->image ? asset('storage/'. $user->image) : asset('images/default_pfp.png'),
                 'role_id' => $user->pivot->role_id,
             ];
         });
