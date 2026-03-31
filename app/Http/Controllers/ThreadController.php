@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Thread;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreThreadRequest;
+use App\Http\Requests\UploadHeaderImageRequest;
 use App\Http\Requests\UploadThreadImageRequest;
 use App\Http\Resources\PostResource;
 use App\Http\Resources\ThreadResource;
@@ -81,7 +82,20 @@ class ThreadController extends Controller
     /**
      * Upload a header image for the thread
      */
-    public function headerImage(){
+    public function headerImage(UploadHeaderImageRequest $request, Thread $thread){
+        $validated = $request->validated();
 
+        if($thread->header){
+            Storage::disk('public')->delete($thread->header);
+        }
+
+        $path = $validated['header']->store('headers', 'public');
+
+        $thread->update(['header' => $path]);
+
+        return response()->json([
+            'message' => 'Thread header updated successfully',
+            'thread' => ThreadResource::make($thread),
+        ], 200, [], JSON_UNESCAPED_SLASHES);
     }
 }
