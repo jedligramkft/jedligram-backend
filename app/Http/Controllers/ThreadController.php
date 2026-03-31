@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Thread;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreThreadRequest;
+use App\Http\Requests\UpdateThreadRequest;
 use App\Http\Requests\UploadHeaderImageRequest;
 use App\Http\Requests\UploadThreadImageRequest;
 use App\Http\Resources\PostResource;
@@ -21,11 +22,11 @@ class ThreadController extends Controller
         if ($request->filled('search')) {
             $threads = Thread::search($request->input('search'))->get();
             if ($threads->isNotEmpty()) {
-                return response()->json(ThreadResource::collection($threads->loadCount('users')), 200);
+                return response()->json(ThreadResource::collection($threads->loadCount('users')), 200, [], JSON_UNESCAPED_SLASHES);
             }
         }
         $allthreads = Thread::withCount('users')->get();
-        return response()->json(ThreadResource::collection($allthreads), 200);
+        return response()->json(ThreadResource::collection($allthreads), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**
@@ -35,7 +36,20 @@ class ThreadController extends Controller
     {
         $thread = Thread::create($request->validated());
         $thread->users()->attach($request->user()->id, ['role_id' => 1]);
-        return response()->json(ThreadResource::make($thread), 201);
+        return response()->json(ThreadResource::make($thread), 201, [], JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * Update the thread
+     */
+
+    public function update(Thread $thread, UpdateThreadRequest $request)
+    {
+        $validated = $request->validated();
+
+        $thread->update($validated);
+
+        return response()->json(ThreadResource::make($thread), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**
@@ -43,7 +57,7 @@ class ThreadController extends Controller
      */
     public function show(Thread $thread)
     {
-        return response()->json(ThreadResource::make($thread->loadCount('users')), 200);
+        return response()->json(ThreadResource::make($thread->loadCount('users')), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**
@@ -56,16 +70,17 @@ class ThreadController extends Controller
         }, function ($query) {
             return $query->latest();
         })->get();
-        return response()->json(PostResource::collection($posts), 200);
+        return response()->json(PostResource::collection($posts), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**
      * Upload thread image
      */
-    public function threadImage(UploadThreadImageRequest $request, Thread $thread){
+    public function threadImage(UploadThreadImageRequest $request, Thread $thread)
+    {
         $validated = $request->validated();
 
-        if($thread->image){
+        if ($thread->image) {
             Storage::disk('public')->delete($thread->image);
         }
 
@@ -82,10 +97,11 @@ class ThreadController extends Controller
     /**
      * Upload a header image for the thread
      */
-    public function headerImage(UploadHeaderImageRequest $request, Thread $thread){
+    public function headerImage(UploadHeaderImageRequest $request, Thread $thread)
+    {
         $validated = $request->validated();
 
-        if($thread->header){
+        if ($thread->header) {
             Storage::disk('public')->delete($thread->header);
         }
 

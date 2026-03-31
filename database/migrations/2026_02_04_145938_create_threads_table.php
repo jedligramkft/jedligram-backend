@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('threads', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->text('description')->nullable();
+            $table->string('name', 20);
+            $table->text('description', 50)->nullable();
             $table->timestamps();
         });
     }

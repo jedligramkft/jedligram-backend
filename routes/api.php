@@ -20,6 +20,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('threads/{thread}/posts', [ThreadController::class, 'postsOfThread'])->middleware('can:view,thread');
     Route::get('threads/search', [ThreadController::class, 'search']);
     Route::get('threads/{thread}', [ThreadController::class, 'show'])->middleware('can:view,thread');
+    Route::put('threads/{thread}', [ThreadController::class, 'update'])->middleware('can:update,thread');
     Route::put('posts/{post}', [PostController::class, 'update']);
     // FIXED WITH TDD
     Route::delete('posts/{post}', [PostController::class, 'destroy'])->middleware('can:delete,post');

@@ -37,8 +37,9 @@ class ThreadPolicy
         return false;
     }
 
-    public function upload(User $user, Thread $thread): bool{
-        return $user->hasThreadRole($thread->id, [1, 2]);
+    public function upload(User $user, Thread $thread): bool
+    {
+        return $user->hasThreadRole($thread->id, [1]);
     }
 
     /**
@@ -60,6 +61,11 @@ class ThreadPolicy
         }
 
         return Response::allow();
+    }
+
+    public function update(User $user, Thread $thread)
+    {
+        return $user->hasThreadRole($thread->id, [1]);
     }
 
     /**
