@@ -13,6 +13,8 @@ class CommentPolicy
      */
     public function viewAny(User $user, Post $post): bool
     {
+        // this isnt what you are looking for, check PostPolicy viewAny
+        dd('I have reached the policy!', $post->thread_id);
         return $user->hasThreadRole($post->thread_id, [1, 2, 3]);
     }
 
