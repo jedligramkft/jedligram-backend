@@ -37,6 +37,11 @@ class ThreadPolicy
         return false;
     }
 
+    public function upload(User $user, Thread $thread): bool
+    {
+        return $user->hasThreadRole($thread->id, [1]);
+    }
+
     /**
      * Determine whether the user can update the model.
      */
@@ -56,6 +61,11 @@ class ThreadPolicy
         }
 
         return Response::allow();
+    }
+
+    public function update(User $user, Thread $thread)
+    {
+        return $user->hasThreadRole($thread->id, [1]);
     }
 
     /**

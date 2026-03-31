@@ -10,11 +10,17 @@ use App\Http\Controllers\ThreadUserController;
 use App\Http\Controllers\VoteController;
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::group(['middleware' => ['throttle:uploads']], function () {
+        Route::post('threads/{thread}/image', [ThreadController::class, 'threadImage'])->middleware('can:upload,thread');
+        Route::post('threads/{thread}/header', [ThreadController::class, 'headerImage'])->middleware('can:upload,thread');
+        Route::post('users/profile-picture', [UserController::class, 'uploadPfP']);
+    });
     Route::post('threads/{thread}/join', [ThreadUserController::class, 'join']);
     Route::delete('threads/{thread}/leave', [ThreadUserController::class, 'leave'])->middleware('can:delete,thread');
     Route::get('threads/{thread}/posts', [ThreadController::class, 'postsOfThread'])->middleware('can:view,thread');
     Route::get('threads/search', [ThreadController::class, 'search']);
     Route::get('threads/{thread}', [ThreadController::class, 'show'])->middleware('can:view,thread');
+    Route::put('threads/{thread}', [ThreadController::class, 'update'])->middleware('can:update,thread');
     Route::put('posts/{post}', [PostController::class, 'update']);
     // FIXED WITH TDD
     Route::delete('posts/{post}', [PostController::class, 'destroy'])->middleware('can:delete,post');
@@ -24,7 +30,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('posts/{post}/comments/{comment}', [CommentController::class, 'destroy'])->middleware('can:delete,comment');
     Route::get('comments/{comment}/replies', [CommentController::class, 'replies'])->middleware('can:view,comment');
     Route::put('users/{user}', [UserController::class, 'update']);
-    Route::post('users/profile-picture', [UserController::class, 'uploadPfP'])->middleware('throttle:uploads');
     Route::post('posts/{post}/vote', [VoteController::class, 'vote']);
     Route::post('logout', [UserController::class, 'logout']);
     Route::get('threads/{thread}/members', [ThreadUserController::class, 'index'])->middleware('can:viewMembers,thread');
@@ -38,13 +43,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('/toggle-2fa', [UserController::class, 'toggle2fa']);
     Route::get('/is-2fa-enabled', [UserController::class, 'is2faEnabled']);
-    });
-    
-    Route::apiResource('threads', ThreadController::class)->only(['index']);
-    Route::post('register', [UserController::class, 'register']);
-    Route::post('login', [UserController::class, 'login'])->middleware('throttle:login');
-    Route::get('users/{user}/threads', [UserController::class, 'threadsOfUser']);
-    Route::get('users/{user}', [UserController::class, 'show']);
-    Route::get('users', [UserController::class, 'index']);
-    
-    Route::post('/verify-2fa', [UserController::class, 'verifyToken'])->middleware('throttle:login');
+});
+
+Route::apiResource('threads', ThreadController::class)->only(['index']);
+Route::post('register', [UserController::class, 'register']);
+Route::post('login', [UserController::class, 'login'])->middleware('throttle:login');
+Route::get('users/{user}/threads', [UserController::class, 'threadsOfUser']);
+Route::get('users/{user}', [UserController::class, 'show']);
+Route::get('users', [UserController::class, 'index']);
+
+Route::post('/verify-2fa', [UserController::class, 'verifyToken'])->middleware('throttle:login');
