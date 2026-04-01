@@ -39,7 +39,11 @@ class CommentController extends Controller
      */
     public function store(StoreCommentRequest $request, Post $post)
     {
-        $comment = Comment::create($request->validated());
+        $data = $request->validated();
+        $data['post_id'] = $post->id;
+        $data['user_id'] = $request->user()->id;
+
+        $comment = Comment::create($data);
         return response()->json(new CommentResource($comment->load('user')), 201, [], JSON_UNESCAPED_SLASHES);
     }
 
