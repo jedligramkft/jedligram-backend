@@ -33,7 +33,7 @@ class UserResource extends JsonResource
                 ? asset('storage/' . $this->image)
                 : asset('images/default_pfp.png'),
             'bio' => $this->bio,
-            'post_karma' => $this->post_karma,
+            'post_karma' => (int) $this->post_karma,
             'role_id' => $this->whenPivotLoaded('thread_user', function () {
                 return $this->pivot->role_id;
             }),
