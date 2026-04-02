@@ -26,8 +26,7 @@ class CreatePostRequest extends FormRequest
     {
         return [
             'content' => 'required|string',
-            // 'thread_id' => 'required|exists:threads,id',
-            // 'user_id' => 'required|exists:users,id'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096'
         ];
     }
 }

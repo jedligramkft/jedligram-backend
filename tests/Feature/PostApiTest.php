@@ -7,8 +7,21 @@ use App\Models\ThreadUser;
 use App\Models\User;
 use Database\Seeders\ProductionDataSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 
 uses(RefreshDatabase::class);
+
+function sendCreatePostRequest($testCase, string $url, array $payload, ?User $user = null)
+{
+    $request = $user ? $testCase->actingAs($user, 'sanctum') : $testCase;
+    $request = $request->withHeaders(['Accept' => 'application/json']);
+
+    if (isset($payload['image']) && $payload['image'] instanceof UploadedFile) {
+        return $request->post($url, $payload);
+    }
+
+    return $request->postJson($url, $payload);
+}
 
 beforeEach(function () {
     $this->seed(ProductionDataSeeder::class);
@@ -23,8 +36,7 @@ describe('Creating a new post inside of a thread', function () {
             'user_id' => $user->id,
             'role_id' => 3,
         ]);
-        $response = $this->actingAs($user, 'sanctum')
-            ->postJson("/api/threads/{$thread->id}/post", $validData);
+        $response = sendCreatePostRequest($this, "/api/threads/{$thread->id}/post", $validData, $user);
 
         $response->assertStatus(201)
             ->assertJson([
@@ -41,7 +53,7 @@ describe('Creating a new post inside of a thread', function () {
             'role_id' => 3,
         ]);
 
-        $response = $this->postJson("/api/threads/{$thread->id}/post", $validData);
+        $response = sendCreatePostRequest($this, "/api/threads/{$thread->id}/post", $validData);
 
         $response->assertStatus(401);
     })->with('valid_post_data');
@@ -55,8 +67,7 @@ describe('Creating a new post inside of a thread', function () {
             'role_id' => 4,
         ]);
 
-        $response = $this->actingAs($user, 'sanctum')
-            ->postJson("/api/threads/{$thread->id}/post", $validData);
+        $response = sendCreatePostRequest($this, "/api/threads/{$thread->id}/post", $validData, $user);
 
         $response->assertStatus(403);
     })->with('valid_post_data');
@@ -64,8 +75,7 @@ describe('Creating a new post inside of a thread', function () {
     test('trying to create a post inside of a non existent thread should return 404', function (array $validData) {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user, 'sanctum')
-            ->postJson("/api/threads/999/post", $validData);
+        $response = sendCreatePostRequest($this, '/api/threads/999/post', $validData, $user);
 
         $response->assertStatus(404);
     })->with('valid_post_data');
@@ -79,8 +89,7 @@ describe('Creating a new post inside of a thread', function () {
             'role_id' => 3,
         ]);
 
-        $response = $this->actingAs($user, 'sanctum')
-            ->postJson("/api/threads/{$thread->id}/post", $invalidData);
+        $response = sendCreatePostRequest($this, "/api/threads/{$thread->id}/post", $invalidData, $user);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors($missingField);
@@ -95,8 +104,7 @@ describe('Creating a new post inside of a thread', function () {
             'role_id' => 4,
         ]);
 
-        $response = $this->actingAs($user, 'sanctum')
-            ->postJson("/api/threads/{$thread->id}/post", $validData);
+        $response = sendCreatePostRequest($this, "/api/threads/{$thread->id}/post", $validData, $user);
 
         $response->assertStatus(403);
     })->with('valid_post_data');
