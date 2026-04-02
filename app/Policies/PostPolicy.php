@@ -12,9 +12,10 @@ class PostPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user, Post $post): bool
     {
-        return false;
+        // this is the one used for viewwing comments
+        return $user->hasThreadRole($post->thread_id, [1, 2, 3]);
     }
 
     /**

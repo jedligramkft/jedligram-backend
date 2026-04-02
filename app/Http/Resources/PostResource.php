@@ -17,10 +17,11 @@ class PostResource extends JsonResource
         return [
             'id' => $this->id,
             'content' => $this->content,
+            'image' => $this->image ? asset('storage/' . $this->image) : null,
             'user' => new UserResource($this->user),
             'thread_id' => $this->thread_id,
             'score' => $this->score,
             'age' => $this->created_at->diffForHumans()
         ];
-    }
+}
 }

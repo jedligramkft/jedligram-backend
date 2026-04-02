@@ -52,6 +52,11 @@ class UserController extends Controller
         if ($user->is_2fa_enabled) {
             try {
                 EmailController::sendLoginVerification($user);
+
+                return response()->json([
+                    "requires_verification" => true,
+                    "message"=>"Verification code sent to email"
+                ], 202);
             } catch (\Throwable $exception) {
                 Log::error('Failed to send login verification email.', [
                     'user_id' => $user->id,
@@ -59,10 +64,8 @@ class UserController extends Controller
                     'error' => $exception->getMessage(),
                 ]);
 
-                return response()->json(['message' => 'Failed to send login verification email: ' . $exception->getMessage()], 418);
+                return response()->json(['message' => 'Failed to send login verification email: ' . $exception->getMessage()], 500);
             }
-
-            return response()->json(['message' => 'Login verification code sent to email. Please verify to complete login.']);
         }
 
         // Automatically mark that the welcome email was handled to prevent duplicate sends.
@@ -72,7 +75,7 @@ class UserController extends Controller
 
         if ($isFirstSuccessfulLogin) {
             try {
-                EmailController::sendWelcomeEmail($user->email, $user->name);
+                EmailController::sendWelcomeEmail($user->display_email ?? $user->email, $user->display_name ?? $user->name);
             } catch (\Throwable $exception) {
                 Log::error('Failed to send welcome email on first login.', [
                     'user_id' => $user->id,
@@ -133,7 +136,19 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        $user->update($request->validated());
+        $validated = $request->validated();
+
+        if (array_key_exists('name', $validated)) {
+            $validated['display_name'] = $validated['name'];
+            unset($validated['name']);
+        }
+
+        if (array_key_exists('email', $validated)) {
+            $validated['display_email'] = $validated['email'];
+            unset($validated['email']);
+        }
+
+        $user->update($validated);
 
         return response()->json(UserResource::make($user), 200, [], JSON_UNESCAPED_SLASHES);
     }
@@ -161,7 +176,10 @@ class UserController extends Controller
         ], 200, [], JSON_UNESCAPED_SLASHES);
     }
 
-    public function verifyLogin(Request $request)
+    /**
+     * Verify the 2FA token sent to the user's email for either login verification or toggling 2FA. The function checks the provided token against the stored hashed token in the Verify2fa model, ensuring it is valid and not expired. If the verification is for login, it issues an authentication token upon success. If it's for toggling 2FA, it updates the user's 2FA status accordingly.
+     */
+    public function verifyToken(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
@@ -171,63 +189,90 @@ class UserController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+            $user = User::where('display_email', $request->email)->first();
+            if(!$user){
+                return response()->json(['message' => 'User not found'], 404);
+            }
         }
 
-        $verification = Verify2fa::where('user_id', $user->id)->whereNull('enables_2fa')->first();
+        // Multiple verification contexts can exist per user (login/enable/disable 2FA).
+        // Search active records and pick the one that matches the submitted code.
+        $verification = Verify2fa::where('user_id', $user->id)
+            ->where('expires_at', '>', now())
+            ->get()
+            ->first(function ($candidate) use ($request) {
+                return Hash::check($request->verification_code, $candidate->token);
+            });
 
-        if (!$verification || !Hash::check($request->verification_code, $verification->token) || $verification->expires_at->isPast()) {
-            return response()->json(['message' => 'Invalid or expired verification code'], 400);
+        if (!$verification) {
+            return response()->json(['message' => 'Verification record not found or expired'], 422);
         }
 
-        // Delete the verification record after successful verification
-        $verification->delete();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $isLoggingIn = $verification->enables_2fa === null;
 
-        return response()->json([
-            'message' => 'Login successful',
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'user' => $user
-        ]);
+        if($isLoggingIn) {
+            $verification->delete(); // Delete the verification record after successful verification
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'Login successful',
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'user' => UserResource::make($user)
+            ]);
+        } else {
+            // Update the user's 2FA status based on the enables_2fa field in the verification record
+            $user->is_2fa_enabled = $verification->enables_2fa ?? $user->is_2fa_enabled;
+            $user->save();
+
+            $verification->delete(); // Delete the verification record after successful verification
+
+            return response()->json(['message' => '2FA verification successful']);
+        }
     }
 
-    public function verify2fa(Request $request)
+    /**
+     * Toggle 2FA for the authenticated user. This function sends an email with a verification code to the user's email address, which they must verify to complete the toggle action. The email content and the verification process are handled based on whether 2FA is being enabled or disabled.
+     */
+    public function toggle2fa(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'verification_code' => 'required|string',
-        ]);
-
-        $user = User::where('email', $request->email)->first();
+        $user = $request->user();
 
         if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
-        $verification = Verify2fa::where('user_id', $user->id)->whereNotNull("enables_2fa")->first();
+        $enables2fa = !$user->is_2fa_enabled;
 
-        $isTokenValid = $verification
-            && (Hash::check($request->verification_code, $verification->token));
+        try {
+            EmailController::sendToggle2faEmail($user, $enables2fa);
 
-        if (!$verification || !$isTokenValid || $verification->expires_at->isPast()) {
-            Log::warning('2FA verification failed', [
-                'email' => $request->email,
-                'has_verification_row' => (bool) $verification,
-                'token_match' => $isTokenValid,
-                'is_expired' => $verification ? $verification->expires_at->isPast() : null,
-            ]);
-
-            return response()->json(['message' => 'Invalid or expired verification code'], 400);
+            return response()->json([
+                    "requires_verification" => true,
+                    "message"=>"Verification code sent to email"
+            ], 202);
+        } catch (\Throwable $exception) {
+            return response()->json(['message' => 'Failed to send toggle 2FA email: ' . $exception->getMessage()], 500);
         }
 
-        // Update the user's 2FA status based on the enables_2fa field in the verification record
-        $user->is_2fa_enabled = $verification->enables_2fa ?? $user->is_2fa_enabled;
-        $user->save();
+        return response()->json(['message' => 'Toggle 2FA verification code sent to email. Please verify to complete the action.']);
+    }
 
-        // Delete the verification record after successful verification
-        $verification->delete();
+    /**
+     * Check if 2FA is enabled for the currently authenticated user.
+     * This authenticated endpoint returns a JSON response indicating whether 2FA
+     * is currently enabled for the user, allowing the frontend to adjust its
+     * behavior in account or security settings (e.g., showing 2FA indicators or
+     * controls) based on the user’s 2FA status.
+     */
+    public function is2faEnabled(Request $request)
+    {
+        $user = $request->user();
 
-        return response()->json(['message' => '2FA verification successful']);
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        return response()->json(['is_2fa_enabled' => $user->is_2fa_enabled]);
     }
 }

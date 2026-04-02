@@ -7,17 +7,10 @@ use App\Models\Thread;
 use Illuminate\Http\Request;
 use App\Http\Requests\CreatePostRequest;
 use App\Http\Resources\PostResource;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
-    /**
-     * List all posts (returns PostResource collection).
-     */
-    public function index()
-    {
-        return response()->json(PostResource::collection(Post::all()), 200);
-    }
-
     /**
      * Create a new post in the specified thread. Requires authenticated user.
      */
@@ -28,7 +21,11 @@ class PostController extends Controller
 
         $data['user_id'] = $request->user()->id;
         $data['thread_id'] = $thread->id;
-        $post = Post::create($data);
+        $post = Post::create(collect($data)->except('image')->all());
+
+        if ($request->hasFile('image')) {
+            $this->handleImageUpload($thread, $post, $request->file('image'));
+        }
 
         return response()->json(PostResource::make($post), 201);
     }
@@ -46,12 +43,28 @@ class PostController extends Controller
      */
     public function destroy(Request $request, Thread $thread, Post $post)
     {
+        $this->deleteImage($post);
         if ($request->user()->id == $post->user_id) {
             $post->update(['content' => '[deleted]']);
             return response()->json(['message' => 'Post deleted'], 200);
         }
 
-        $post->update(['content' => '[removed]']);
+        $post->update(['content' => '[removed]', 'image' => null]);
         return response()->json(['message' => 'Post removed'], 200);
+    }
+
+    protected function handleImageUpload(Thread $thread, Post $post, $image)
+    {
+        $this->deleteImage($post);
+        $path = $image->store("threads/{$thread->id}/posts/{$post->id}", 'public');
+        $post->update(['image' => $path]);
+    }
+
+    protected function deleteImage(Post $post)
+    {
+        if ($post->image) {
+            Storage::disk('public')->delete($post->image);
+            $post->update(['image' => null]);
+        }
     }
 }

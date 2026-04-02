@@ -34,6 +34,7 @@ class EmailController extends Controller
 
     /**
      * Sends an email to user with a code to enable or disable 2FA, depending on the $enables2fa parameter.
+     * This function updates or creates a Verify2fa record with the generated token and its expiry time, then sends an email with the appropriate content based on whether 2FA is being enabled or disabled.
      * @param User $targetUser The user to whom the email verification code will be sent.
      * @param bool $enables2fa Indicates whether the email is for enabling or disabling 2FA, used to determine the email content.
      */
@@ -53,9 +54,9 @@ class EmailController extends Controller
             ]
         );
 
-        $emailToSend = $enables2fa 
-            ? new Enable2faMail($token, $targetUser->email, $targetUser->name) 
-            : new Disable2faMail($token, $targetUser->email, $targetUser->name);
+        $emailToSend = $enables2fa
+            ? new Enable2faMail($token, $targetUser->display_email ?? $targetUser->email, $targetUser->name)
+            : new Disable2faMail($token, $targetUser->display_email ?? $targetUser->email, $targetUser->name);
 
         Mail::to($targetUser)->send($emailToSend);
     }
@@ -80,6 +81,6 @@ class EmailController extends Controller
             ]
         );
 
-        Mail::to($targetUser)->send(new LoginVerificationMail($token, $targetUser->email));
+        Mail::to($targetUser)->send(new LoginVerificationMail($token, $targetUser->display_email ?? $targetUser->email));
     }
 }

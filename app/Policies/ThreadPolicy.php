@@ -26,8 +26,7 @@ class ThreadPolicy
 
     public function viewMembers(User $user, Thread $thread): bool
     {
-        // return true;
-        return $user->hasThreadRole($thread->id, [1, 2]);
+        return $thread->isMember($user);
     }
 
     /**
@@ -36,6 +35,11 @@ class ThreadPolicy
     public function create(User $user): bool
     {
         return false;
+    }
+
+    public function upload(User $user, Thread $thread): bool
+    {
+        return $user->hasThreadRole($thread->id, [1]);
     }
 
     /**
@@ -57,6 +61,11 @@ class ThreadPolicy
         }
 
         return Response::allow();
+    }
+
+    public function update(User $user, Thread $thread)
+    {
+        return $user->hasThreadRole($thread->id, [1]);
     }
 
     /**

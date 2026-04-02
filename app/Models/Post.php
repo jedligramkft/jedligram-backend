@@ -42,7 +42,8 @@ class Post extends Model
     protected $fillable = [
         'content',
         'thread_id',
-        'user_id'
+        'user_id',
+        'image'
     ];
 
     protected $appends = ['score'];

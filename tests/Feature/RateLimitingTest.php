@@ -13,7 +13,7 @@ beforeEach(function () {
 });
 
 
-test('creation rate limiting should return 429 after too many requests', function () {
+test('file upload rate limiting should return 429 after too many requests', function () {
     $user = User::factory()->create();
     $thread = Thread::factory()->create();
 
@@ -23,7 +23,7 @@ test('creation rate limiting should return 429 after too many requests', functio
         'role_id' => 3,
     ]);
 
-    for ($i = 0; $i < 10; $i++) {
+    for ($i = 0; $i < 3; $i++) {
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/threads/{$thread->id}/post", [
                 'content' => "Post content {$i}",

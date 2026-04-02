@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('threads', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 20);
-            $table->text('description', 50)->nullable();
-            $table->timestamps();
+        Schema::table('threads', function (Blueprint $table) {
+            $table->string('image')->nullable();
+            $table->string('header')->nullable();
         });
     }
 
@@ -24,6 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('threads');
+        Schema::table('threads', function (Blueprint $table) {
+            $table->dropColumn('image');
+            $table->dropColumn('header');
+        });
     }
 };

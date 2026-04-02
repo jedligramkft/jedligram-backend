@@ -19,7 +19,9 @@ class ThreadResource extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'rules' => $this->rules,
-            'users_count' => $this->whenCounted('users')
+            'users_count' => $this->whenCounted('users'),
+            'image' => $this->image ? asset('storage/' . $this->image) : null,
+            'header' => $this->header ? asset('storage/' . $this->header) : null
         ];
     }
 }
