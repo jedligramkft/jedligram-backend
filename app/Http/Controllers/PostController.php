@@ -21,10 +21,10 @@ class PostController extends Controller
 
         $data['user_id'] = $request->user()->id;
         $data['thread_id'] = $thread->id;
-        $post = Post::create($data);
+        $post = Post::create(collect($data)->except('image')->all());
 
-        if ($data['image']) {
-            $this->handleImageUpload($thread, $post, $data['image']);
+        if ($request->hasFile('image')) {
+            $this->handleImageUpload($thread, $post, $request->file('image'));
         }
 
         return response()->json(PostResource::make($post), 201);
