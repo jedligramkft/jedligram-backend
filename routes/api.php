@@ -14,6 +14,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('threads/{thread}/image', [ThreadController::class, 'threadImage'])->middleware('can:upload,thread');
         Route::post('threads/{thread}/header', [ThreadController::class, 'headerImage'])->middleware('can:upload,thread');
         Route::post('users/profile-picture', [UserController::class, 'uploadPfP']);
+        Route::post('threads/{thread}/post', [PostController::class, 'store'])->middleware('can:create,App\Models\Post,thread');
     });
     Route::post('threads/{thread}/join', [ThreadUserController::class, 'join']);
     Route::delete('threads/{thread}/leave', [ThreadUserController::class, 'leave'])->middleware('can:delete,thread');
@@ -24,7 +25,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('posts/{post}', [PostController::class, 'update']);
     // FIXED WITH TDD
     Route::delete('posts/{post}', [PostController::class, 'destroy'])->middleware('can:delete,post');
-    Route::get('posts', [PostController::class, 'index'])->middleware('can:viewAny,App\Models\Post');
     Route::get('posts/{post}', [PostController::class, 'show'])->middleware('can:view,post');
     Route::get('posts/{post}/comments', [CommentController::class, 'index'])->middleware('can:viewAny,post');
     Route::delete('posts/{post}/comments/{comment}', [CommentController::class, 'destroy'])->middleware('can:delete,comment');
@@ -36,7 +36,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::patch('threads/{thread}/members/{user}', [ThreadUserController::class, 'assignRole'])->middleware('can:updateRole,thread');
     Route::patch('threads/{thread}/members/{user}/ban', [ThreadUserController::class, 'ban'])->middleware('can:ban,thread,user');
     Route::group(['middleware' => ['throttle:content-creation']], function () {
-        Route::post('threads/{thread}/post', [PostController::class, 'store'])->middleware('can:create,App\Models\Post,thread');
         Route::post('threads', [ThreadController::class, 'store']);
         Route::post('posts/{post}/comments', [CommentController::class, 'store'])->middleware('can:create,App\Models\Comment,post');
     });
