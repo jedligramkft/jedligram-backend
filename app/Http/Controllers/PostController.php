@@ -43,8 +43,9 @@ class PostController extends Controller
      */
     public function destroy(Request $request, Thread $thread, Post $post)
     {
+        $this->deleteImage($post);
         if ($request->user()->id == $post->user_id) {
-            $post->update(['content' => '[deleted]', 'image' => null]);
+            $post->update(['content' => '[deleted]']);
             return response()->json(['message' => 'Post deleted'], 200);
         }
 
@@ -54,10 +55,16 @@ class PostController extends Controller
 
     protected function handleImageUpload(Thread $thread, Post $post, $image)
     {
-        if ($post->image) {
-            Storage::disk('public')->delete($post->image);
-        }
+        $this->deleteImage($post);
         $path = $image->store("threads/{$thread->id}/posts/{$post->id}", 'public');
         $post->update(['image' => $path]);
+    }
+
+    protected function deleteImage(Post $post)
+    {
+        if ($post->image) {
+            Storage::disk('public')->delete($post->image);
+            $post->update(['image' => null]);
+        }
     }
 }
