@@ -25,8 +25,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('comments/{comment}/replies', [CommentController::class, 'replies'])->middleware('can:view,comment');
     Route::put('users/{user}', [UserController::class, 'update']);
     Route::post('users/profile-picture', [UserController::class, 'uploadPfP'])->middleware('throttle:uploads');
-    Route::post('posts/{post}/vote', [VoteController::class, 'vote']);
-    Route::get('posts/{post}/myvote', [VoteController::class, 'have_i_voted']);
+    Route::post('posts/{post}/vote', [VoteController::class, 'vote'])->middleware('can:view,post');
+    Route::get('posts/{post}/myvote', [VoteController::class, 'myVote'])->middleware('can:view,post');
     Route::post('logout', [UserController::class, 'logout']);
     Route::get('threads/{thread}/members', [ThreadUserController::class, 'index'])->middleware('can:viewMembers,thread');
     Route::patch('threads/{thread}/members/{user}', [ThreadUserController::class, 'assignRole'])->middleware('can:updateRole,thread');

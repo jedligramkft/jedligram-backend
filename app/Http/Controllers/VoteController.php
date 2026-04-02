@@ -31,7 +31,10 @@ class VoteController extends Controller
         return response()->json($vote, 201);
     }
 
-    public function have_i_voted(Request $request, Post $post){
+    /**
+     * Check if the authenticated user has already voted on a specific post and return the vote details if it exists.
+     */
+    public function myVote(Request $request, Post $post){
         $userId = $request->user()->id;
         $existingVote = Vote::where('post_id', $post->id)->where('user_id', $userId)->first();
 
