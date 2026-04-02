@@ -7,6 +7,7 @@ use App\Models\Thread;
 use Illuminate\Http\Request;
 use App\Http\Requests\CreatePostRequest;
 use App\Http\Resources\PostResource;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -29,6 +30,10 @@ class PostController extends Controller
         $data['user_id'] = $request->user()->id;
         $data['thread_id'] = $thread->id;
         $post = Post::create($data);
+
+        if($data['image']){
+            $this->handleImageUpload($thread, $post, $data['image']);
+        }
 
         return response()->json(PostResource::make($post), 201);
     }
@@ -53,5 +58,13 @@ class PostController extends Controller
 
         $post->update(['content' => '[removed]']);
         return response()->json(['message' => 'Post removed'], 200);
+    }
+
+    protected function handleImageUpload(Thread $thread, Post $post, $image){
+        if($post->image){
+            Storage::disk('public')->delete($post->image);
+        }
+        $path = $image->store("threads/{$thread->id}/posts/{$post->id}", 'public');
+        $post->update(['image' => $path]);
     }
 }
