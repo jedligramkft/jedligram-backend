@@ -45,7 +45,10 @@ class CommentController extends Controller
         $data['user_id'] = $request->user()->id;
 
         $comment = Comment::create($data);
-        return response()->json(new CommentResource($comment->load('user')->loadCount('children')), 201, [], JSON_UNESCAPED_SLASHES);
+        $comment->load("user");
+        $comment->setAttribute('children_count', 0);
+
+        return response()->json(new CommentResource($comment), 201, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**
