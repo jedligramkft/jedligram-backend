@@ -39,7 +39,7 @@ class VoteController extends Controller
         $existingVote = Vote::where('post_id', $post->id)->where('user_id', $userId)->first();
 
         if (!$existingVote) {
-            return response()->json(['message' => 'No vote found'], 404);
+            return response()->json(['is_upvote'=> null], 200);
         }
 
         return response()->json($existingVote, 200);
