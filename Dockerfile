@@ -29,7 +29,7 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 COPY . .
 
 # Re-run composer to generate autoload with all classes present
-RUN composer dump-autoload --no-dev --optimize
+RUN rm -f bootstrap/cache/*.php && composer dump-autoload --no-dev --optimize
 
 RUN php artisan storage:link
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
