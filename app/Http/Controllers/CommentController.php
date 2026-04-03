@@ -18,6 +18,7 @@ class CommentController extends Controller
         $comments = Comment::tree()
             ->where('post_id', $post->id)
             ->with('user')
+            ->withCount('children')
             ->whereDepth('<', 3)
             ->get()
             ->toTree();
@@ -30,7 +31,7 @@ class CommentController extends Controller
      */
     public function replies(Comment $comment)
     {
-        $replies = $comment->descendants()->with('user')->get()->toTree();
+        $replies = $comment->descendants()->with('user')->withCount('children')->get()->toTree();
         return response()->json(CommentResource::collection($replies), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
@@ -44,7 +45,7 @@ class CommentController extends Controller
         $data['user_id'] = $request->user()->id;
 
         $comment = Comment::create($data);
-        return response()->json(new CommentResource($comment->load('user')), 201, [], JSON_UNESCAPED_SLASHES);
+        return response()->json(new CommentResource($comment->load('user')->loadCount('children')), 201, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**
