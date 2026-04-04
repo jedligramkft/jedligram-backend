@@ -15,7 +15,7 @@ class ThreadUserController extends Controller
      */
     public function index(Thread $thread)
     {
-        $members = $thread->users()->withPivot('role_id')->get();
+        $members = $thread->users()->withPivot('role_id')->withPostKarmaCounts()->get();
 
         return response()->json(
             UserResource::collection($members),

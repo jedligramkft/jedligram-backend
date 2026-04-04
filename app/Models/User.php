@@ -7,7 +7,10 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 // use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
@@ -110,5 +113,52 @@ class User extends Authenticatable implements LdapAuthenticatable
 	public function votes()
 	{
 		return $this->hasMany(Vote::class);
+	}
+
+	public function postVotes(): HasManyThrough
+	{
+		return $this->hasManyThrough(
+			Vote::class,
+			Post::class,
+			'user_id',
+			'post_id',
+			'id',
+			'id'
+		);
+	}
+
+	public function receivedUpvotes(): HasManyThrough
+	{
+		return $this->postVotes()->where('is_upvote', true);
+	}
+
+	public function receivedDownvotes(): HasManyThrough
+	{
+		return $this->postVotes()->where('is_upvote', false);
+	}
+
+	public function scopeWithPostKarmaCounts(Builder $query): Builder
+	{
+		return $query->withCount([
+			'receivedUpvotes as received_upvotes_count',
+			'receivedDownvotes as received_downvotes_count',
+		]);
+	}
+
+	protected function postKarma(): Attribute
+	{
+		return Attribute::make(
+			get: function (): int {
+				if (
+					array_key_exists('received_upvotes_count', $this->attributes)
+					&& array_key_exists('received_downvotes_count', $this->attributes)
+				) {
+					return (int) $this->attributes['received_upvotes_count']
+						- (int) $this->attributes['received_downvotes_count'];
+				}
+
+				return $this->receivedUpvotes()->count() - $this->receivedDownvotes()->count();
+			}
+		);
 	}
 }

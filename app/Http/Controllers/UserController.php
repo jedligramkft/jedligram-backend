@@ -25,11 +25,17 @@ class UserController extends Controller
         if ($request->filled('search')) {
             $users = User::search($request->input('search'))->get();
             if ($users->isEmpty()) {
-                return response()->json(User::all()->toResourceCollection(), 200,  [], JSON_UNESCAPED_SLASHES);
+                $allUsers = User::query()->withPostKarmaCounts()->get();
+                return response()->json(UserResource::collection($allUsers), 200,  [], JSON_UNESCAPED_SLASHES);
             }
+            $users->loadCount([
+                'receivedUpvotes as received_upvotes_count',
+                'receivedDownvotes as received_downvotes_count',
+            ]);
             return response()->json(UserResource::collection($users), 200, [], JSON_UNESCAPED_SLASHES);
         }
-        return response()->json(User::all()->toResourceCollection(), 200, [], JSON_UNESCAPED_SLASHES);
+        $users = User::query()->withPostKarmaCounts()->get();
+        return response()->json(UserResource::collection($users), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**
@@ -47,7 +53,7 @@ class UserController extends Controller
         if (!Auth::attempt($credentials)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
-        $user = Auth::user();
+        $user = User::query()->withPostKarmaCounts()->findOrFail(Auth::id());
 
         if ($user->is_2fa_enabled) {
             try {
@@ -120,6 +126,8 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
+        $this->loadUserKarma($user);
+
         return response()->json(UserResource::make($user), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
@@ -150,6 +158,8 @@ class UserController extends Controller
 
         $user->update($validated);
 
+        $this->loadUserKarma($user);
+
         return response()->json(UserResource::make($user), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
@@ -169,6 +179,7 @@ class UserController extends Controller
         $path = $request->file('image')->store('pfps', 'public');
 
         $user->update(['image' => $path]);
+        $this->loadUserKarma($user);
 
         return response()->json([
             'message' => 'Profile picture updated successfully',
@@ -212,6 +223,7 @@ class UserController extends Controller
 
         if($isLoggingIn) {
             $verification->delete(); // Delete the verification record after successful verification
+            $this->loadUserKarma($user);
             $token = $user->createToken('auth_token')->plainTextToken;
 
             return response()->json([
@@ -274,5 +286,13 @@ class UserController extends Controller
         }
 
         return response()->json(['is_2fa_enabled' => $user->is_2fa_enabled]);
+    }
+
+    protected function loadUserKarma(User $user)
+    {
+        $user->loadCount([
+            'receivedUpvotes as received_upvotes_count',
+            'receivedDownvotes as received_downvotes_count',
+        ]);
     }
 }

@@ -20,7 +20,9 @@ class UserResource extends JsonResource
                 'id' => null,
                 'name' => "[Deleted User]",
                 'email' => null,
-                'image_url' => asset('images/default_pfp.png')
+                'image_url' => asset('images/default_pfp.png'),
+                'bio' => null,
+                'post_karma' => 0
             ];
         }
         return [
@@ -31,6 +33,7 @@ class UserResource extends JsonResource
                 ? asset('storage/' . $this->image)
                 : asset('images/default_pfp.png'),
             'bio' => $this->bio,
+            'post_karma' => (int) $this->post_karma,
             'role_id' => $this->whenPivotLoaded('thread_user', function () {
                 return $this->pivot->role_id;
             }),
