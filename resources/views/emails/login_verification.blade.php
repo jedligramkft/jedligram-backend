@@ -5,7 +5,10 @@
             <h3>Új bejelentkezés észlelve</h3>
             <p>Egy új bejelentkezést észleltünk a Jedligram fiókodon.</p>
 
-            <p><strong>Bejelentkezési kód:</strong> {{ $verificationCode }}</p>
+            <p>A bejelenzés megerősítéséhez kérjük, kattints a lenti gombra:</p>
+            <x-button href="{{ env('FRONTEND_URL') }}/auth/verification?email={{ $email }}&token={{ $verificationCode }}">Bejelentkezés megerősítése</x-button>
+            <p>Vagy írd be a következő kódot a weboldalunkon:</p>
+            <p> {{ $verificationCode }}</p>
             <hr>
             <p>Amennyiben nem te kezdeményezted ezt a műveletet, kérjük, hagyd figyelmen kívül ezt az emailt.</p>
 

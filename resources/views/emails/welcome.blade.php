@@ -3,7 +3,7 @@
     <body>
         <h3>Kedves, {{ $name }}</h3>
 
-        <p>Örülünk, hogy csatlakoztál közösségünkhöz. Íme néhány gyors tipp a kezdéshez:</p>
+        <p>Örülünk, hogy csatlakoztál a jedlikesek közösségünkhöz. Íme néhány gyors tipp a kezdéshez:</p>
 
         <ul>
             <li>Fedezd fel a legújabb bejegyzéseket és témákat.</li>
