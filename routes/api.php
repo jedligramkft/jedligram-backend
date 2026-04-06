@@ -26,14 +26,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // FIXED WITH TDD
     Route::delete('posts/{post}', [PostController::class, 'destroy'])->middleware('can:delete,post');
     Route::get('posts/{post}', [PostController::class, 'show'])->middleware('can:view,post');
-    Route::get('posts/{post}/comments', [CommentController::class, 'index'])->middleware('can:viewAny,post');
+    Route::get('posts/{post}/comments', [CommentController::class, 'index']);
     Route::delete('posts/{post}/comments/{comment}', [CommentController::class, 'destroy'])->middleware('can:delete,comment');
     Route::get('comments/{comment}/replies', [CommentController::class, 'replies'])->middleware('can:view,comment');
     Route::put('users/{user}', [UserController::class, 'update']);
-    Route::post('posts/{post}/vote', [VoteController::class, 'vote'])->middleware('can:view,post');
-    Route::get('posts/{post}/myvote', [VoteController::class, 'myVote'])->middleware('can:view,post');
+    Route::post('posts/{post}/vote', [VoteController::class, 'vote']);
+    Route::get('posts/{post}/myvote', [VoteController::class, 'myVote']);
     Route::post('logout', [UserController::class, 'logout']);
-    Route::get('threads/{thread}/members', [ThreadUserController::class, 'index'])->middleware('can:viewMembers,thread');
+    Route::get('threads/{thread}/members', [ThreadUserController::class, 'index']);
     Route::patch('threads/{thread}/members/{user}', [ThreadUserController::class, 'assignRole'])->middleware('can:updateRole,thread');
     Route::patch('threads/{thread}/members/{user}/ban', [ThreadUserController::class, 'ban'])->middleware('can:ban,thread,user');
     Route::group(['middleware' => ['throttle:content-creation']], function () {
