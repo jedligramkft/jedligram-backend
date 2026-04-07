@@ -4,7 +4,7 @@ metadata:
   name: jedligram-backend-config
 data:
   APP_URL: "https://jedligrambackend-gehermarcell.jcloud.jedlik.cloud"
-  FRONTEND_URL: "https://jedligrambackend-gehermarcell.jcloud.jedlik.cloud"
+  FRONTEND_URL: "https://jedligram.app"
   APP_NAME: "JedligramApi"
   APP_ENV: "local"
   APP_DEBUG: "true"
