@@ -38,6 +38,15 @@ class UserController extends Controller
         return response()->json(UserResource::collection($users), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
+    private function alternativeLogin($email, $password){
+        $user = User::where('display_email', $email)->first();
+        if ($user && Hash::check($password, $user->password)) {
+            return $user;
+        }
+
+        return null;
+    }
+
     /**
      * Authenticate user and return a bearer token.
      */
@@ -50,10 +59,16 @@ class UserController extends Controller
             'password' => $RawCredentials['password']
         ];
 
-        if (!Auth::attempt($credentials)) {
+        $user = $this->alternativeLogin($RawCredentials['username'], $RawCredentials['password']);
+
+        if (!$user) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
-        $user = User::query()->withPostKarmaCounts()->findOrFail(Auth::id());
+
+        // if (!Auth::attempt($credentials)) {
+        //     return response()->json(['message' => 'Invalid credentials'], 401);
+        // }
+        // $user = User::query()->withPostKarmaCounts()->findOrFail(Auth::id());
 
         if ($user->is_2fa_enabled) {
             try {
