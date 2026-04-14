@@ -300,6 +300,20 @@ describe('Banning users', function () {
         dbHasUserRole(4);
     })->with('valid_ban_data');
 
+    test('moderators cannot ban admins', function (array $data) {
+        $response = $this->actingAs($this->modUser, 'sanctum')
+            ->patchJson("/api/threads/{$this->thread->id}/members/{$this->adminUser->id}/ban", $data);
+
+        $response->assertStatus(403)
+            ->assertJsonFragment(['message' => 'You cannot ban an admin if you are a moderator.']);
+
+        $this->assertDatabaseHas('thread_user', [
+            'thread_id' => $this->thread->id,
+            'user_id'   => $this->adminUser->id,
+            'role_id'   => 1,
+        ]);
+    })->with('valid_ban_data');
+
     test('regular users cannot ban users', function (array $data) {
         $response = $this->actingAs($this->user, 'sanctum')
             ->patchJson("/api/threads/{$this->thread->id}/members/{$this->user->id}/ban", $data);
