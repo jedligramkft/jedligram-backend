@@ -20,7 +20,7 @@ class DummyDataSeeder extends Seeder
     {
         $users = User::factory(20)->create();
 
-        Thread::factory(3)->create()
+        Thread::factory(7)->create()
             ->each(function ($thread) use ($users) {
                 $users->random(rand(3, 10))->each(function ($user) use ($thread) {
                     ThreadUser::create([
