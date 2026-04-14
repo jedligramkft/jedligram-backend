@@ -41,6 +41,7 @@ describe('Creating a new post inside of a thread', function () {
         $response->assertStatus(201)
             ->assertJson([
                 'content' => $validData['content'],
+                'is_mine' => true,
             ]);
     })->with('valid_post_data');
 
@@ -240,6 +241,25 @@ describe('Fetching a single post', function(){
                 'user' => (new UserResource($this->post->user))->resolve(),
                 'thread_id' => $this->post->thread_id,
                 'score' => 0,
+                'is_mine' => true,
+            ]);
+    });
+
+    test('authenticated members see is_mine as false for other users posts in the thread', function () {
+        $otherMember = User::factory()->create();
+        ThreadUser::create([
+            'thread_id' => $this->thread->id,
+            'user_id' => $otherMember->id,
+            'role_id' => 3,
+        ]);
+
+        $response = $this->actingAs($otherMember, 'sanctum')
+            ->getJson("/api/posts/{$this->post->id}");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'id' => $this->post->id,
+                'is_mine' => false,
             ]);
     });
 
