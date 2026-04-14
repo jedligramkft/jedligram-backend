@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Thread>
@@ -17,7 +18,7 @@ class ThreadFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->sentence(3),
+            'name' => Str::limit($this->faker->sentence(3), 20, ''),
             'description' => $this->faker->paragraph(),
             'rules' => implode("\n ", $this->faker->sentences(5))
         ];
