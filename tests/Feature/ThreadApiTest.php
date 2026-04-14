@@ -19,7 +19,10 @@ test('it can fetch a list of all threads', function () {
     $response = $this->getJson('/api/threads');
 
     $response->assertStatus(200)
-        ->assertJsonCount(3);
+        ->assertJsonCount(3)
+        ->assertJsonStructure([
+            '*' => ['id', 'name', 'description', 'rules']
+        ]);
 });
 
 describe('Viewing the details of a thread', function () {

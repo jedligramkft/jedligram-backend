@@ -19,7 +19,7 @@ class CommentController extends Controller
             ->where('post_id', $post->id)
             ->with('user')
             ->withCount('children')
-            ->whereDepth('<', 2)
+            ->whereDepth('<', 3)
             ->get()
             ->toTree();
 
