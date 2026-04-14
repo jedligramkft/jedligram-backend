@@ -62,13 +62,12 @@ class UserController extends Controller
         $user = $this->alternativeLogin($RawCredentials['username'], $RawCredentials['password']);
 
         if (!$user) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+            if (!Auth::attempt($credentials)) {
+                return response()->json(['message' => 'Invalid credentials'], 401);
+            }
+            $user = User::query()->withPostKarmaCounts()->findOrFail(Auth::id());
         }
 
-        // if (!Auth::attempt($credentials)) {
-        //     return response()->json(['message' => 'Invalid credentials'], 401);
-        // }
-        // $user = User::query()->withPostKarmaCounts()->findOrFail(Auth::id());
 
         if ($user->is_2fa_enabled) {
             try {
