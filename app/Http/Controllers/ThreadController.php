@@ -55,9 +55,18 @@ class ThreadController extends Controller
     /**
      * Get thread details, including member count.
      */
-    public function show(Thread $thread)
+    public function show(Thread $thread, Request $request)
     {
-        return response()->json(ThreadResource::make($thread->loadCount('users')), 200, [], JSON_UNESCAPED_SLASHES);
+        $thread->loadCount('users');
+         if ($request->user()) {
+        $thread->load([
+            'myRole' => fn ($q) => $q
+                ->where('user_id', $request->user()->id)
+                ->select(['id', 'thread_id', 'user_id', 'role_id'])
+                ->with('role:id,name'),
+        ]);
+    }
+        return response()->json(ThreadResource::make($thread), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**

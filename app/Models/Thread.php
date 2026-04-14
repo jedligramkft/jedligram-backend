@@ -45,6 +45,10 @@ class Thread extends Model
         return $this->hasMany(Post::class);
     }
 
+    public function myRole(){
+        return $this->hasOne(ThreadUser::class);
+    }
+
     public function toSearchableArray()
     {
         return [
