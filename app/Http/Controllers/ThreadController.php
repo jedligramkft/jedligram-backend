@@ -65,7 +65,7 @@ class ThreadController extends Controller
      */
     public function postsOfThread(Thread $thread, Request $request)
     {
-        $posts = $thread->posts()->withCount(['upvotes', 'downvotes'])->when($request->query('sort') === 'trending', function ($query) {
+        $posts = $thread->posts()->withCount(['upvotes', 'downvotes'])->withMyVote($request->user()?->id)->when($request->query('sort') === 'trending', function ($query) {
             return $query->orderByRaw('(upvotes_count - downvotes_count) / (TIMESTAMPDIFF(HOUR, created_at, NOW()) + 2) DESC');
         }, function ($query) {
             return $query->latest();

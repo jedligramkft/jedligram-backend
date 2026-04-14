@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Class Post
@@ -81,6 +82,26 @@ class Post extends Model
     public function downvotes()
     {
         return $this->votes()->where('is_upvote', false);
+    }
+
+    public function myVote()
+    {
+        return $this->hasOne(Vote::class);
+    }
+
+    public function scopeWithMyVote(Builder $query, ?int $userId = null): Builder
+    {
+        $userId ??= auth()->id();
+
+        if (!$userId) {
+            return $query;
+        }
+
+        return $query->with([
+            'myVote' => fn($q) => $q
+                ->where('user_id', $userId)
+                ->select(['id', 'post_id', 'is_upvote']),
+        ]);
     }
 
     protected function score(): Attribute
