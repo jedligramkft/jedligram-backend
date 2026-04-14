@@ -14,10 +14,10 @@ use Illuminate\Support\Str;
 
 class DummyDataSeeder extends Seeder
 {
-    private const USERS_TO_CREATE = 30;
-    private const THREADS_TO_CREATE = 5;
-    private const POSTS_PER_THREAD_MIN = 10;
-    private const POSTS_PER_THREAD_MAX = 12;
+    private const USERS_TO_CREATE = 20;
+    private const THREADS_TO_CREATE = 1;
+    private const POSTS_PER_THREAD_MIN = 1;
+    private const POSTS_PER_THREAD_MAX = 2;
 
     /**
      * Run the database seeds.
@@ -41,6 +41,71 @@ class DummyDataSeeder extends Seeder
                 $this->seedCommentsForPost($post, $activeMembers);
                 $this->seedVotesForPost($post, $activeMembers);
             }
+        }
+
+        $this->seedThreadWithUserOneAsAdmin($users, $roleIds);
+        $this->seedThreadWithUserOneAsModerator($users, $roleIds);
+    }
+
+    private function seedThreadWithUserOneAsAdmin(Collection $users, array $roleIds): void
+    {
+        $admin = $users->firstWhere('id', 1);
+
+        if (! $admin instanceof User) {
+            return;
+        }
+
+        $thread = Thread::create([
+            'name' => $this->uniqueThreadName(),
+            'description' => Str::limit(fake()->sentence(10), 50, ''),
+            'rules' => implode("\n", fake()->sentences(4)),
+        ]);
+
+        $activeMembers = $this->seedThreadMembers($thread, $users, $roleIds, $admin, 4, 7);
+        $posts = $this->seedPostsForThread($thread, $activeMembers);
+
+        foreach ($posts as $post) {
+            $this->seedCommentsForPost($post, $activeMembers);
+            $this->seedVotesForPost($post, $activeMembers);
+        }
+    }
+
+    private function seedThreadWithUserOneAsModerator(Collection $users, array $roleIds): void
+    {
+        $moderator = $users->firstWhere('id', 1);
+
+        if (! $moderator instanceof User) {
+            return;
+        }
+
+        $admin = $users->where('id', '!=', $moderator->id)->shuffle()->first();
+
+        if (! $admin instanceof User) {
+            return;
+        }
+
+        $thread = Thread::create([
+            'name' => $this->uniqueThreadName(),
+            'description' => Str::limit(fake()->sentence(10), 50, ''),
+            'rules' => implode("\n", fake()->sentences(4)),
+        ]);
+
+        $this->seedThreadMembers($thread, $users, $roleIds, $admin, 4, 7);
+
+        $thread->users()->syncWithoutDetaching([
+            $moderator->id => ['role_id' => $roleIds['moderator']],
+        ]);
+
+        $activeRoleIds = [$roleIds['admin'], $roleIds['moderator'], $roleIds['user']];
+        $activeMembers = $thread->users()
+            ->wherePivotIn('role_id', $activeRoleIds)
+            ->get();
+
+        $posts = $this->seedPostsForThread($thread, $activeMembers);
+
+        foreach ($posts as $post) {
+            $this->seedCommentsForPost($post, $activeMembers);
+            $this->seedVotesForPost($post, $activeMembers);
         }
     }
 
@@ -90,10 +155,27 @@ class DummyDataSeeder extends Seeder
     /**
      * Attach users to a thread with mixed roles and return active members.
      */
-    private function seedThreadMembers(Thread $thread, Collection $users, array $roleIds): Collection
+    private function seedThreadMembers(
+        Thread $thread,
+        Collection $users,
+        array $roleIds,
+        ?User $forcedAdmin = null,
+        int $minMembers = 8,
+        int $maxMembers = 14,
+    ): Collection
     {
-        $memberCount = min($users->count(), random_int(8, 14));
-        $members = $users->shuffle()->take($memberCount)->values();
+        $memberCount = min($users->count(), random_int($minMembers, $maxMembers));
+
+        if ($forcedAdmin instanceof User) {
+            $members = $users
+                ->where('id', '!=', $forcedAdmin->id)
+                ->shuffle()
+                ->take(max($memberCount - 1, 0))
+                ->prepend($forcedAdmin)
+                ->values();
+        } else {
+            $members = $users->shuffle()->take($memberCount)->values();
+        }
 
         /** @var array<int,int> $memberRoles */
         $memberRoles = [];
@@ -165,7 +247,7 @@ class DummyDataSeeder extends Seeder
 
     private function seedCommentsForPost(Post $post, Collection $members): void
     {
-        $topLevelCount = random_int(0, 6);
+        $topLevelCount = random_int(0, 2);
         $topLevelComments = new Collection();
 
         for ($i = 0; $i < $topLevelCount; $i++) {
@@ -173,7 +255,7 @@ class DummyDataSeeder extends Seeder
         }
 
         foreach ($topLevelComments as $topLevelComment) {
-            $replyCount = random_int(0, 3);
+            $replyCount = random_int(0, 2);
             $firstLevelReplies = new Collection();
 
             for ($i = 0; $i < $replyCount; $i++) {
