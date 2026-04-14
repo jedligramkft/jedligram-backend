@@ -20,16 +20,13 @@ class ThreadController extends Controller
     public function index(Request $request)
     {
         if ($request->filled('search')) {
-            $threads = Thread::search($request->input('search'))
-                ->query(fn($query) => $query->withCount('users'))
-                ->cursorPaginate(6);
-
-            return ThreadResource::collection($threads);
+            $threads = Thread::search($request->input('search'))->get();
+            if ($threads->isNotEmpty()) {
+                return response()->json(ThreadResource::collection($threads->loadCount('users')), 200, [], JSON_UNESCAPED_SLASHES);
+            }
         }
-
-        $allthreads = Thread::withCount('users')->cursorPaginate(6);
-
-        return ThreadResource::collection($allthreads);
+        $allthreads = Thread::withCount('users')->get();
+        return response()->json(ThreadResource::collection($allthreads), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**
@@ -72,8 +69,8 @@ class ThreadController extends Controller
             return $query->orderByRaw('(upvotes_count - downvotes_count) / (TIMESTAMPDIFF(HOUR, created_at, NOW()) + 2) DESC');
         }, function ($query) {
             return $query->latest();
-        })->simplePaginate(2);
-        return PostResource::collection($posts)->response()->setEncodingOptions(JSON_UNESCAPED_SLASHES);
+        })->get();
+        return response()->json(PostResource::collection($posts), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**
