@@ -48,6 +48,8 @@ class ProductionDataSeeder extends Seeder
             'name' => 'Ebédlő',
             'description' => 'Minden nap reggel hat órakkor az aznapi eatrendes kaja felkerül ide, és itt lehet megbeszélni, hogy mennyire jó vagy rossz az aznapi menü.',
             'rules' => 'A szabályok ugyanazok, mint a fórum többi részén, de kérjük, hogy csak az aznapi menüre vonatkozó hozzászólások legyenek itt.',
+            'image' => env('APP_URL').'/images/ebedlo_profil.gif',
+            'header' => env('APP_URL').'/images/ebedlo_header.jpg',
         ]);
 
         ThreadUser::create([
