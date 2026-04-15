@@ -23,7 +23,9 @@ class ProductionDataSeeder extends Seeder
             Role::firstOrCreate(['name' => $role]);
         }
 
-        foreach ($this->getCodedUsersFromEnv() as $codedUser) {
+        $codedUsers = $this->getCodedUsersFromEnv();
+
+        foreach ($codedUsers as $codedUser) {
             $email = $codedUser['email'] ?? null;
             $password = $codedUser['password'] ?? null;
 
@@ -54,11 +56,13 @@ class ProductionDataSeeder extends Seeder
             'header' => 'images/ebedlo_header.jpg',
         ]);
 
-        ThreadUser::create([
-            'thread_id' => 1,
-            'user_id' => 1,
-            'role_id' => 1,
-        ]);
+        if (User::count() > 0 && Thread::count() > 0) {
+            ThreadUser::create([
+                'thread_id' => 1,
+                'user_id' => 1,
+                'role_id' => 1,
+            ]);
+        }
     }
 
     private function getCodedUsersFromEnv(): array
