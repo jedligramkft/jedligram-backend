@@ -67,56 +67,38 @@ class ProductionDataSeeder extends Seeder
 
     private function getCodedUsersFromEnv(): array
     {
-        $codedUsersRaw = env('CODED_USERS', '[]');
-
-        if (is_array($codedUsersRaw)) {
-            return $codedUsersRaw;
-        }
+        $codedUsersRaw = env('CODED_USERS', '');
 
         if (!is_string($codedUsersRaw) || trim($codedUsersRaw) === '') {
             return [];
         }
 
-        $decodedUsers = json_decode($codedUsersRaw, true);
-
-        if (is_array($decodedUsers)) {
-            return $decodedUsers;
-        }
-
-        $normalized = $this->normalizeJsonLikeUsers($codedUsersRaw);
-
-        if ($normalized === null) {
-            return [];
-        }
-
-        $decodedUsers = json_decode($normalized, true);
-
-        return is_array($decodedUsers) ? $decodedUsers : [];
-    }
-
-    private function normalizeJsonLikeUsers(string $codedUsersRaw): ?string
-    {
-        if (!str_contains($codedUsersRaw, "'")) {
-            return null;
-        }
-
-        $normalized = preg_replace_callback(
-            "/'([^'\\\\]*(?:\\\\.[^'\\\\]*)*)'/",
-            static function (array $matches): string {
-                $value = str_replace("\\'", "'", $matches[1]);
-
-                return json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '""';
-            },
-            $codedUsersRaw
+        $entries = array_filter(
+            array_map('trim', explode(';', $codedUsersRaw)),
+            static fn (string $entry): bool => $entry !== ''
         );
 
-        if (!is_string($normalized)) {
-            return null;
+        $codedUsers = [];
+
+        foreach ($entries as $entry) {
+            $parts = explode(':', $entry, 2);
+
+            if (count($parts) !== 2) {
+                continue;
+            }
+
+            [$email, $password] = array_map('trim', $parts);
+
+            if ($email === '' || $password === '') {
+                continue;
+            }
+
+            $codedUsers[] = [
+                'email' => $email,
+                'password' => $password,
+            ];
         }
 
-        // Allow trailing commas in manually written secret values.
-        $normalized = preg_replace('/,\s*([\]}])/m', '$1', $normalized);
-
-        return is_string($normalized) ? $normalized : null;
+        return $codedUsers;
     }
 }
