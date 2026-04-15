@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use \App\Models\Role;
 use \App\Models\User;
+use \App\Models\Thread;
+use \App\Models\ThreadUser;
 
 class ProductionDataSeeder extends Seeder
 {
