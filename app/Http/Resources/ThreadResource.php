@@ -20,8 +20,27 @@ class ThreadResource extends JsonResource
             'description' => $this->description,
             'rules' => $this->rules,
             'users_count' => $this->whenCounted('users'),
-            'image' => $this->image ? asset('storage/' . $this->image) : null,
-            'header' => $this->header ? asset('storage/' . $this->header) : null
+            'image' => $this->resolveImageUrl($this->image),
+            'header' => $this->resolveImageUrl($this->header)
         ];
+    }
+
+    private function resolveImageUrl(?string $path): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+
+        if (filter_var($path, FILTER_VALIDATE_URL)) {
+            return $path;
+        }
+
+        $normalizedPath = ltrim($path, '/');
+
+        if (str_starts_with($normalizedPath, 'storage/') || str_starts_with($normalizedPath, 'images/')) {
+            return asset($normalizedPath);
+        }
+
+        return asset('storage/' . $normalizedPath);
     }
 }
