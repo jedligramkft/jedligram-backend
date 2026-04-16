@@ -31,7 +31,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('comments/{comment}/replies', [CommentController::class, 'replies']);
     Route::put('users/{user}', [UserController::class, 'update']);
     Route::post('posts/{post}/vote', [VoteController::class, 'vote']);
-    Route::get('posts/{post}/myvote', [VoteController::class, 'myVote']);
     Route::post('logout', [UserController::class, 'logout']);
     Route::get('threads/{thread}/members', [ThreadUserController::class, 'index']);
     Route::patch('threads/{thread}/members/{user}', [ThreadUserController::class, 'assignRole'])->middleware('can:updateRole,thread');
