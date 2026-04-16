@@ -86,7 +86,7 @@ class Post extends Model
 
     public function scopeWithMyVote(Builder $query): Builder
     {
-        if (! auth()->check()) {
+        if (!auth()->check()) {
             return $query;
         }
 
