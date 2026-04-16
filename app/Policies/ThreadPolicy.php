@@ -29,6 +29,11 @@ class ThreadPolicy
         return $thread->isMember($user);
     }
 
+    public function viewPosts(User $user, Thread $thread): bool
+    {
+        return ! $user->hasThreadRole($thread->id, [4]);
+    }
+
     /**
      * Determine whether the user can create models.
      */

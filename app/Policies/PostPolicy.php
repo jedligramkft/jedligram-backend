@@ -24,7 +24,13 @@ class PostPolicy
     public function view(User $user, Post $post): bool
     {
         //MADE USING TDD
-        return $post->thread->isMember($user);
+        return $post->thread->isMember($user)
+            && ! $user->hasThreadRole($post->thread_id, [4]);
+    }
+
+    public function viewComments(User $user, Post $post): bool
+    {
+        return ! $user->hasThreadRole($post->thread_id, [4]);
     }
 
     /**
