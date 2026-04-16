@@ -35,6 +35,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
+        $post->load(['myVote' => fn($q) => $q->select(['id', 'post_id', 'is_upvote'])]);
         return response()->json(PostResource::make($post), 200);
     }
 

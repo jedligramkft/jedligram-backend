@@ -23,6 +23,9 @@ class PostResource extends JsonResource
             'score' => $this->score,
             'age' => $this->created_at->diffForHumans(),
             'is_mine' => $request->user() && $request->user()->id === $this->user_id,
+            'my_vote' =>  $this->relationLoaded('myVote')
+                ? $this->myVote?->is_upvote
+                : null,
         ];
-}
+    }
 }
