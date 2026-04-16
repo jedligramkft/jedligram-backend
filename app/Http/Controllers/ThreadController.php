@@ -57,15 +57,12 @@ class ThreadController extends Controller
      */
     public function show(Thread $thread, Request $request)
     {
-        $thread->loadCount('users');
-         if ($request->user()) {
-        $thread->load([
-            'myRole' => fn ($q) => $q
-                ->where('user_id', $request->user()->id)
-                ->select(['id', 'thread_id', 'user_id', 'role_id'])
-                ->with('role:id,name'),
-        ]);
-    }
+        $thread = Thread::query()
+            ->whereKey($thread->id)
+            ->withCount('users')
+            ->withMembershipForUser($request->user()?->id)
+            ->firstOrFail();
+
         return response()->json(ThreadResource::make($thread), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
@@ -74,7 +71,11 @@ class ThreadController extends Controller
      */
     public function postsOfThread(Thread $thread, Request $request)
     {
-        $posts = $thread->posts()->withCount(['upvotes', 'downvotes'])->withMyVote($request->user()?->id)->when($request->query('sort') === 'trending', function ($query) {
+        $posts = $thread->posts()
+            ->with(['user:id,name,display_name,email,display_email,image,bio,post_karma'])
+            ->withCount(['upvotes', 'downvotes'])
+            ->withMyVote()
+            ->when($request->query('sort') === 'trending', function ($query) {
             return $query->orderByRaw('(upvotes_count - downvotes_count) / (TIMESTAMPDIFF(HOUR, created_at, NOW()) + 2) DESC');
         }, function ($query) {
             return $query->latest();

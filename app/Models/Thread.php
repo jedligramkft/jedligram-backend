@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -45,8 +46,25 @@ class Thread extends Model
         return $this->hasMany(Post::class);
     }
 
-    public function myRole(){
+    public function membership()
+    {
         return $this->hasOne(ThreadUser::class);
+    }
+
+    public function scopeWithMembershipForUser(Builder $query, ?int $userId = null): Builder
+    {
+        $userId ??= auth()->id();
+
+        if (! $userId) {
+            return $query;
+        }
+
+        return $query->with([
+            'membership' => fn ($q) => $q
+                ->where('user_id', $userId)
+                ->select(['id', 'thread_id', 'user_id', 'role_id'])
+                ->with('role:id,name'),
+        ]);
     }
 
     public function toSearchableArray()
