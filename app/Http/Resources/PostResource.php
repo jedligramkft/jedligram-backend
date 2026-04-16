@@ -21,7 +21,9 @@ class PostResource extends JsonResource
             'user' => new UserResource($this->user),
             'thread_id' => $this->thread_id,
             'score' => $this->score,
-            'age' => $this->created_at->diffForHumans()
+            'age' => $this->created_at->diffForHumans(),
+            'is_mine' => $request->user() && $request->user()->id === $this->user_id,
+            'my_vote' => $this->whenLoaded('myVote', fn () => $this->myVote?->is_upvote),
         ];
-}
+    }
 }

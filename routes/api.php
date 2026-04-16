@@ -18,7 +18,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
     Route::post('threads/{thread}/join', [ThreadUserController::class, 'join']);
     Route::delete('threads/{thread}/leave', [ThreadUserController::class, 'leave'])->middleware('can:delete,thread');
-    Route::get('threads/{thread}/posts', [ThreadController::class, 'postsOfThread'])->middleware('can:view,thread');
+    Route::get('threads/{thread}/posts', [ThreadController::class, 'postsOfThread'])->middleware('can:viewPosts,thread');
     Route::get('threads/search', [ThreadController::class, 'search']);
     Route::get('threads/{thread}', [ThreadController::class, 'show'])->middleware('can:view,thread');
     Route::put('threads/{thread}', [ThreadController::class, 'update'])->middleware('can:update,thread');
@@ -26,12 +26,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // FIXED WITH TDD
     Route::delete('posts/{post}', [PostController::class, 'destroy'])->middleware('can:delete,post');
     Route::get('posts/{post}', [PostController::class, 'show'])->middleware('can:view,post');
-    Route::get('posts/{post}/comments', [CommentController::class, 'index']);
+    Route::get('posts/{post}/comments', [CommentController::class, 'index'])->middleware('can:viewComments,post');
     Route::delete('posts/{post}/comments/{comment}', [CommentController::class, 'destroy'])->middleware('can:delete,comment');
-    Route::get('comments/{comment}/replies', [CommentController::class, 'replies'])->middleware('can:view,comment');
+    Route::get('comments/{comment}/replies', [CommentController::class, 'replies']);
     Route::put('users/{user}', [UserController::class, 'update']);
     Route::post('posts/{post}/vote', [VoteController::class, 'vote']);
-    Route::get('posts/{post}/myvote', [VoteController::class, 'myVote']);
     Route::post('logout', [UserController::class, 'logout']);
     Route::get('threads/{thread}/members', [ThreadUserController::class, 'index']);
     Route::patch('threads/{thread}/members/{user}', [ThreadUserController::class, 'assignRole'])->middleware('can:updateRole,thread');

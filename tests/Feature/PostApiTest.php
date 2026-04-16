@@ -41,6 +41,7 @@ describe('Creating a new post inside of a thread', function () {
         $response->assertStatus(201)
             ->assertJson([
                 'content' => $validData['content'],
+                'is_mine' => true,
             ]);
     })->with('valid_post_data');
 
@@ -139,7 +140,7 @@ describe('Post deletion', function () {
 
         $response->assertStatus(200);
 
-        dbMissing();
+        dbMissing('[deleted]');
     });
 
     test('admin users can remove any post', function () {
@@ -157,7 +158,7 @@ describe('Post deletion', function () {
 
         $response->assertStatus(200);
 
-        dbMissing();
+        dbMissing('[removed]');
     });
 
     test('moderator users can remove any post', function () {
@@ -175,7 +176,7 @@ describe('Post deletion', function () {
 
         $response->assertStatus(200);
 
-        dbMissing();
+        dbMissing('[removed]');
     });
 
     test('users cannot delete other users posts', function () {
@@ -240,6 +241,25 @@ describe('Fetching a single post', function(){
                 'user' => (new UserResource($this->post->user))->resolve(),
                 'thread_id' => $this->post->thread_id,
                 'score' => 0,
+                'is_mine' => true,
+            ]);
+    });
+
+    test('authenticated members see is_mine as false for other users posts in the thread', function () {
+        $otherMember = User::factory()->create();
+        ThreadUser::create([
+            'thread_id' => $this->thread->id,
+            'user_id' => $otherMember->id,
+            'role_id' => 3,
+        ]);
+
+        $response = $this->actingAs($otherMember, 'sanctum')
+            ->getJson("/api/posts/{$this->post->id}");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'id' => $this->post->id,
+                'is_mine' => false,
             ]);
     });
 
@@ -269,11 +289,19 @@ describe('Fetching a single post', function(){
 function dbHas()
 {
     test()->assertDatabaseHas('posts', [
-        'id' => test()->thread->id,
+        'id' => test()->post->id,
     ]);
 }
 
-function dbMissing()
+function dbMissing(?string $expectedContent = null)
 {
-    test()->assertSoftDeleted('posts', ['id' => test()->post->id]);
+    $attributes = [
+        'id' => test()->post->id,
+    ];
+
+    if ($expectedContent !== null) {
+        $attributes['content'] = $expectedContent;
+    }
+
+    test()->assertDatabaseHas('posts', $attributes);
 }

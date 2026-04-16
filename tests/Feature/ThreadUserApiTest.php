@@ -144,14 +144,20 @@ describe('Listing the members of a thread', function () {
         $response = $this->actingAs($this->adminUser, 'sanctum')
             ->getJson("/api/threads/{$this->thread->id}/members");
 
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                '*' => ['id', 'name', 'email', 'role_id'],
+            ]);
     });
 
     test('Moderator members can see the list of the threads members', function () {
         $response = $this->actingAs($this->modUser, 'sanctum')
             ->getJson("/api/threads/{$this->thread->id}/members");
 
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                '*' => ['id', 'name', 'email', 'role_id'],
+            ]);
     });
 
     test('Regular members can see the list of the threads members', function () {
@@ -159,7 +165,10 @@ describe('Listing the members of a thread', function () {
         $response = $this->actingAs($this->user, 'sanctum')
             ->getJson("/api/threads/{$this->thread->id}/members");
 
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                '*' => ['id', 'name', 'email', 'role_id'],
+            ]);
     });
 
     test('Unauthenticated users cannot see the list of the threads members', function () {
@@ -289,6 +298,20 @@ describe('Banning users', function () {
 
         $response->assertStatus(200);
         dbHasUserRole(4);
+    })->with('valid_ban_data');
+
+    test('moderators cannot ban admins', function (array $data) {
+        $response = $this->actingAs($this->modUser, 'sanctum')
+            ->patchJson("/api/threads/{$this->thread->id}/members/{$this->adminUser->id}/ban", $data);
+
+        $response->assertStatus(403)
+            ->assertJsonFragment(['message' => 'You cannot ban an admin if you are a moderator.']);
+
+        $this->assertDatabaseHas('thread_user', [
+            'thread_id' => $this->thread->id,
+            'user_id'   => $this->adminUser->id,
+            'role_id'   => 1,
+        ]);
     })->with('valid_ban_data');
 
     test('regular users cannot ban users', function (array $data) {

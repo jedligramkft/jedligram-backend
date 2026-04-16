@@ -15,15 +15,14 @@ class ThreadUserController extends Controller
      */
     public function index(Thread $thread)
     {
-        $members = $thread->users()
-            ->withPivot('role_id')
-            ->withPostKarmaCounts()
-            ->orderBy('users.id', 'desc')
-            ->cursorPaginate(5);
+        $members = $thread->users()->withPivot('role_id')->withPostKarmaCounts()->get();
 
-        return UserResource::collection($members)
-            ->response()
-            ->setEncodingOptions(JSON_UNESCAPED_SLASHES);
+        return response()->json(
+            UserResource::collection($members),
+            200,
+            [],
+            JSON_UNESCAPED_SLASHES
+        );
     }
 
     /**

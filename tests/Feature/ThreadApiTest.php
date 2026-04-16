@@ -4,6 +4,7 @@ use App\Models\Post;
 use App\Models\Thread;
 use App\Models\ThreadUser;
 use App\Models\User;
+use App\Models\Vote;
 use Database\Seeders\ProductionDataSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -19,7 +20,10 @@ test('it can fetch a list of all threads', function () {
     $response = $this->getJson('/api/threads');
 
     $response->assertStatus(200)
-        ->assertJsonCount(3);
+        ->assertJsonCount(Thread::count())
+        ->assertJsonStructure([
+            '*' => ['id', 'name', 'description', 'rules']
+        ]);
 });
 
 describe('Viewing the details of a thread', function () {
@@ -88,6 +92,32 @@ describe('Viewing the details of a thread', function () {
         $response = $this->actingAs($user, 'sanctum')->getJson("/api/threads/999");
         $response->assertStatus(404);
     });
+
+    test('authenticated members see my_role as role name', function () {
+        $thread = Thread::factory()->create();
+        $user = User::factory()->create();
+
+        ThreadUser::create([
+            'thread_id' => $thread->id,
+            'user_id' => $user->id,
+            'role_id' => 2,
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')->getJson("/api/threads/{$thread->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('my_role', 'moderator');
+    });
+
+    test('authenticated non members see my_role as null', function () {
+        $thread = Thread::factory()->create();
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')->getJson("/api/threads/{$thread->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('my_role', null);
+    });
 });
 
 describe('Viewing the posts of a thread', function () {
@@ -154,6 +184,107 @@ describe('Viewing the posts of a thread', function () {
         $response = $this->actingAs($user, 'sanctum')->getJson("/api/threads/999/posts");
 
         $response->assertStatus(404);
+    });
+});
+
+describe('Viewing the posts of a thread includes my_vote', function () {
+    test('my_vote is true when authenticated user upvoted', function () {
+        $author = User::factory()->create();
+        $viewer = User::factory()->create();
+        $thread = Thread::factory()->create();
+
+        ThreadUser::create([
+            'thread_id' => $thread->id,
+            'user_id' => $author->id,
+            'role_id' => 3,
+        ]);
+
+        ThreadUser::create([
+            'thread_id' => $thread->id,
+            'user_id' => $viewer->id,
+            'role_id' => 3,
+        ]);
+
+        $post = Post::factory()->create([
+            'thread_id' => $thread->id,
+            'user_id' => $author->id,
+        ]);
+
+        Vote::create([
+            'post_id' => $post->id,
+            'user_id' => $viewer->id,
+            'is_upvote' => true,
+        ]);
+
+        $response = $this->actingAs($viewer, 'sanctum')->getJson("/api/threads/{$thread->id}/posts");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('0.id', $post->id)
+            ->assertJsonPath('0.my_vote', true);
+    });
+
+    test('my_vote is false when authenticated user downvoted', function () {
+        $author = User::factory()->create();
+        $viewer = User::factory()->create();
+        $thread = Thread::factory()->create();
+
+        ThreadUser::create([
+            'thread_id' => $thread->id,
+            'user_id' => $author->id,
+            'role_id' => 3,
+        ]);
+
+        ThreadUser::create([
+            'thread_id' => $thread->id,
+            'user_id' => $viewer->id,
+            'role_id' => 3,
+        ]);
+
+        $post = Post::factory()->create([
+            'thread_id' => $thread->id,
+            'user_id' => $author->id,
+        ]);
+
+        Vote::create([
+            'post_id' => $post->id,
+            'user_id' => $viewer->id,
+            'is_upvote' => false,
+        ]);
+
+        $response = $this->actingAs($viewer, 'sanctum')->getJson("/api/threads/{$thread->id}/posts");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('0.id', $post->id)
+            ->assertJsonPath('0.my_vote', false);
+    });
+
+    test('my_vote is null when authenticated user has not voted', function () {
+        $author = User::factory()->create();
+        $viewer = User::factory()->create();
+        $thread = Thread::factory()->create();
+
+        ThreadUser::create([
+            'thread_id' => $thread->id,
+            'user_id' => $author->id,
+            'role_id' => 3,
+        ]);
+
+        ThreadUser::create([
+            'thread_id' => $thread->id,
+            'user_id' => $viewer->id,
+            'role_id' => 3,
+        ]);
+
+        $post = Post::factory()->create([
+            'thread_id' => $thread->id,
+            'user_id' => $author->id,
+        ]);
+
+        $response = $this->actingAs($viewer, 'sanctum')->getJson("/api/threads/{$thread->id}/posts");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('0.id', $post->id)
+            ->assertJsonPath('0.my_vote', null);
     });
 });
 

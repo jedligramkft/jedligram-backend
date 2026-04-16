@@ -19,7 +19,7 @@ class CommentController extends Controller
             ->where('post_id', $post->id)
             ->with('user')
             ->withCount('children')
-            ->whereDepth('<', 2)
+            ->whereDepth('<', 3)
             ->get()
             ->toTree();
 
@@ -54,7 +54,7 @@ class CommentController extends Controller
     /**
      *  Delete comment or remove as moderator.
      */
-    public function destroy(Comment $comment, Post $post, Request $request)
+    public function destroy(Post $post, Comment $comment, Request $request)
     {
         // Ensure the comment belongs to the specified post context
         if ($comment->post_id !== $post->id) {

@@ -20,16 +20,13 @@ class ThreadController extends Controller
     public function index(Request $request)
     {
         if ($request->filled('search')) {
-            $threads = Thread::search($request->input('search'))
-                ->query(fn($query) => $query->withCount('users'))
-                ->cursorPaginate(6);
-
-            return ThreadResource::collection($threads);
+            $threads = Thread::search($request->input('search'))->get();
+            if ($threads->isNotEmpty()) {
+                return response()->json(ThreadResource::collection($threads->loadCount('users')), 200, [], JSON_UNESCAPED_SLASHES);
+            }
         }
-
-        $allthreads = Thread::withCount('users')->cursorPaginate(6);
-
-        return ThreadResource::collection($allthreads);
+        $allthreads = Thread::withCount('users')->get();
+        return response()->json(ThreadResource::collection($allthreads), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**
@@ -58,9 +55,15 @@ class ThreadController extends Controller
     /**
      * Get thread details, including member count.
      */
-    public function show(Thread $thread)
+    public function show(Thread $thread, Request $request)
     {
-        return response()->json(ThreadResource::make($thread->loadCount('users')), 200, [], JSON_UNESCAPED_SLASHES);
+        $thread = Thread::query()
+            ->whereKey($thread->id)
+            ->withCount('users')
+            ->withMembershipForUser($request->user()?->id)
+            ->firstOrFail();
+
+        return response()->json(ThreadResource::make($thread), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**
@@ -68,12 +71,12 @@ class ThreadController extends Controller
      */
     public function postsOfThread(Thread $thread, Request $request)
     {
-        $posts = $thread->posts()->withCount(['upvotes', 'downvotes'])->when($request->query('sort') === 'trending', function ($query) {
+        $posts = $thread->posts()->with('user')->withCount(['upvotes', 'downvotes'])->withMyVote()->when($request->query('sort') === 'trending', function ($query) {
             return $query->orderByRaw('(upvotes_count - downvotes_count) / (TIMESTAMPDIFF(HOUR, created_at, NOW()) + 2) DESC');
         }, function ($query) {
             return $query->latest();
-        })->simplePaginate(2);
-        return PostResource::collection($posts)->response()->setEncodingOptions(JSON_UNESCAPED_SLASHES);
+        })->get();
+        return response()->json(PostResource::collection($posts), 200, [], JSON_UNESCAPED_SLASHES);
     }
 
     /**

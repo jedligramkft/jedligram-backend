@@ -29,6 +29,11 @@ class ThreadPolicy
         return $thread->isMember($user);
     }
 
+    public function viewPosts(User $user, Thread $thread): bool
+    {
+        return ! $user->hasThreadRole($thread->id, [4]);
+    }
+
     /**
      * Determine whether the user can create models.
      */
@@ -55,7 +60,9 @@ class ThreadPolicy
         if ($user->id === $model->id) {
             return Response::deny('You cannot ban yourself.');
         }
-
+        if ($user->hasThreadRole($thread->id, [2]) && $model->hasThreadRole($thread->id, [1])) {
+            return Response::deny('You cannot ban an admin if you are a moderator.');
+        }
         if (! $user->hasThreadRole($thread->id, [1, 2])) {
             return Response::deny('You must be an admin or moderator in this thread.');
         }
