@@ -69,11 +69,6 @@ class Post extends Model
         return $this->hasMany(Vote::class);
     }
 
-    public function userVote()
-    {
-        return $this->hasOne(Vote::class)->where('user_id', Auth::id());
-    }
-
     public function upvotes()
     {
         return $this->votes()->where('is_upvote', true);
@@ -86,20 +81,17 @@ class Post extends Model
 
     public function myVote()
     {
-        return $this->hasOne(Vote::class);
+        return $this->hasOne(Vote::class)->where('user_id', Auth::id());
     }
 
-    public function scopeWithMyVote(Builder $query, ?int $userId = null): Builder
+    public function scopeWithMyVote(Builder $query): Builder
     {
-        $userId ??= auth()->id();
-
-        if (!$userId) {
+        if (!auth()->check()) {
             return $query;
         }
 
         return $query->with([
             'myVote' => fn($q) => $q
-                ->where('user_id', $userId)
                 ->select(['id', 'post_id', 'is_upvote']),
         ]);
     }
