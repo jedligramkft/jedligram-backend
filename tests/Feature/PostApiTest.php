@@ -140,7 +140,7 @@ describe('Post deletion', function () {
 
         $response->assertStatus(200);
 
-        dbMissing();
+        dbMissing('[deleted]');
     });
 
     test('admin users can remove any post', function () {
@@ -158,7 +158,7 @@ describe('Post deletion', function () {
 
         $response->assertStatus(200);
 
-        dbMissing();
+        dbMissing('[removed]');
     });
 
     test('moderator users can remove any post', function () {
@@ -176,7 +176,7 @@ describe('Post deletion', function () {
 
         $response->assertStatus(200);
 
-        dbMissing();
+        dbMissing('[removed]');
     });
 
     test('users cannot delete other users posts', function () {
@@ -289,11 +289,19 @@ describe('Fetching a single post', function(){
 function dbHas()
 {
     test()->assertDatabaseHas('posts', [
-        'id' => test()->thread->id,
+        'id' => test()->post->id,
     ]);
 }
 
-function dbMissing()
+function dbMissing(?string $expectedContent = null)
 {
-    test()->assertSoftDeleted('posts', ['id' => test()->post->id]);
+    $attributes = [
+        'id' => test()->post->id,
+    ];
+
+    if ($expectedContent !== null) {
+        $attributes['content'] = $expectedContent;
+    }
+
+    test()->assertDatabaseHas('posts', $attributes);
 }
