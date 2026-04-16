@@ -48,12 +48,15 @@ class ProductionDataSeeder extends Seeder
             );
         }
 
+        $profileImage = $this->resolveSeedAssetPath('header/ebedlo_profil.gif', 'images/ebedlo_profil.gif');
+        $headerImage = $this->resolveSeedAssetPath('header/ebedlo_header.jpg', 'images/ebedlo_header.jpg');
+
         Thread::create([
             'name' => 'Ebédlő',
             'description' => 'Minden nap reggel hat órakkor az aznapi eatrendes kaja felkerül ide, és itt lehet megbeszélni, hogy mennyire jó vagy rossz az aznapi menü.',
             'rules' => 'A szabályok ugyanazok, mint a fórum többi részén, de kérjük, hogy csak az aznapi menüre vonatkozó hozzászólások legyenek itt.',
-            'image' => 'images/ebedlo_profil.gif',
-            'header' => 'images/ebedlo_header.jpg',
+            'image' => $profileImage,
+            'header' => $headerImage,
         ]);
 
         if (User::count() > 0 && Thread::count() > 0) {
@@ -100,5 +103,18 @@ class ProductionDataSeeder extends Seeder
         }
 
         return $codedUsers;
+    }
+
+    private function resolveSeedAssetPath(string $storageRelativePath, string $publicRelativePath): string
+    {
+        if (file_exists(public_path($publicRelativePath))) {
+            return $publicRelativePath;
+        }
+
+        if (file_exists(storage_path('app/public/' . $storageRelativePath))) {
+            return $storageRelativePath;
+        }
+
+        return $publicRelativePath;
     }
 }
