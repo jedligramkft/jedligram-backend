@@ -26,7 +26,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // FIXED WITH TDD
     Route::delete('posts/{post}', [PostController::class, 'destroy'])->middleware('can:delete,post');
     Route::get('posts/{post}', [PostController::class, 'show'])->middleware('can:view,post');
-    Route::get('posts/{post}/comments', [CommentController::class, 'index']);
+    Route::get('posts/{post}/comments', [CommentController::class, 'index'])->middleware('can:viewComments,post');
     Route::delete('posts/{post}/comments/{comment}', [CommentController::class, 'destroy'])->middleware('can:delete,comment');
     Route::get('comments/{comment}/replies', [CommentController::class, 'replies']);
     Route::put('users/{user}', [UserController::class, 'update']);
