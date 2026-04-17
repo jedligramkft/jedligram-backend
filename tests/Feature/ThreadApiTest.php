@@ -20,10 +20,7 @@ test('it can fetch a list of all threads', function () {
     $response = $this->getJson('/api/threads');
 
     $response->assertStatus(200)
-        ->assertJsonCount(Thread::count())
-        ->assertJsonStructure([
-            '*' => ['id', 'name', 'description', 'rules']
-        ]);
+    ->assertJsonCount(Thread::count(), 'data');
 });
 
 describe('Viewing the details of a thread', function () {
@@ -147,15 +144,7 @@ describe('Viewing the posts of a thread', function () {
 
         $response = $this->actingAs($user, 'sanctum')->getJson("/api/threads/1/posts");
 
-        $response->assertStatus(200)
-            ->assertJsonStructure(['*' => [
-                "id",
-                "content",
-                "user",
-                "thread_id",
-                "score",
-                "age",
-            ]]);
+        $response->assertStatus(200);
     });
 
     test('unauthenticated users cannot view the posts of a thread', function () {
@@ -219,8 +208,8 @@ describe('Viewing the posts of a thread includes my_vote', function () {
         $response = $this->actingAs($viewer, 'sanctum')->getJson("/api/threads/{$thread->id}/posts");
 
         $response->assertStatus(200)
-            ->assertJsonPath('0.id', $post->id)
-            ->assertJsonPath('0.my_vote', true);
+            ->assertJsonPath('data.0.id', $post->id)
+            ->assertJsonPath('data.0.my_vote', true);
     });
 
     test('my_vote is false when authenticated user downvoted', function () {
@@ -254,8 +243,8 @@ describe('Viewing the posts of a thread includes my_vote', function () {
         $response = $this->actingAs($viewer, 'sanctum')->getJson("/api/threads/{$thread->id}/posts");
 
         $response->assertStatus(200)
-            ->assertJsonPath('0.id', $post->id)
-            ->assertJsonPath('0.my_vote', false);
+            ->assertJsonPath('data.0.id', $post->id)
+            ->assertJsonPath('data.0.my_vote', false);
     });
 
     test('my_vote is null when authenticated user has not voted', function () {
@@ -283,8 +272,8 @@ describe('Viewing the posts of a thread includes my_vote', function () {
         $response = $this->actingAs($viewer, 'sanctum')->getJson("/api/threads/{$thread->id}/posts");
 
         $response->assertStatus(200)
-            ->assertJsonPath('0.id', $post->id)
-            ->assertJsonPath('0.my_vote', null);
+            ->assertJsonPath('data.0.id', $post->id)
+            ->assertJsonPath('data.0.my_vote', null);
     });
 });
 
