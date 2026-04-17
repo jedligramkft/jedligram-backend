@@ -19,7 +19,7 @@ class ThreadUserController extends Controller
             ->withPivot('role_id')
             ->withPostKarmaCounts()
             ->orderBy('users.id', 'desc')
-            ->simplePaginate(5);
+            ->paginate(5);
         return UserResource::collection($members)
             ->response()
             ->setEncodingOptions(JSON_UNESCAPED_SLASHES);

@@ -22,11 +22,11 @@ class ThreadController extends Controller
         if ($request->filled('search')) {
             $threads = Thread::search($request->input('search'))
                 ->query(fn($query) => $query->withCount('users'))
-                ->simplePaginate(6);
+                ->paginate(6);
 
             return ThreadResource::collection($threads)->response()->setEncodingOptions(JSON_UNESCAPED_SLASHES);
         }
-        $allthreads = Thread::withCount('users')->simplePaginate(6);
+        $allthreads = Thread::withCount('users')->paginate(6);
         return ThreadResource::collection($allthreads)->response()->setEncodingOptions(JSON_UNESCAPED_SLASHES);
     }
 
@@ -76,7 +76,7 @@ class ThreadController extends Controller
             return $query->orderByRaw('(upvotes_count - downvotes_count) / (TIMESTAMPDIFF(HOUR, created_at, NOW()) + 2) DESC');
         }, function ($query) {
             return $query->latest();
-        })->simplePaginate(2);
+        })->paginate(2);
         return PostResource::collection($posts)->response()->setEncodingOptions(JSON_UNESCAPED_SLASHES);
     }
 
