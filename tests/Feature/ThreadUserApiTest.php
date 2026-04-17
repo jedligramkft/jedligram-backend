@@ -146,7 +146,9 @@ describe('Listing the members of a thread', function () {
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                '*' => ['id', 'name', 'email', 'role_id'],
+                'data' => [
+                    '*' => ['id', 'name', 'email', 'role_id'],
+                ],
             ]);
     });
 
@@ -156,7 +158,9 @@ describe('Listing the members of a thread', function () {
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                '*' => ['id', 'name', 'email', 'role_id'],
+                'data' => [
+                    '*' => ['id', 'name', 'email', 'role_id'],
+                ],
             ]);
     });
 
@@ -167,7 +171,9 @@ describe('Listing the members of a thread', function () {
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                '*' => ['id', 'name', 'email', 'role_id'],
+                'data' => [
+                    '*' => ['id', 'name', 'email', 'role_id'],
+                ],
             ]);
     });
 
