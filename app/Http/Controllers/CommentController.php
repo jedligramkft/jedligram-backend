@@ -31,7 +31,7 @@ class CommentController extends Controller
      */
     public function replies(Comment $comment)
     {
-        $replies = $comment->descendants()->with('user')->withCount('children')->get()->toTree();
+        $replies = $comment->descendants()->with('user')->withCount('children')->whereDepth('<', 2)->get()->toTree();
         return response()->json(CommentResource::collection($replies), 200, [], JSON_UNESCAPED_SLASHES);
     }
 

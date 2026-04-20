@@ -21,7 +21,7 @@ class ThreadResource extends JsonResource
             'rules' => $this->rules,
             'users_count' => $this->whenCounted('users'),
             'my_role' => $this->when($this->relationLoaded('membership'), function () {
-                return $this->membership?->role?->name;
+                return $this->membership?->role_id;
             }),
             'image' => $this->resolveImageUrl($this->image),
             'header' => $this->resolveImageUrl($this->header)

@@ -90,7 +90,7 @@ describe('Viewing the details of a thread', function () {
         $response->assertStatus(404);
     });
 
-    test('authenticated members see my_role as role name', function () {
+    test('authenticated members see my_role as role id', function () {
         $thread = Thread::factory()->create();
         $user = User::factory()->create();
 
@@ -103,7 +103,7 @@ describe('Viewing the details of a thread', function () {
         $response = $this->actingAs($user, 'sanctum')->getJson("/api/threads/{$thread->id}");
 
         $response->assertStatus(200)
-            ->assertJsonPath('my_role', 'moderator');
+            ->assertJsonPath('my_role', 2);
     });
 
     test('authenticated non members see my_role as null', function () {
