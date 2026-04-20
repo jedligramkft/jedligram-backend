@@ -84,7 +84,7 @@ class UserController extends Controller
                     'error' => $exception->getMessage(),
                 ]);
 
-                return response()->json(['message' => 'Failed to send login verification email: ' . $exception->getMessage()], 500);
+                return response()->json(['message' => 'Failed to send login verification email: ' . $exception->getMessage()], 400);
             }
         }
 

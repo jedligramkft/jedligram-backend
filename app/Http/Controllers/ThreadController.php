@@ -76,7 +76,7 @@ class ThreadController extends Controller
             return $query->orderByRaw('(upvotes_count - downvotes_count) / (TIMESTAMPDIFF(HOUR, created_at, NOW()) + 2) DESC');
         }, function ($query) {
             return $query->latest();
-        })->paginate(2);
+        })->paginate(1);
         return PostResource::collection($posts)->response()->setEncodingOptions(JSON_UNESCAPED_SLASHES);
     }
 
